@@ -1,0 +1,155 @@
+/* =============================================
+   CSS OVERRIDE FIX - Add to top of theme.css
+   ============================================= */
+
+/* 1. Force Consistent Background */
+html, body {
+  background: transparent !important;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* 2. App Wrapper Background */
+.app-wrapper {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* 3. Navigation Override */
+nav {
+  background: transparent !important;
+  backdrop-filter: blur(12px);
+}
+
+/* 4. Prevent Laravel Default Styling Conflicts */
+.bg-gray-50,
+.bg-gray-100,
+.bg-gray-200,
+.bg-gray-800,
+.bg-gray-900 {
+  background: transparent !important;
+}
+
+/* 5. Navigation Specific Overrides */
+nav .bg-gray-800 {
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 6. Dropdown Overrides */
+nav .bg-gray-700 {
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 7. Text Color Overrides in Navigation */
+nav .text-gray-100,
+nav .text-gray-200,
+nav .text-gray-300 {
+  color: white !important;
+}
+
+/* 8. Hover States Override */
+nav .hover\:text-white:hover,
+nav .hover\:bg-gray-600:hover,
+nav .hover\:bg-gray-700:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+
+/* 9. Border Overrides */
+nav .border-gray-600,
+nav .border-gray-700 {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* 10. Responsive Menu Override */
+nav .bg-gray-800.sm\:hidden {
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(12px);
+}
+
+/* 11. Focus States Override */
+nav button:focus,
+nav a:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5) !important;
+}
+
+/* 12. SVG Icon Colors */
+nav svg {
+  fill: white !important;
+  color: white !important;
+}
+
+/* 13. Ensure z-index hierarchy */
+nav {
+  z-index: 1000 !important;
+  position: relative;
+}
+
+/* 14. Header Override */
+header {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* 15. Main Content Override */
+main {
+  background: transparent !important;
+}
+
+/* 16. Prevent any white backgrounds */
+.bg-white {
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 17. Form Elements Override */
+input, select, textarea {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: white !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* 18. Button Overrides */
+.btn, button {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: white !important;
+}
+
+.btn:hover, button:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* 19. Card Overrides */
+.card {
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 20. Ensure animations work */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* =============================================
+   END CSS OVERRIDE FIX
+   ============================================= */
