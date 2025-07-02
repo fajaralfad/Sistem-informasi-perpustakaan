@@ -15,25 +15,58 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
         
-        // Statistik Pribadi Member - perbaikan query
+        // Statistik Pribadi Member - perbaikan query berdasarkan status yang tepat
         $stats = [
-            'sedang_dipinjam' => Peminjaman::where('user_id', $user->id)
-                ->where('status', 'dipinjam')
+            // Booking yang masih pending (menunggu konfirmasi admin)
+            'booking_pending' => Peminjaman::where('user_id', $user->id)
+                ->where('status', Peminjaman::STATUS_PENDING)
                 ->count(),
+            
+            // Booking yang sudah disetujui (ready untuk diambil)
+            'booking_disetujui' => Peminjaman::where('user_id', $user->id)
+                ->where('status', Peminjaman::STATUS_BOOKING)
+                ->count(),
+            
+            // Buku yang sedang dipinjam (di tangan user)
+            'sedang_dipinjam' => Peminjaman::where('user_id', $user->id)
+                ->where('status', Peminjaman::STATUS_DIPINJAM)
+                ->count(),
+            
+            // Total semua peminjaman yang sudah selesai (dikembalikan)
+            'total_selesai' => Peminjaman::where('user_id', $user->id)
+                ->whereIn('status', [Peminjaman::STATUS_DIKEMBALIKAN, Peminjaman::STATUS_TERLAMBAT])
+                ->whereNotNull('tanggal_pengembalian')
+                ->count(),
+            
+            // Total seluruh peminjaman (untuk riwayat)
             'total_peminjaman' => Peminjaman::where('user_id', $user->id)->count(),
+            
+            // Denda yang belum dibayar
             'denda_aktif' => Denda::whereHas('peminjaman', function($query) use ($user) {
                 $query->where('user_id', $user->id);
-            })->where('tanggal_bayar', null)->count(),
+            })->whereNull('tanggal_bayar')->count(),
+            
+            // Buku terlambat (masih dipinjam tapi sudah lewat tanggal kembali)
             'terlambat' => Peminjaman::where('user_id', $user->id)
-                ->where('status', 'dipinjam')
+                ->where('status', Peminjaman::STATUS_DIPINJAM)
                 ->where('tanggal_kembali', '<', now())
-                ->count()
+                ->count(),
+            
+            // Total nominal denda yang belum dibayar
+            'total_denda_nominal' => Denda::whereHas('peminjaman', function($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })->whereNull('tanggal_bayar')->sum('jumlah') ?? 0
         ];
 
-        // Peminjaman Aktif dengan detail
+        // Peminjaman Aktif dengan detail (termasuk booking dan dipinjam)
         $peminjaman_aktif = Peminjaman::with(['buku', 'buku.pengarang'])
             ->where('user_id', $user->id)
-            ->where('status', 'dipinjam')
+            ->whereIn('status', [
+                Peminjaman::STATUS_PENDING,
+                Peminjaman::STATUS_BOOKING, 
+                Peminjaman::STATUS_DIPINJAM
+            ])
+            ->orderByRaw("FIELD(status, 'terlambat', 'dipinjam', 'booking', 'pending')")
             ->orderBy('tanggal_kembali', 'asc')
             ->get();
 
@@ -42,7 +75,7 @@ class DashboardController extends Controller
             ->whereHas('peminjaman', function($query) use ($user) {
                 $query->where('user_id', $user->id);
             })
-            ->where('tanggal_bayar', null)
+            ->whereNull('tanggal_bayar')
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -53,14 +86,14 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // Rekomendasi Buku (buku populer yang belum dipinjam user ini)
+        // Rekomendasi Buku (buku populer yang belum pernah dipinjam user ini)
+        $buku_yang_pernah_dipinjam = Peminjaman::where('user_id', $user->id)
+            ->pluck('buku_id')
+            ->toArray();
+
         $buku_rekomendasi = Buku::with(['pengarang', 'kategori'])
             ->withCount('peminjamans')
-            ->whereNotIn('id', function($query) use ($user) {
-                $query->select('buku_id')
-                    ->from('peminjamans')
-                    ->where('user_id', $user->id);
-            })
+            ->whereNotIn('id', $buku_yang_pernah_dipinjam)
             ->where('stok', '>', 0)
             ->orderBy('peminjamans_count', 'desc')
             ->take(6)
@@ -105,32 +138,46 @@ class DashboardController extends Controller
     }
 
     /**
-     * Get quick stats for dashboard widgets
+     * Get quick stats for dashboard widgets (untuk AJAX refresh)
      */
     public function quickStats()
     {
         $user = auth()->user();
 
         $stats = [
-            'sedang_dipinjam' => Peminjaman::where('user_id', $user->id)
-                ->where('status', 'dipinjam')
+            'booking_pending' => Peminjaman::where('user_id', $user->id)
+                ->where('status', Peminjaman::STATUS_PENDING)
                 ->count(),
+            
+            'booking_disetujui' => Peminjaman::where('user_id', $user->id)
+                ->where('status', Peminjaman::STATUS_BOOKING)
+                ->count(),
+            
+            'sedang_dipinjam' => Peminjaman::where('user_id', $user->id)
+                ->where('status', Peminjaman::STATUS_DIPINJAM)
+                ->count(),
+            
+            'total_selesai' => Peminjaman::where('user_id', $user->id)
+                ->whereIn('status', [Peminjaman::STATUS_DIKEMBALIKAN, Peminjaman::STATUS_TERLAMBAT])
+                ->whereNotNull('tanggal_pengembalian')
+                ->count(),
+            
             'total_peminjaman' => Peminjaman::where('user_id', $user->id)->count(),
+            
             'denda_aktif' => Denda::whereHas('peminjaman', function($query) use ($user) {
                 $query->where('user_id', $user->id);
-            })->where('tanggal_bayar', null)->count(),
+            })->whereNull('tanggal_bayar')->count(),
+            
             'terlambat' => Peminjaman::where('user_id', $user->id)
-                ->where('status', 'dipinjam')
+                ->where('status', Peminjaman::STATUS_DIPINJAM)
                 ->where('tanggal_kembali', '<', now())
                 ->count(),
+            
             'total_denda_nominal' => Denda::whereHas('peminjaman', function($query) use ($user) {
                 $query->where('user_id', $user->id);
-            })->where('tanggal_bayar', null)->sum('jumlah')
-            
+            })->whereNull('tanggal_bayar')->sum('jumlah') ?? 0
         ];
 
         return response()->json($stats);
     }
-
-    
 }
