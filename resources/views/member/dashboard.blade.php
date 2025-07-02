@@ -113,7 +113,7 @@
         <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-indigo-500">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600">Total Peminjaman</p>
+                    <p class="text-sm font-medium text-gray-600">Total Aktivitas</p>
                     <p class="text-2xl font-bold text-gray-900" data-stat="total_peminjaman">{{ $stats['total_peminjaman'] }}</p>
                     <p class="text-xs text-gray-500 mt-1">Sepanjang waktu</p>
                 </div>
