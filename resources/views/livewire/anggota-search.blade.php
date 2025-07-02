@@ -155,19 +155,8 @@
                                         </svg>
                                     </a>
                                     
-                                    <!-- Tombol Cetak Kartu -->
-                                    <a href="{{ route('admin.anggota.cetak-kartu', $user) }}" 
-                                       class="text-blue-600 hover:text-blue-900 transition-colors duration-200"
-                                       title="Cetak Kartu Anggota"
-                                       target="_blank">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-                                        </svg>
-                                    </a>
-                                    
-                                    <!-- Tombol Hapus -->
-                                    <button wire:click="deleteAnggota({{ $user->id }})"
-                                            wire:confirm="Apakah Anda yakin ingin menghapus anggota {{ $user->name }}? Tindakan ini tidak dapat dibatalkan."
+                                    <!-- Tombol Hapus dengan SweetAlert Confirmation -->
+                                    <button wire:click="deleteConfirmation({{ $user->id }})"
                                             class="text-red-600 hover:text-red-900 transition-colors duration-200"
                                             title="Hapus Anggota">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -300,4 +289,49 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('livewire:initialized', () => {
+        // Konfirmasi penghapusan
+        Livewire.on('confirm-delete', (event) => {
+            Swal.fire({
+                title: 'Konfirmasi Penghapusan',
+                text: "Apakah Anda yakin ingin menghapus anggota ini?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Livewire.dispatch('delete-anggota', {userId: event.userId});
+                }
+            });
+        });
+
+        // Tampilkan error
+        Livewire.on('show-delete-error', (event) => {
+            Swal.fire({
+                title: 'Tidak Dapat Dihapus',
+                text: event.message, // Gunakan text bukan html
+                icon: 'error',
+                confirmButtonText: 'Mengerti'
+            });
+        });
+
+        // Tampilkan sukses
+        Livewire.on('show-delete-success', (event) => {
+            Swal.fire({
+                title: 'Berhasil!',
+                text: event.message,
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+        });
+    });
+</script>
+@endpush
 </div>

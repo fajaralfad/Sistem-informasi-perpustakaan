@@ -3,6 +3,8 @@
 namespace App\Livewire;
 
 use App\Models\User;
+use App\Models\Peminjaman;
+use App\Models\Denda;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -34,31 +36,100 @@ class AnggotaSearch extends Component
         $this->resetPage();
     }
 
+    public function deleteConfirmation($userId)
+    {
+        $user = User::findOrFail($userId);
+        
+        $validation = $this->validateMemberForDeletion($user);
+        
+        if (!$validation['can_delete']) {
+            $this->dispatch('show-delete-error', message: $validation['message']);
+            return;
+        }
+
+        $this->dispatch('confirm-delete', userId: $userId);
+    }
+
+    
     public function deleteAnggota($userId)
     {
         try {
             $user = User::findOrFail($userId);
             
-            // PERBAIKAN: Pastikan hanya anggota yang bisa dihapus
-            if ($user->role !== 'anggota') {
-                session()->flash('error', 'Hanya anggota yang dapat dihapus melalui halaman ini.');
+            $validation = $this->validateMemberForDeletion($user);
+            
+            if (!$validation['can_delete']) {
+                $this->dispatch('show-delete-error', message: $validation['message']);
                 return;
             }
-            
+
             $userName = $user->name;
             $user->delete();
             
-            session()->flash('success', "Anggota {$userName} berhasil dihapus.");
+            $this->dispatch('show-delete-success', message: "Anggota {$userName} berhasil dihapus.");
         } catch (\Exception $e) {
-            session()->flash('error', 'Terjadi kesalahan saat menghapus anggota.');
+            $this->dispatch('show-delete-error', message: 'Terjadi kesalahan saat menghapus anggota: ' . $e->getMessage());
         }
+    }
+
+    private function validateMemberForDeletion(User $user)
+    {
+        // Validasi 1: Cek peminjaman aktif
+        $peminjamanAktif = Peminjaman::where('user_id', $user->id)
+            ->whereIn('status', [
+                Peminjaman::STATUS_PENDING,
+                Peminjaman::STATUS_BOOKING, 
+                Peminjaman::STATUS_DIPINJAM,
+                Peminjaman::STATUS_TERLAMBAT
+            ])
+            ->count();
+
+        // Validasi 2: Cek denda belum lunas
+        $dendaBelumLunas = Denda::whereHas('peminjaman', function($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->where('status_pembayaran', false)
+            ->count();
+
+        // Validasi 3: Cek peminjaman dalam proses pengembalian
+        $peminjamanProses = Peminjaman::where('user_id', $user->id)
+            ->where('status', Peminjaman::STATUS_TERLAMBAT)
+            ->whereHas('denda', function($query) {
+                $query->where('status_pembayaran', true);
+            })
+            ->whereNull('tanggal_pengembalian')
+            ->count();
+
+        $canDelete = ($peminjamanAktif === 0 && $dendaBelumLunas === 0 && $peminjamanProses === 0);
+        
+        $messages = [];
+        if ($peminjamanAktif > 0) {
+            $messages[] = "{$peminjamanAktif} peminjaman aktif";
+        }
+        if ($dendaBelumLunas > 0) {
+            $totalDenda = Denda::whereHas('peminjaman', function($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                })
+                ->where('status_pembayaran', false)
+                ->sum('jumlah');
+            $messages[] = "{$dendaBelumLunas} denda belum lunas (Rp " . number_format($totalDenda, 0, ',', '.') . ")";
+        }
+        if ($peminjamanProses > 0) {
+            $messages[] = "{$peminjamanProses} peminjaman dalam proses pengembalian";
+        }
+
+        return [
+        'can_delete' => $canDelete,
+        'message' => $canDelete 
+            ? 'Anggota dapat dihapus' 
+            : implode("\n", $messages), // Ubah format pesan menjadi plain text
+        ];
     }
 
     public function render()
     {
-        // PERBAIKAN: Filter hanya user dengan role 'anggota'
         $users = User::query()
-            ->where('role', 'anggota') // Filter hanya anggota
+            ->where('role', 'anggota')
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('name', 'like', '%' . $this->search . '%')
@@ -69,7 +140,6 @@ class AnggotaSearch extends Component
             ->orderBy('created_at', 'desc')
             ->paginate($this->perPage);
 
-        // PERBAIKAN: Statistics hanya untuk anggota
         $totalAnggota = User::where('role', 'anggota')->count();
         $terverifikasi = User::where('role', 'anggota')
             ->whereNotNull('email_verified_at')
