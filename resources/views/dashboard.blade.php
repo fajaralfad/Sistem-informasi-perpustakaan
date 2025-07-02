@@ -29,27 +29,15 @@
                 </div>
             </a>
 
-            <!-- Pengarang -->
-            <a href="{{ route('admin.pengarang.index') }}" class="nav-card-glass group">
+            <!-- Peminjaman -->
+            <a href="{{ route('admin.peminjaman.index') }}" class="nav-card-glass group">
                 <div class="flex flex-col items-center text-center p-4">
                     <div class="nav-icon-wrapper mb-3">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                     </div>
-                    <span class="text-sm font-medium text-white">Pengarang</span>
-                </div>
-            </a>
-
-            <!-- Kategori -->
-            <a href="{{ route('admin.kategori.index') }}" class="nav-card-glass group">
-                <div class="flex flex-col items-center text-center p-4">
-                    <div class="nav-icon-wrapper mb-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                        </svg>
-                    </div>
-                    <span class="text-sm font-medium text-white">Kategori</span>
+                    <span class="text-sm font-medium text-white">Peminjaman</span>
                 </div>
             </a>
 
@@ -65,18 +53,6 @@
                 </div>
             </a>
 
-            <!-- Peminjaman -->
-            <a href="{{ route('admin.peminjaman.index') }}" class="nav-card-glass group">
-                <div class="flex flex-col items-center text-center p-4">
-                    <div class="nav-icon-wrapper mb-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                    </div>
-                    <span class="text-sm font-medium text-white">Peminjaman</span>
-                </div>
-            </a>
-
             <!-- Denda -->
             <a href="{{ route('admin.denda.index') }}" class="nav-card-glass group">
                 <div class="flex flex-col items-center text-center p-4">
@@ -86,6 +62,31 @@
                         </svg>
                     </div>
                     <span class="text-sm font-medium text-white">Denda</span>
+                </div>
+            </a>
+
+            <!-- Konfirmasi Peminjaman -->
+            <a href="{{ route('admin.peminjaman.index', ['status' => 'pending']) }}" class="nav-card-glass group">
+                <div class="flex flex-col items-center text-center p-4">
+                    <div class="nav-icon-wrapper mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                    </div>
+                    <span class="text-sm font-medium text-white">Konfirmasi ({{ $peminjamanPending }})</span>
+                </div>
+            </a>
+
+            <!-- Aktivitas -->
+            <a href="{{ route('admin.aktivitas.index') }}" class="nav-card-glass group">
+                <div class="flex flex-col items-center text-center p-4">
+                    <div class="nav-icon-wrapper mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </div>
+                    <span class="text-sm font-medium text-white">Aktivitas</span>
                 </div>
             </a>
         </div>
@@ -123,7 +124,7 @@
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="text-sm font-medium text-white text-opacity-90">Total User</h3>
+                                <h3 class="text-sm font-medium text-white text-opacity-90">Total Anggota</h3>
                                 <p class="text-3xl font-bold text-white">{{ $totalUser }}</p>
                             </div>
                         </div>
@@ -194,50 +195,36 @@
             <div class="content-card-glass p-6">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-lg font-semibold text-white">Aktivitas Terkini</h2>
+                    <a href="{{ route('admin.aktivitas.index') }}" class="text-white text-opacity-70 hover:text-opacity-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                        </svg>
+                    </a>
                 </div>
-                <div class="activity-list space-y-4 max-h-80 overflow-y-auto">
+                <div class="activity-list space-y-4 max-h-80 overflow-y-auto pr-2">
                     @forelse($aktivitasTerkini as $aktivitas)
-                    <div class="activity-item flex items-start space-x-3 p-3 rounded-lg bg-white bg-opacity-5 hover:bg-opacity-10 transition-all duration-300">
-                        <div class="activity-icon flex-shrink-0">
-                            <div class="activity-icon-inner w-10 h-10 rounded-full flex items-center justify-center {{ 
-                                $aktivitas['type'] == 'peminjaman' ? 'bg-blue-500' : 
-                                ($aktivitas['type'] == 'pengembalian' ? 'bg-green-500' : 
-                                ($aktivitas['type'] == 'user' ? 'bg-purple-500' : 'bg-red-500')) 
-                            }}">
+                    <div class="activity-item flex items-start space-x-3 p-3 rounded-lg {{ $aktivitas['bgColor'] }} hover:bg-opacity-30 transition-all duration-300">
+                        <div class="activity-icon flex-shrink-0 mt-1">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center {{ $aktivitas['bgColor'] }}">
                                 {!! $aktivitas['icon'] !!}
                             </div>
                         </div>
                         <div class="activity-content flex-1 min-w-0">
                             <div class="flex items-center justify-between mb-1">
-                                <p class="text-sm font-medium text-white truncate">{{ $aktivitas['judul'] }}</p>
-                                <span class="activity-type-badge text-xs px-2 py-1 rounded-full {{ 
-                                    $aktivitas['type'] == 'peminjaman' ? 'bg-blue-500 bg-opacity-20 text-blue-200' : 
-                                    ($aktivitas['type'] == 'pengembalian' ? 'bg-green-500 bg-opacity-20 text-green-200' : 
-                                    ($aktivitas['type'] == 'user' ? 'bg-purple-500 bg-opacity-20 text-purple-200' : 'bg-red-500 bg-opacity-20 text-red-200')) 
-                                }}">
-                                    {{ ucfirst($aktivitas['type']) }}
-                                </span>
+                                <p class="text-sm font-medium text-white">{{ $aktivitas['judul'] }}</p>
+                                <span class="text-xs text-white text-opacity-70">{{ $aktivitas['waktu'] }}</span>
                             </div>
-                            <p class="text-sm text-white text-opacity-80 mb-1">{{ $aktivitas['deskripsi'] }}</p>
-                            <p class="text-xs text-white text-opacity-60">{{ $aktivitas['waktu'] }}</p>
+                            <p class="text-sm text-white text-opacity-80">{{ $aktivitas['deskripsi'] }}</p>
                         </div>
                     </div>
                     @empty
                     <div class="empty-state text-center py-8">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-white text-opacity-60 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                         </svg>
                         <p class="text-white text-opacity-70 text-sm">Belum ada aktivitas terkini</p>
                     </div>
                     @endforelse
-                    
-                    @if($aktivitasTerkini && $aktivitasTerkini->count() > 0)
-                    <div class="mt-6 pt-4 border-t border-white border-opacity-10">
-                        <a href="{{ route('admin.aktivitas.index') }}" class="dashboard-link block text-center text-white text-opacity-80 hover:text-opacity-100 transition-all duration-300">
-                            Lihat Semua Aktivitas →
-                        </a>
-                    </div>
-                    @endif
                 </div>
             </div>
         </div>
@@ -248,7 +235,12 @@
             <div class="content-card-glass p-6">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-lg font-semibold text-white">Buku Paling Populer</h2>
-                    <a href="{{ route('admin.buku.index') }}" class="dashboard-link text-white text-opacity-80 hover:text-opacity-100 transition-all duration-300">Lihat Semua</a>
+                    <a href="{{ route('admin.buku.index') }}" class="text-white text-opacity-70 hover:text-opacity-100 text-sm flex items-center">
+                        Lihat Semua
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
                 </div>
                 <div class="space-y-4">
                     @forelse($bukuPopuler as $buku)
@@ -258,7 +250,7 @@
                         </div>
                         <div class="ranking-content flex-1 min-w-0">
                             <p class="text-sm font-medium text-white truncate">{{ $buku->judul }}</p>
-                            <p class="text-sm text-white text-opacity-80">{{ $buku->pengarang->nama ?? 'Tidak diketahui' }}</p>
+                            <p class="text-xs text-white text-opacity-80">{{ $buku->pengarang->nama ?? 'Pengarang tidak diketahui' }}</p>
                         </div>
                         <div class="ml-4">
                             <span class="ranking-badge text-xs px-2 py-1 rounded-full bg-blue-500 bg-opacity-20 text-blue-200">
@@ -280,8 +272,13 @@
             <!-- User/Peminjam Aktif -->
             <div class="content-card-glass p-6">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-lg font-semibold text-white">User Paling Aktif</h2>
-                    <a href="{{ route('admin.anggota.index') }}" class="dashboard-link text-white text-opacity-80 hover:text-opacity-100 transition-all duration-300">Lihat Semua</a>
+                    <h2 class="text-lg font-semibold text-white">Anggota Paling Aktif</h2>
+                    <a href="{{ route('admin.anggota.index') }}" class="text-white text-opacity-70 hover:text-opacity-100 text-sm flex items-center">
+                        Lihat Semua
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
                 </div>
                 <div class="space-y-4">
                     @forelse($userAktif as $user)
@@ -291,11 +288,11 @@
                         </div>
                         <div class="ranking-content flex-1 min-w-0">
                             <p class="text-sm font-medium text-white truncate">{{ $user->name }}</p>
-                            <p class="text-sm text-white text-opacity-80">{{ $user->email }}</p>
+                            <p class="text-xs text-white text-opacity-80">{{ $user->email }}</p>
                         </div>
                         <div class="ml-4">
                             <span class="ranking-badge text-xs px-2 py-1 rounded-full bg-green-500 bg-opacity-20 text-green-200">
-                                {{ $user->peminjamans_count }} buku
+                                {{ $user->peminjamans_count }}x meminjam
                             </span>
                         </div>
                     </div>
@@ -304,7 +301,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-white text-opacity-60 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
-                        <p class="text-white text-opacity-70 text-sm">Belum ada data peminjaman user</p>
+                        <p class="text-white text-opacity-70 text-sm">Belum ada data peminjaman</p>
                     </div>
                     @endforelse
                 </div>
@@ -326,17 +323,17 @@ document.addEventListener('DOMContentLoaded', function() {
             datasets: [{
                 label: 'Jumlah Peminjaman',
                 data: {!! json_encode($chartData) !!},
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                borderColor: 'rgba(255, 255, 255, 0.8)',
-                borderWidth: 3,
+                backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                borderColor: 'rgba(99, 102, 241, 1)',
+                borderWidth: 2,
                 tension: 0.4,
                 fill: true,
                 pointBackgroundColor: 'rgba(255, 255, 255, 1)',
-                pointBorderColor: 'rgba(255, 255, 255, 0.8)',
-                pointRadius: 5,
-                pointHoverRadius: 8,
+                pointBorderColor: 'rgba(99, 102, 241, 1)',
+                pointRadius: 4,
+                pointHoverRadius: 6,
                 pointHoverBackgroundColor: 'rgba(255, 255, 255, 1)',
-                pointHoverBorderColor: 'rgba(255, 255, 255, 0.8)',
+                pointHoverBorderColor: 'rgba(99, 102, 241, 1)',
                 pointHoverBorderWidth: 2
             }]
         },
@@ -348,7 +345,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     display: false
                 },
                 tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
                     titleColor: 'white',
                     bodyColor: 'white',
                     titleFont: { size: 14, weight: 'bold' },

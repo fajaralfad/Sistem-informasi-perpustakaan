@@ -22,12 +22,13 @@ class DashboardController extends Controller
         }
 
         try {
-            // Statistik Utama
+            // Statistik Utama - DISESUAIKAN dengan status model
             $totalBuku = Buku::count();
             $totalUser = User::where('role', 'anggota')->count();
-            $peminjamanAktif = Peminjaman::where('status', 'dipinjam')->count();
+            $peminjamanAktif = Peminjaman::aktif()->count(); // Menggunakan scope aktif
             $dendaBelumLunas = Denda::where('status_pembayaran', false)->count();
             $totalDenda = Denda::where('status_pembayaran', false)->sum('jumlah');
+            $peminjamanPending = Peminjaman::needConfirmation()->count(); // Booking yang perlu konfirmasi
 
             // Statistik Tambahan Bulanan dan Harian
             $bukuBaruBulanIni = Buku::where('created_at', '>=', now()->startOfMonth())->count();
@@ -70,7 +71,11 @@ class DashboardController extends Controller
             // User Aktif berdasarkan jumlah peminjaman
             $userAktif = User::where('role', 'anggota')
                 ->withCount(['peminjamans' => function ($query) {
-                    $query->whereIn('status', ['dipinjam', 'selesai']);
+                    $query->whereIn('status', [
+                        Peminjaman::STATUS_DIPINJAM, 
+                        Peminjaman::STATUS_DIKEMBALIKAN,
+                        Peminjaman::STATUS_TERLAMBAT
+                    ]);
                 }])
                 ->having('peminjamans_count', '>', 0)
                 ->orderBy('peminjamans_count', 'desc')
@@ -83,6 +88,7 @@ class DashboardController extends Controller
                 'peminjamanAktif', 
                 'dendaBelumLunas', 
                 'totalDenda',
+                'peminjamanPending',
                 'bukuBaruBulanIni', 
                 'userBaruBulanIni',
                 'peminjamanHariIni',
@@ -99,7 +105,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * Private method untuk mendapatkan aktivitas terkini - DIPERBAIKI
+     * Private method untuk mendapatkan aktivitas terkini - DIPERBAIKI sesuai model
      */
     private function getAktivitasTerkini($limit = 8, $filter = null, $type = null)
     {
@@ -114,9 +120,14 @@ class DashboardController extends Controller
         };
 
         try {
-            // Ambil peminjaman baru
+            // Ambil peminjaman baru (pending dan booking)
             if ($type === 'all' || $type === 'peminjaman' || is_null($type)) {
                 $peminjamanTerbaru = Peminjaman::with(['buku', 'user'])
+                    ->whereIn('status', [
+                        Peminjaman::STATUS_PENDING,
+                        Peminjaman::STATUS_BOOKING,
+                        Peminjaman::STATUS_DIPINJAM
+                    ])
                     ->where('created_at', '>=', $dateFilter)
                     ->orderBy('created_at', 'desc')
                     ->take(50)
@@ -124,25 +135,42 @@ class DashboardController extends Controller
 
                 foreach ($peminjamanTerbaru as $peminjaman) {
                     if ($peminjaman->buku && $peminjaman->user) {
+                        $statusText = match($peminjaman->status) {
+                            Peminjaman::STATUS_PENDING => 'Peminjaman Pending',
+                            Peminjaman::STATUS_BOOKING => 'Booking Dikonfirmasi',
+                            Peminjaman::STATUS_DIPINJAM => 'Buku Dipinjam',
+                            default => 'Peminjaman Baru'
+                        };
+
+                        $iconColor = match($peminjaman->status) {
+                            Peminjaman::STATUS_PENDING => ['bg-yellow-500 bg-opacity-20', 'text-yellow-300'],
+                            Peminjaman::STATUS_BOOKING => ['bg-blue-500 bg-opacity-20', 'text-blue-300'],
+                            Peminjaman::STATUS_DIPINJAM => ['bg-green-500 bg-opacity-20', 'text-green-300'],
+                            default => ['bg-blue-500 bg-opacity-20', 'text-blue-300']
+                        };
+
                         $aktivitas->push([
                             'icon' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>',
-                            'judul' => 'Peminjaman Baru',
-                            'deskripsi' => 'Buku "' . Str::limit($peminjaman->buku->judul, 30) . '" dipinjam oleh ' . $peminjaman->user->name,
+                            'judul' => $statusText,
+                            'deskripsi' => 'Buku "' . Str::limit($peminjaman->buku->judul, 30) . '" oleh ' . $peminjaman->user->name,
                             'waktu' => $peminjaman->created_at->diffForHumans(),
                             'timestamp' => $peminjaman->created_at,
                             'type' => 'peminjaman',
-                            'bgColor' => 'bg-blue-500 bg-opacity-20',
-                            'textColor' => 'text-blue-300'
+                            'bgColor' => $iconColor[0],
+                            'textColor' => $iconColor[1]
                         ]);
                     }
                 }
             }
 
-            // Ambil pengembalian
+            // Ambil pengembalian (dikembalikan)
             if ($type === 'all' || $type === 'pengembalian' || is_null($type)) {
                 $pengembalianTerbaru = Peminjaman::with(['buku', 'user'])
-                    ->where('status', 'selesai')
-                    ->whereNotNull('tanggal_kembali')
+                    ->whereIn('status', [
+                        Peminjaman::STATUS_DIKEMBALIKAN,
+                        Peminjaman::STATUS_TERLAMBAT
+                    ])
+                    ->whereNotNull('tanggal_pengembalian')
                     ->where('updated_at', '>=', $dateFilter)
                     ->orderBy('updated_at', 'desc')
                     ->take(50)
@@ -150,15 +178,64 @@ class DashboardController extends Controller
 
                 foreach ($pengembalianTerbaru as $pengembalian) {
                     if ($pengembalian->buku && $pengembalian->user) {
+                        $statusText = $pengembalian->status === Peminjaman::STATUS_TERLAMBAT 
+                            ? 'Pengembalian Terlambat' 
+                            : 'Pengembalian Buku';
+                        
+                        $iconColor = $pengembalian->status === Peminjaman::STATUS_TERLAMBAT 
+                            ? ['bg-orange-500 bg-opacity-20', 'text-orange-300']
+                            : ['bg-green-500 bg-opacity-20', 'text-green-300'];
+
                         $aktivitas->push([
                             'icon' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>',
-                            'judul' => 'Pengembalian Buku',
+                            'judul' => $statusText,
                             'deskripsi' => 'Buku "' . Str::limit($pengembalian->buku->judul, 30) . '" dikembalikan oleh ' . $pengembalian->user->name,
                             'waktu' => $pengembalian->updated_at->diffForHumans(),
                             'timestamp' => $pengembalian->updated_at,
                             'type' => 'pengembalian',
-                            'bgColor' => 'bg-green-500 bg-opacity-20',
-                            'textColor' => 'text-green-300'
+                            'bgColor' => $iconColor[0],
+                            'textColor' => $iconColor[1]
+                        ]);
+                    }
+                }
+            }
+
+            // Ambil konfirmasi admin
+            if ($type === 'all' || $type === 'konfirmasi' || is_null($type)) {
+                $konfirmasiTerbaru = Peminjaman::with(['buku', 'user'])
+                    ->whereIn('status', [
+                        Peminjaman::STATUS_BOOKING,
+                        Peminjaman::STATUS_DITOLAK
+                    ])
+                    ->whereNotNull('confirmed_at')
+                    ->where('confirmed_at', '>=', $dateFilter)
+                    ->orderBy('confirmed_at', 'desc')
+                    ->take(50)
+                    ->get();
+
+                foreach ($konfirmasiTerbaru as $konfirmasi) {
+                    if ($konfirmasi->buku && $konfirmasi->user) {
+                        $statusText = $konfirmasi->status === Peminjaman::STATUS_DITOLAK 
+                            ? 'Peminjaman Ditolak' 
+                            : 'Booking Dikonfirmasi';
+                        
+                        $iconColor = $konfirmasi->status === Peminjaman::STATUS_DITOLAK 
+                            ? ['bg-red-500 bg-opacity-20', 'text-red-300']
+                            : ['bg-blue-500 bg-opacity-20', 'text-blue-300'];
+
+                        $icon = $konfirmasi->status === Peminjaman::STATUS_DITOLAK 
+                            ? '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>'
+                            : '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+
+                        $aktivitas->push([
+                            'icon' => $icon,
+                            'judul' => $statusText,
+                            'deskripsi' => 'Buku "' . Str::limit($konfirmasi->buku->judul, 30) . '" untuk ' . $konfirmasi->user->name,
+                            'waktu' => $konfirmasi->confirmed_at->diffForHumans(),
+                            'timestamp' => $konfirmasi->confirmed_at,
+                            'type' => 'konfirmasi',
+                            'bgColor' => $iconColor[0],
+                            'textColor' => $iconColor[1]
                         ]);
                     }
                 }
@@ -334,65 +411,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * Method untuk debugging
-     */
-    public function debugAktivitas()
-    {
-        try {
-            $debug = [
-                'peminjaman_count' => Peminjaman::count(),
-                'user_count' => User::count(),
-                'user_anggota_count' => User::where('role', 'anggota')->count(),
-                'buku_count' => Buku::count(),
-                'denda_count' => Denda::count(),
-                'recent_peminjaman' => Peminjaman::with(['user', 'buku'])->latest()->take(5)->get(),
-                'recent_users' => User::where('role', 'anggota')->latest()->take(5)->get(),
-            ];
-
-            $samplePeminjaman = Peminjaman::with(['user', 'buku'])->first();
-            if ($samplePeminjaman) {
-                $debug['sample_peminjaman'] = [
-                    'id' => $samplePeminjaman->id,
-                    'user_id' => $samplePeminjaman->user_id,
-                    'buku_id' => $samplePeminjaman->buku_id,
-                    'user_name' => $samplePeminjaman->user ? $samplePeminjaman->user->name : 'NULL',
-                    'buku_judul' => $samplePeminjaman->buku ? $samplePeminjaman->buku->judul : 'NULL',
-                    'created_at' => $samplePeminjaman->created_at,
-                ];
-            }
-
-            $debug['peminjaman_with_user'] = Peminjaman::whereHas('user')->count();
-            $debug['peminjaman_with_buku'] = Peminjaman::whereHas('buku')->count();
-            $debug['aktivitas'] = $this->getAktivitasTerkini(5)->toArray();
-
-            return response()->json($debug);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
-
-    /**
-     * Method untuk test aktivitas
-     */
-    public function testAktivitas()
-    {
-        try {
-            $aktivitas = $this->getAktivitasTerkini(10);
-            return response()->json([
-                'success' => true,
-                'count' => $aktivitas->count(),
-                'data' => $aktivitas->toArray()
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * Method untuk statistik dashboard
+     * Method untuk statistik dashboard - DISESUAIKAN dengan status model
      */
     public function statistik(Request $request)
     {
@@ -424,15 +443,19 @@ class DashboardController extends Controller
     }
 
     /**
-     * Helper methods untuk statistik
+     * Helper methods untuk statistik - DISESUAIKAN dengan status model
      */
     private function getStatistikHarian()
     {
         return [
             'peminjaman' => Peminjaman::whereDate('created_at', today())->count(),
-            'pengembalian' => Peminjaman::whereDate('tanggal_kembali', today())->count(),
+            'pengembalian' => Peminjaman::whereIn('status', [
+                Peminjaman::STATUS_DIKEMBALIKAN,
+                Peminjaman::STATUS_TERLAMBAT
+            ])->whereDate('tanggal_pengembalian', today())->count(),
             'user_baru' => User::where('role', 'anggota')->whereDate('created_at', today())->count(),
-            'denda' => Denda::whereDate('created_at', today())->sum('jumlah')
+            'denda' => Denda::whereDate('created_at', today())->sum('jumlah'),
+            'pending' => Peminjaman::where('status', Peminjaman::STATUS_PENDING)->whereDate('created_at', today())->count()
         ];
     }
 
@@ -441,9 +464,13 @@ class DashboardController extends Controller
         $startWeek = now()->startOfWeek();
         return [
             'peminjaman' => Peminjaman::where('created_at', '>=', $startWeek)->count(),
-            'pengembalian' => Peminjaman::where('tanggal_kembali', '>=', $startWeek)->count(),
+            'pengembalian' => Peminjaman::whereIn('status', [
+                Peminjaman::STATUS_DIKEMBALIKAN,
+                Peminjaman::STATUS_TERLAMBAT
+            ])->where('tanggal_pengembalian', '>=', $startWeek)->count(),
             'user_baru' => User::where('role', 'anggota')->where('created_at', '>=', $startWeek)->count(),
-            'denda' => Denda::where('created_at', '>=', $startWeek)->sum('jumlah')
+            'denda' => Denda::where('created_at', '>=', $startWeek)->sum('jumlah'),
+            'pending' => Peminjaman::where('status', Peminjaman::STATUS_PENDING)->where('created_at', '>=', $startWeek)->count()
         ];
     }
 
@@ -452,9 +479,13 @@ class DashboardController extends Controller
         $startMonth = now()->startOfMonth();
         return [
             'peminjaman' => Peminjaman::where('created_at', '>=', $startMonth)->count(),
-            'pengembalian' => Peminjaman::where('tanggal_kembali', '>=', $startMonth)->count(),
+            'pengembalian' => Peminjaman::whereIn('status', [
+                Peminjaman::STATUS_DIKEMBALIKAN,
+                Peminjaman::STATUS_TERLAMBAT
+            ])->where('tanggal_pengembalian', '>=', $startMonth)->count(),
             'user_baru' => User::where('role', 'anggota')->where('created_at', '>=', $startMonth)->count(),
-            'denda' => Denda::where('created_at', '>=', $startMonth)->sum('jumlah')
+            'denda' => Denda::where('created_at', '>=', $startMonth)->sum('jumlah'),
+            'pending' => Peminjaman::where('status', Peminjaman::STATUS_PENDING)->where('created_at', '>=', $startMonth)->count()
         ];
     }
 
@@ -463,9 +494,81 @@ class DashboardController extends Controller
         $startYear = now()->startOfYear();
         return [
             'peminjaman' => Peminjaman::where('created_at', '>=', $startYear)->count(),
-            'pengembalian' => Peminjaman::where('tanggal_kembali', '>=', $startYear)->count(),
+            'pengembalian' => Peminjaman::whereIn('status', [
+                Peminjaman::STATUS_DIKEMBALIKAN,
+                Peminjaman::STATUS_TERLAMBAT
+            ])->where('tanggal_pengembalian', '>=', $startYear)->count(),
             'user_baru' => User::where('role', 'anggota')->where('created_at', '>=', $startYear)->count(),
-            'denda' => Denda::where('created_at', '>=', $startYear)->sum('jumlah')
+            'denda' => Denda::where('created_at', '>=', $startYear)->sum('jumlah'),
+            'pending' => Peminjaman::where('status', Peminjaman::STATUS_PENDING)->where('created_at', '>=', $startYear)->count()
         ];
+    }
+
+    /**
+     * Method untuk debugging - DISESUAIKAN
+     */
+    public function debugAktivitas()
+    {
+        try {
+            $debug = [
+                'peminjaman_count' => Peminjaman::count(),
+                'peminjaman_by_status' => [
+                    'pending' => Peminjaman::where('status', Peminjaman::STATUS_PENDING)->count(),
+                    'booking' => Peminjaman::where('status', Peminjaman::STATUS_BOOKING)->count(),
+                    'dipinjam' => Peminjaman::where('status', Peminjaman::STATUS_DIPINJAM)->count(),
+                    'dikembalikan' => Peminjaman::where('status', Peminjaman::STATUS_DIKEMBALIKAN)->count(),
+                    'ditolak' => Peminjaman::where('status', Peminjaman::STATUS_DITOLAK)->count(),
+                    'terlambat' => Peminjaman::where('status', Peminjaman::STATUS_TERLAMBAT)->count(),
+                ],
+                'user_count' => User::count(),
+                'user_anggota_count' => User::where('role', 'anggota')->count(),
+                'buku_count' => Buku::count(),
+                'denda_count' => Denda::count(),
+                'recent_peminjaman' => Peminjaman::with(['user', 'buku'])->latest()->take(5)->get(),
+                'recent_users' => User::where('role', 'anggota')->latest()->take(5)->get(),
+            ];
+
+            $samplePeminjaman = Peminjaman::with(['user', 'buku'])->first();
+            if ($samplePeminjaman) {
+                $debug['sample_peminjaman'] = [
+                    'id' => $samplePeminjaman->id,
+                    'user_id' => $samplePeminjaman->user_id,
+                    'buku_id' => $samplePeminjaman->buku_id,
+                    'status' => $samplePeminjaman->status,
+                    'user_name' => $samplePeminjaman->user ? $samplePeminjaman->user->name : 'NULL',
+                    'buku_judul' => $samplePeminjaman->buku ? $samplePeminjaman->buku->judul : 'NULL',
+                    'created_at' => $samplePeminjaman->created_at,
+                    'confirmed_at' => $samplePeminjaman->confirmed_at,
+                ];
+            }
+
+            $debug['peminjaman_with_user'] = Peminjaman::whereHas('user')->count();
+            $debug['peminjaman_with_buku'] = Peminjaman::whereHas('buku')->count();
+            $debug['aktivitas'] = $this->getAktivitasTerkini(5)->toArray();
+
+            return response()->json($debug);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Method untuk test aktivitas
+     */
+    public function testAktivitas()
+    {
+        try {
+            $aktivitas = $this->getAktivitasTerkini(10);
+            return response()->json([
+                'success' => true,
+                'count' => $aktivitas->count(),
+                'data' => $aktivitas->toArray()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

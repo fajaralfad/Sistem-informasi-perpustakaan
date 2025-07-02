@@ -39,7 +39,7 @@
                     </svg>
                 </div>
                 <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-500">Total Peminjaman</p>
+                    <p class="text-sm font-medium text-gray-500">Total Aktivitas</p>
                     <p class="text-2xl font-semibold text-gray-900">{{ $totalPeminjaman }}</p>
                 </div>
             </div>
