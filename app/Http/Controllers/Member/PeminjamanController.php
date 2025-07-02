@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Member;
 
 use App\Http\Controllers\Controller;
-use App\Models\Buku; // Tambahkan ini
+use App\Models\Buku; 
 use App\Models\Anggota;
 use App\Models\Peminjaman;
 use App\Models\Denda;
