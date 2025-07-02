@@ -124,9 +124,6 @@
                             No
                         </th>
                         <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Kode Peminjaman
-                        </th>
-                        <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Buku
                         </th>
                         <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -151,11 +148,6 @@
                     <tr class="hover:bg-gray-50 transition-colors duration-150">
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {{ $peminjamans->firstItem() + $index }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                {{ $peminjaman->kode_peminjaman ?? 'LEGACY-' . $peminjaman->id }}
-                            </span>
                         </td>
                         <td class="px-6 py-4">
                             <div class="flex items-center">
@@ -183,28 +175,6 @@
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm text-gray-900">{{ $peminjaman->tanggal_kembali->format('d M Y') }}</div>
                             <div class="text-sm text-gray-500">{{ $peminjaman->tanggal_kembali->format('H:i') }}</div>
-                            @if($peminjaman->status == 'dipinjam')
-                                @if(\Carbon\Carbon::now()->gt($peminjaman->tanggal_kembali))
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mt-1">
-                                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
-                                        </svg>
-                                        Terlambat {{ \Carbon\Carbon::now()->diffInDays($peminjaman->tanggal_kembali) }} hari
-                                    </span>
-                                @else
-                                    @php
-                                        $daysLeft = \Carbon\Carbon::now()->diffInDays($peminjaman->tanggal_kembali, false);
-                                    @endphp
-                                    @if($daysLeft <= 2 && $daysLeft >= 0)
-                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mt-1">
-                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
-                                            </svg>
-                                            {{ $daysLeft == 0 ? 'Hari ini' : $daysLeft . ' hari lagi' }}
-                                        </span>
-                                    @endif
-                                @endif
-                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             @switch($peminjaman->status)
@@ -219,15 +189,9 @@
                                     </span>
                                     @break
                                 @case('dipinjam')
-                                    @if(\Carbon\Carbon::now()->gt($peminjaman->tanggal_kembali))
-                                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                            Terlambat
-                                        </span>
-                                    @else
-                                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                            Sedang Dipinjam
-                                        </span>
-                                    @endif
+                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                        Sedang Dipinjam
+                                    </span>
                                     @break
                                 @case('dikembalikan')
                                     <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
@@ -249,36 +213,12 @@
                                         {{ ucfirst($peminjaman->status) }}
                                     </span>
                             @endswitch
-                            
-                            @if($peminjaman->diperpanjang)
-                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 mt-1">
-                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9.5 9.293 10.793a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd"></path>
-                                    </svg>
-                                    Diperpanjang
-                                </span>
-                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm">
                             @if($peminjaman->denda)
                                 <span class="text-red-600 font-medium">
                                     Rp {{ number_format($peminjaman->denda->jumlah, 0, ',', '.') }}
                                 </span>
-                                @if(!$peminjaman->denda->tanggal_bayar)
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mt-1">
-                                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-                                        </svg>
-                                        Belum Lunas
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 mt-1">
-                                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                                        </svg>
-                                        Lunas
-                                    </span>
-                                @endif
                             @else
                                 <span class="text-gray-500">-</span>
                             @endif
@@ -294,28 +234,6 @@
                                     </svg>
                                     Detail
                                 </a>
-                                
-                                @if($peminjaman->status == 'dipinjam' && !$peminjaman->diperpanjang)
-                                    <button onclick="perpanjangPeminjaman({{ $peminjaman->id }})" 
-                                            class="bg-purple-100 hover:bg-purple-200 text-purple-800 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center transition-colors duration-200" 
-                                            title="Perpanjang">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        Perpanjang
-                                    </button>
-                                @endif
-
-                                @if($peminjaman->status == 'pending')
-                                    <button onclick="batalkanBooking({{ $peminjaman->id }})" 
-                                            class="bg-red-100 hover:bg-red-200 text-red-800 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center transition-colors duration-200" 
-                                            title="Batalkan">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                        Batalkan
-                                    </button>
-                                @endif
                             </div>
                         </td>
                     </tr>
@@ -340,9 +258,6 @@
                 <div class="mt-6">
                     <a href="{{ route('member.riwayat') }}" 
                        class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                        </svg>
                         Reset Pencarian
                     </a>
                 </div>
@@ -355,9 +270,6 @@
                 <div class="mt-6">
                     <a href="{{ route('member.dashboard') }}" 
                        class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                        </svg>
                         Kembali ke Dashboard
                     </a>
                 </div>
@@ -367,184 +279,10 @@
     </div>
 </div>
 
-<!-- Modal Perpanjang -->
-<div id="perpanjangModal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center hidden z-50">
-    <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4 shadow-2xl">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-900">Perpanjang Peminjaman</h3>
-            <button onclick="closePerpanjangModal()" class="text-gray-400 hover:text-gray-600">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
-        </div>
-        <form id="perpanjangForm" method="POST">
-            @csrf
-            <div class="mb-6">
-                <label for="hari" class="block text-sm font-medium text-gray-700 mb-2">Jumlah Hari Perpanjangan</label>
-                <input type="number" name="hari" id="hari" min="1" max="14" value="7" 
-                       class="block w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                <p class="mt-1 text-sm text-gray-500">Maksimal 14 hari perpanjangan</p>
-            </div>
-            <div class="flex justify-end gap-3">
-                <button type="button" onclick="closePerpanjangModal()" 
-                        class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-medium transition-colors duration-200">
-                    Batal
-                </button>
-                <button type="submit" 
-                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200">
-                    Perpanjang
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
 @endsection
 
 @push('scripts')
 <script>
-function perpanjangPeminjaman(peminjamanId) {
-    Swal.fire({
-        title: 'Perpanjang Peminjaman?',
-        text: 'Apakah Anda yakin ingin memperpanjang peminjaman ini selama 7 hari?',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Ya, Perpanjang!',
-        cancelButtonText: 'Batal'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Show loading
-            Swal.fire({
-                title: 'Memproses...',
-                text: 'Mohon tunggu sebentar',
-                allowOutsideClick: false,
-                showConfirmButton: false,
-                willOpen: () => {
-                    Swal.showLoading()
-                }
-            });
-
-            // Send AJAX request
-            fetch(`/member/peminjaman/${peminjamanId}/perpanjang`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        title: 'Berhasil!',
-                        text: data.success + '. Tanggal kembali baru: ' + data.new_due_date,
-                        icon: 'success'
-                    }).then(() => {
-                        location.reload();
-                    });
-                } else {
-                    Swal.fire({
-                        title: 'Gagal!',
-                        text: data.error || 'Terjadi kesalahan saat memperpanjang peminjaman',
-                        icon: 'error'
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'Terjadi kesalahan sistem',
-                    icon: 'error'
-                });
-            });
-        }
-    });
-}
-
-function batalkanBooking(peminjamanId) {
-    Swal.fire({
-        title: 'Batalkan Booking?',
-        text: 'Apakah Anda yakin ingin membatalkan booking ini?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Ya, Batalkan!',
-        cancelButtonText: 'Tidak'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Show loading
-            Swal.fire({
-                title: 'Memproses...',
-                text: 'Mohon tunggu sebentar',
-                allowOutsideClick: false,
-                showConfirmButton: false,
-                willOpen: () => {
-                    Swal.showLoading()
-                }
-            });
-
-            // Send AJAX request
-            fetch(`/member/booking/${peminjamanId}/cancel`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        title: 'Berhasil!',
-                        text: data.message,
-                        icon: 'success'
-                    }).then(() => {
-                        location.reload();
-                    });
-                } else {
-                    Swal.fire({
-                        title: 'Gagal!',
-                        text: data.message || 'Terjadi kesalahan saat membatalkan booking',
-                        icon: 'error'
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'Terjadi kesalahan sistem',
-                    icon: 'error'
-                });
-            });
-        }
-    });
-}
-
-// Modal functions
-function openPerpanjangModal(peminjamanId) {
-    document.getElementById('perpanjangForm').action = `/member/peminjaman/${peminjamanId}/perpanjang`;
-    document.getElementById('perpanjangModal').classList.remove('hidden');
-    document.getElementById('perpanjangModal').classList.add('flex');
-}
-
-function closePerpanjangModal() {
-    document.getElementById('perpanjangModal').classList.add('hidden');
-    document.getElementById('perpanjangModal').classList.remove('flex');
-}
-
-// Close modal when clicking outside
-document.getElementById('perpanjangModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closePerpanjangModal();
-    }
-});
-
 // Auto hide flash messages
 document.addEventListener('DOMContentLoaded', function() {
     const alerts = document.querySelectorAll('.alert-error, .alert-success');
