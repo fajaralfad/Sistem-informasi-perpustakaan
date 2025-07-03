@@ -19,7 +19,7 @@ class PeminjamanController extends Controller
 {
     const MAX_ACTIVE_BORROWINGS = 5;
     const MAX_BOOKINGS = 3;
-    const MAX_BOOKING_DAYS = 14;
+    const MAX_BOOKING_DAYS = 30;
 
     /**
      * Display member's borrowing history

@@ -209,7 +209,7 @@
                                     </button>
 
                                 <!-- Jika status pending, tampilkan tombol konfirmasi/tolak -->
-                                @if($peminjaman->status === 'pending')
+                                @elseif($peminjaman->status === 'pending')
                                     <!-- Tombol Konfirmasi Pending -->
                                     <form action="{{ route('admin.peminjaman.confirm', $peminjaman->id) }}" method="POST" class="inline">
                                         @csrf
@@ -237,10 +237,25 @@
                                             Tolak
                                         </button>
                                     </form>
-                                @endif
+
+                                @elseif($peminjaman->status === 'booking' && $peminjaman->tanggal_pinjam <= now())
+                                    <button onclick="openConfirmTakenModal(
+                                        '{{ $peminjaman->id }}',
+                                        '{{ $peminjaman->buku->judul }}',
+                                        '{{ $peminjaman->buku->pengarang->nama ?? '-' }}',
+                                        '{{ $peminjaman->user->name }}',
+                                        '{{ $peminjaman->user->email }}',
+                                        '{{ $peminjaman->tanggal_pinjam->format('d M Y H:i') }}'
+                                    )" 
+                                    class="bg-green-100 hover:bg-green-200 text-green-800 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center transition-colors duration-200" 
+                                    title="Konfirmasi Pengambilan">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Konfirmasi Ambil
+                                    </button>
 
                                 @elseif($peminjaman->status === 'booking')
-                                    
                                     <!-- Tombol Batalkan Booking -->
                                     <form action="{{ route('admin.peminjaman.destroy', $peminjaman->id) }}" method="POST" class="inline">
                                         @csrf
@@ -326,7 +341,7 @@
         @endif
     </div>
 
-    <!-- Modal Perpanjang -->
+<!-- Modal Perpanjang -->
 <div id="perpanjangModal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center hidden z-50">
     <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4 shadow-2xl">
         <div class="flex items-center justify-between mb-4">
@@ -359,6 +374,75 @@
     </div>
 </div>
 
+<!-- Modal Konfirmasi Pengambilan Buku -->
+<div id="confirmTakenModal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center hidden z-50">
+    <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4 shadow-2xl">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-900">Konfirmasi Pengambilan Buku</h3>
+            <button onclick="closeConfirmTakenModal()" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="mb-4">
+            <div class="flex items-center gap-4 mb-3">
+                <div class="flex-shrink-0 h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477 4.5 1.253" />
+                    </svg>
+                </div>
+                <div>
+                    <h4 id="bookTitle" class="font-medium text-gray-900"></h4>
+                    <p id="bookAuthor" class="text-sm text-gray-500"></p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <div class="flex-shrink-0 h-12 w-12 bg-purple-100 rounded-full flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                </div>
+                <div>
+                    <h4 id="userName" class="font-medium text-gray-900"></h4>
+                    <p id="userEmail" class="text-sm text-gray-500"></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mb-6">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Booking</label>
+                    <p id="bookingDate" class="text-sm text-gray-900"></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Pengambilan</label>
+                    <input type="datetime-local" id="pickupDate" 
+                           class="block w-full border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                           value="{{ now()->format('Y-m-d\TH:i') }}">
+                </div>
+            </div>
+        </div>
+        
+        <form id="confirmTakenForm" method="POST">
+            @csrf
+            <div class="flex justify-end gap-3">
+                <button type="button" onclick="closeConfirmTakenModal()" 
+                        class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-medium transition-colors duration-200">
+                    Batal
+                </button>
+                <button type="submit" 
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200">
+                    Konfirmasi Pengambilan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
     <!-- Scripts -->
     <script>
         function openPerpanjangModal(peminjamanId) {
@@ -371,6 +455,42 @@
             document.getElementById('perpanjangModal').classList.add('hidden');
             document.getElementById('perpanjangModal').classList.remove('flex');
         }
+
+        function openConfirmTakenModal(peminjamanId, bookTitle, bookAuthor, userName, userEmail, bookingDate) {
+        // Set data peminjaman ke modal
+        document.getElementById('bookTitle').textContent = bookTitle;
+        document.getElementById('bookAuthor').textContent = bookAuthor;
+        document.getElementById('userName').textContent = userName;
+        document.getElementById('userEmail').textContent = userEmail;
+        document.getElementById('bookingDate').textContent = bookingDate;
+        
+        // Set form action
+        document.getElementById('confirmTakenForm').action = `/admin/peminjaman/${peminjamanId}/confirm-taken`;
+        
+        // Tampilkan modal
+        document.getElementById('confirmTakenModal').classList.remove('hidden');
+        document.getElementById('confirmTakenModal').classList.add('flex');
+         }
+
+        // Fungsi untuk menutup modal konfirmasi pengambilan
+        function closeConfirmTakenModal() {
+            document.getElementById('confirmTakenModal').classList.add('hidden');
+            document.getElementById('confirmTakenModal').classList.remove('flex');
+        }
+
+        // Close modal ketika click outside
+        document.getElementById('confirmTakenModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeConfirmTakenModal();
+            }
+        });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeConfirmTakenModal();
+        }
+    });
 
         // Function untuk konfirmasi hapus
         function confirmDelete(userName, bookTitle) {

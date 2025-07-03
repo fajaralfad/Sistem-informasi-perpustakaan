@@ -348,23 +348,39 @@
 
             <!-- Tips -->
             <div class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-lg shadow-md p-6 border border-yellow-200">
-                <h3 class="text-lg font-semibold text-gray-800 mb-3">💡 Tips</h3>
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">💡 Tips Peminjaman Buku</h3>
                 <ul class="space-y-2 text-sm text-gray-700">
                     <li class="flex items-start">
                         <span class="text-yellow-500 mr-2">•</span>
-                        Kembalikan buku tepat waktu untuk menghindari denda
+                        <span><strong>Maksimal 5 peminjaman aktif</strong> dan <strong>3 booking aktif</strong> per anggota</span>
                     </li>
                     <li class="flex items-start">
                         <span class="text-yellow-500 mr-2">•</span>
-                        Booking disetujui harus diambil dalam 3 hari
+                        <span>Booking harus diambil sesuai jadwal yang ditentukan</span>
                     </li>
                     <li class="flex items-start">
                         <span class="text-yellow-500 mr-2">•</span>
-                        Gunakan fitur pencarian untuk menemukan buku favorit
+                        <span>Kembalikan buku tepat waktu untuk menghindari denda <strong>Rp 5.000/hari</strong></span>
                     </li>
                     <li class="flex items-start">
                         <span class="text-yellow-500 mr-2">•</span>
-                        Perbarui profile Anda secara berkala
+                        <span>Lunasi denda terlebih dahulu sebelum melakukan peminjaman baru</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-yellow-500 mr-2">•</span>
+                        <span>Durasi peminjaman: <strong>minimal 1 jam</strong>, <strong>maksimal 30 hari</strong></span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-yellow-500 mr-2">•</span>
+                        <span>Satu buku yang sama tidak bisa dipinjam bersamaan</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-yellow-500 mr-2">•</span>
+                        <span>Booking dapat dibatalkan sebelum tanggal peminjaman</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-yellow-500 mr-2">•</span>
+                        <span>Peminjaman dapat diperpanjang maksimal <strong>30 hari total</strong> dari tanggal pinjam</span>
                     </li>
                 </ul>
             </div>

@@ -173,86 +173,6 @@ class PeminjamanController extends Controller
     }
 
     /**
-     * Store booking dari anggota (untuk digunakan di controller lain atau API)
-     */
-    public function storeBooking(Request $request)
-    {
-        // Validasi input
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'buku_id' => 'required|exists:bukus,id',
-            'tanggal_pinjam' => 'required|date|after_or_equal:today',
-            'tanggal_kembali' => 'required|date|after:tanggal_pinjam',
-            'jam_pinjam' => 'nullable|date_format:H:i',
-            'jam_kembali' => 'nullable|date_format:H:i',
-        ]);
-
-        // Validasi tambahan: pastikan user yang dipilih adalah anggota
-        $user = User::find($request->user_id);
-        if ($user->role !== 'anggota') {
-            return back()->withInput()->with('error', 'Hanya anggota yang dapat melakukan booking buku!');
-        }
-
-        // Validasi batas booking - DIPERBAIKI
-        $validation = $this->validateUserBorrowingLimits($request->user_id, $request->buku_id, 'booking');
-        if (!$validation['valid']) {
-            return back()->withInput()->with('error', $validation['message']);
-        }
-
-        // Set waktu pinjam sesuai input user
-        if ($request->filled('jam_pinjam')) {
-            try {
-                $tanggalPinjam = Carbon::createFromFormat('Y-m-d H:i', $request->tanggal_pinjam . ' ' . $request->jam_pinjam);
-            } catch (\Exception $e) {
-                return back()->withInput()->with('error', 'Format jam pinjam tidak valid!');
-            }
-        } else {
-            $tanggalPinjam = Carbon::parse($request->tanggal_pinjam)->startOfDay();
-        }
-
-        // Set waktu kembali
-        if ($request->filled('jam_kembali')) {
-            try {
-                $tanggalKembali = Carbon::createFromFormat('Y-m-d H:i', $request->tanggal_kembali . ' ' . $request->jam_kembali);
-            } catch (\Exception $e) {
-                return back()->withInput()->with('error', 'Format jam kembali tidak valid!');
-            }
-        } else {
-            $tanggalKembali = Carbon::parse($request->tanggal_kembali)->endOfDay();
-        }
-
-        // Validasi waktu
-        $validation = $this->validateDateTime($tanggalPinjam, $tanggalKembali);
-        if (!$validation['valid']) {
-            return back()->withInput()->with('error', $validation['message']);
-        }
-
-        $buku = Buku::find($request->buku_id);
-
-        if ($buku->stok <= 0) {
-            return back()->withInput()->with('error', 'Stok buku tidak tersedia!');
-        }
-
-        // ANGGOTA: Status 'booking' untuk pemesanan yang dibuat anggota
-        $status = 'booking';
-
-        // Buat booking baru
-        $peminjaman = Peminjaman::create([
-            'user_id' => $request->user_id,
-            'buku_id' => $request->buku_id,
-            'tanggal_pinjam' => $tanggalPinjam,
-            'tanggal_kembali' => $tanggalKembali,
-            'status' => $status,
-        ]);
-
-        // TIDAK mengurangi stok buku untuk booking (stok berkurang saat booking diproses)
-
-        $message = 'Booking berhasil dibuat! Status: Booking. Buku akan dipinjam pada ' . $tanggalPinjam->format('d/m/Y H:i');
-
-        return redirect()->back()->with('success', $message);
-    }
-
-    /**
      * METODE BARU: Validasi batas peminjaman dan booking user
      */
     private function validateUserBorrowingLimits($userId, $bukuId, $type = 'store')
@@ -333,58 +253,6 @@ class PeminjamanController extends Controller
         ];
     }
 
-    /**
-     * Process bookings when the date arrives
-     */
-    public function processBookings()
-    {
-        $today = Carbon::today();
-        $bookings = Peminjaman::where('status', 'booking')
-                      ->whereDate('tanggal_pinjam', '<=', $today)
-                      ->with('buku')
-                      ->get();
-
-        $processed = 0;
-        $failed = 0;
-
-        foreach ($bookings as $booking) {
-            try {
-                // Check if book is still available
-                if ($booking->buku->stok <= 0) {
-                    $failed++;
-                    continue;
-                }
-
-                // Cek lagi batas peminjaman aktif saat booking diproses
-                $jumlahAktif = Peminjaman::where('user_id', $booking->user_id)
-                                ->where('status', 'dipinjam')
-                                ->count();
-
-                if ($jumlahAktif >= self::MAX_ACTIVE_BORROWINGS) {
-                    $failed++;
-                    continue;
-                }
-
-                // Update status to 'dipinjam'
-                $booking->update(['status' => 'dipinjam']);
-                
-                // Decrement book stock
-                $booking->buku->decrement('stok');
-                
-                $processed++;
-            } catch (\Exception $e) {
-                $failed++;
-                continue;
-            }
-        }
-
-        return response()->json([
-            'message' => 'Booking processing completed',
-            'processed' => $processed,
-            'failed' => $failed
-        ]);
-    }
-
     public function show(Peminjaman $peminjaman)
     {
         $peminjaman->load(['user', 'buku.pengarang', 'denda']);
@@ -447,6 +315,29 @@ class PeminjamanController extends Controller
         $peminjaman->delete();
 
         return redirect()->back()->with('success', 'Booking berhasil dibatalkan!');
+    }
+
+   public function confirmBookTaken(Request $request, Peminjaman $peminjaman)
+    {
+        // Validasi status peminjaman
+        if ($peminjaman->status !== 'booking') {
+            return back()->with('error', 'Hanya booking yang bisa dikonfirmasi pengambilannya!');
+        }
+
+        DB::beginTransaction();
+        try {
+            // Update status dan tanggal pinjam
+            $peminjaman->update([
+                'status' => 'dipinjam',
+                'tanggal_pinjam' => Carbon::now() 
+            ]);
+
+            DB::commit();
+            
+            return redirect()->route('admin.peminjaman.index')
+                ->with('success', 'Pengambilan buku berhasil dikonfirmasi! Status diubah menjadi dipinjam.');
+                
+        } 
     }
 
     private function hitungDenda($peminjaman, $waktuPengembalian, $tanggalKembali)

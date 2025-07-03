@@ -79,6 +79,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('peminjaman/{peminjaman}/perpanjang', [PeminjamanController::class, 'perpanjang'])->name('peminjaman.perpanjang');
         Route::get('peminjaman/check-stok/{buku}', [PeminjamanController::class, 'checkStok'])->name('peminjaman.check-stok');
         Route::get('/waktu-sekarang', [PeminjamanController::class, 'getCurrentTime']);
+        Route::post('/peminjaman/{peminjaman}/confirm-taken', [PeminjamanController::class, 'confirmBookTaken'])
+        ->name('peminjaman.confirm-taken');
         Route::post('/peminjaman/{peminjaman}/confirm', [PeminjamanConfirmationController::class, 'confirm'])
         ->name('peminjaman.confirm');
         Route::post('/peminjaman/{peminjaman}/reject', [PeminjamanConfirmationController::class, 'reject'])->name('peminjaman.reject');

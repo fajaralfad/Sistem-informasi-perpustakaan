@@ -186,10 +186,16 @@
                             <div class="mt-3 p-3 bg-yellow-50 rounded-lg">
                                 <h4 class="text-sm font-medium text-yellow-800 mb-2">Informasi Peminjaman:</h4>
                                 <ul class="text-xs text-yellow-700 space-y-1">
-                                    <li>• Datang langsung ke perpustakaan</li>
+                                    <li>• Datang langsung ke perpustakaan untuk peminjaman langsung</li>
                                     <li>• Bawa kartu anggota yang masih aktif</li>
-                                    <li>• Maksimal peminjaman: 3 buku</li>
-                                    <li>• Durasi peminjaman: 7 hari</li>
+                                    <li>• Maksimal Booking: <strong>3 buku</strong> | Maksimal Peminjaman Aktif: <strong>5 buku</strong></li>
+                                    <li>• Durasi peminjaman: <strong>1 jam - 30 hari</strong></li>
+                                    <li>• Segera ambil buku di perpustakaan sesuai tanggal & waktu booking</li>
+                                    <li>• Pastikan tidak ada denda yang belum lunas</li>
+                                    <li>• Tidak bisa booking/pinjam buku yang sama bersamaan</li>
+                                    <li>• Denda keterlambatan: <strong>Rp 5.000/hari</strong></li>
+                                    <li>• Booking dapat dibatalkan sebelum tanggal peminjaman</li>
+                                    <li>• Peminjaman dapat diperpanjang (maksimal 30 hari total)</li>
                                 </ul>
                             </div>
                         </div>
@@ -249,10 +255,10 @@
             
             <div class="mb-4">
                 <label for="durasi" class="block text-sm font-medium text-gray-700 mb-2">Durasi Peminjaman (hari)</label>
-                <select id="durasi" name="durasi" class="block w-full border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
-                    <option value="3">3 Hari</option>
-                    <option value="7" selected>7 Hari</option>
-                    <option value="14">14 Hari</option>
+                 <select id="durasi" name="durasi" class="block w-full border border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
+                    @for ($i = 1; $i <= 30; $i++)
+                        <option value="{{ $i }}" {{ $i == 1 ? 'selected' : '' }}>{{ $i }} Hari</option>
+                    @endfor
                 </select>
                 <div id="durasi_error" class="text-red-500 text-sm mt-1 hidden"></div>
             </div>

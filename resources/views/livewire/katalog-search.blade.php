@@ -138,9 +138,6 @@
                             </svg>
                             <span class="text-gray-600">Stok: <span class="font-semibold">{{ $buku->stok }}</span></span>
                         </div>
-                        <div class="text-xs text-gray-500">
-                            Lokasi: {{ $buku->lokasi ?? 'Rak Utama' }}
-                        </div>
                     </div>
 
                     <!-- Action Button -->
