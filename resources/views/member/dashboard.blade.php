@@ -208,21 +208,6 @@
                             </div>
                         </div>
                     </a>
-
-                    <!-- Profile -->
-                    <a href="{{ route('member.profile') }}" class="block p-4 bg-purple-50 rounded-lg border border-purple-200 hover:bg-purple-100 transition-colors">
-                        <div class="flex items-center">
-                            <div class="p-2 bg-purple-500 rounded-lg">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                                </svg>
-                            </div>
-                            <div class="ml-3">
-                                <h3 class="font-semibold text-gray-800">Profile</h3>
-                                <p class="text-sm text-gray-600">Kelola profile Anda</p>
-                            </div>
-                        </div>
-                    </a>
                 </div>
             </div>
 
