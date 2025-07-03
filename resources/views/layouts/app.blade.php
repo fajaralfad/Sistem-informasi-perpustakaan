@@ -17,11 +17,42 @@
 
     <!-- Livewire Styles -->
     @livewireStyles
+
+    <style>
+        /* Loading indicator styles */
+        .livewire-loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: rgba(99, 102, 241, 0.2);
+            z-index: 9999;
+            display: none;
+        }
+        .livewire-loading:after {
+            content: '';
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            background-color: rgb(99, 102, 241);
+            animation: livewireLoading 1.5s ease-in-out infinite;
+        }
+        @keyframes livewireLoading {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+    </style>
 </head>
 
 <body class="font-sans antialiased bg-gray-100">
-    <div class="app-wrapper fade-in">
+    <!-- Loading Indicator -->
+    <div class="livewire-loading" id="livewire-loading-bar"></div>
 
+    <div class="app-wrapper fade-in">
         <!-- Navigation -->
         @include('layouts.navigation')
 
@@ -45,6 +76,36 @@
 
     <!-- Livewire Scripts -->
     @livewireScripts
+
+    <script>
+        document.addEventListener('livewire:init', () => {
+            // Modern Livewire 3+ approach
+            let timer;
+            
+            Livewire.hook('request', ({ uri, options, payload, respond, succeed }) => {
+                // Show loading after 300ms delay (for fast requests)
+                timer = setTimeout(() => {
+                    document.getElementById('livewire-loading-bar').style.display = 'block';
+                }, 300);
+                
+                respond((response) => {
+                    clearTimeout(timer);
+                    return response;
+                });
+                
+                succeed((response) => {
+                    clearTimeout(timer);
+                    document.getElementById('livewire-loading-bar').style.display = 'none';
+                    return response;
+                });
+            });
+            
+            Livewire.hook('request.failed', () => {
+                clearTimeout(timer);
+                document.getElementById('livewire-loading-bar').style.display = 'none';
+            });
+        });
+    </script>
 
     <!-- Extra Scripts -->
     @stack('scripts')
