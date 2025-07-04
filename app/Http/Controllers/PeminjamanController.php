@@ -317,7 +317,7 @@ class PeminjamanController extends Controller
         return redirect()->back()->with('success', 'Booking berhasil dibatalkan!');
     }
 
-   public function confirmBookTaken(Request $request, Peminjaman $peminjaman)
+  public function confirmBookTaken(Request $request, Peminjaman $peminjaman)
     {
         // Validasi status peminjaman
         if ($peminjaman->status !== 'booking') {
@@ -333,11 +333,13 @@ class PeminjamanController extends Controller
             ]);
 
             DB::commit();
-            
+
             return redirect()->route('admin.peminjaman.index')
                 ->with('success', 'Pengambilan buku berhasil dikonfirmasi! Status diubah menjadi dipinjam.');
-                
-        } 
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 
     private function hitungDenda($peminjaman, $waktuPengembalian, $tanggalKembali)

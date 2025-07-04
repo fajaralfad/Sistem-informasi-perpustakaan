@@ -26,6 +26,11 @@ class DashboardController extends Controller
             'booking_disetujui' => Peminjaman::where('user_id', $user->id)
                 ->where('status', Peminjaman::STATUS_BOOKING)
                 ->count(),
+
+            // Booking yang ditolak oleh admin
+            'booking_ditolak' => Peminjaman::where('user_id', $user->id)
+                ->where('status', Peminjaman::STATUS_DITOLAK)
+                ->count(),
             
             // Buku yang sedang dipinjam (di tangan user)
             'sedang_dipinjam' => Peminjaman::where('user_id', $user->id)

@@ -58,6 +58,22 @@
             </div>
         </div>
 
+        <!-- Booking Ditolak -->
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-red-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Booking Ditolak</p>
+                    <p class="text-2xl font-bold text-gray-900" data-stat="booking_ditolak">{{ $stats['booking_ditolak'] ?? 0 }}</p>
+                    <p class="text-xs text-gray-500 mt-1">Tidak disetujui</p>
+                </div>
+                <div class="p-3 bg-red-100 rounded-full">
+                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
         <!-- Sedang Dipinjam -->
         <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
             <div class="flex items-center justify-between">
@@ -472,6 +488,8 @@
                 .then(data => {
                     // Update statistik booking pending
                     document.querySelector('[data-stat="booking_pending"]').textContent = data.booking_pending;
+                    // Update statistik booking ditolak
+                    document.querySelector('[data-stat="booking_ditolak"]').textContent = data.booking_ditolak;
                     // Update statistik booking disetujui
                     document.querySelector('[data-stat="booking_disetujui"]').textContent = data.booking_disetujui;
                     // Update statistik sedang dipinjam
@@ -496,7 +514,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Add data attributes untuk stats yang akan di-refresh
         const stats = document.querySelectorAll('.text-2xl.font-bold.text-gray-900');
-        const statKeys = ['booking_pending', 'booking_disetujui', 'sedang_dipinjam', 'terlambat', 
+        const statKeys = ['booking_pending', 'booking_disetujui','booking_ditolak', 'sedang_dipinjam', 'terlambat', 
                          'total_selesai', 'total_peminjaman', 'denda_aktif', 'total_denda_nominal'];
         
         stats.forEach((stat, index) => {
