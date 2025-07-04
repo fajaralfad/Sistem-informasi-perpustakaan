@@ -13,65 +13,41 @@
 
     <!-- Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="stylesheet" href="{{ asset('css/theme.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/app.css') }}">
 
-    <!-- Livewire Styles -->
     @livewireStyles
-
-    <style>
-        /* Loading indicator styles */
-        .livewire-loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background-color: rgba(99, 102, 241, 0.2);
-            z-index: 9999;
-            display: none;
-        }
-        .livewire-loading:after {
-            content: '';
-            display: block;
-            position: absolute;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            width: 100%;
-            background-color: rgb(99, 102, 241);
-            animation: livewireLoading 1.5s ease-in-out infinite;
-        }
-        @keyframes livewireLoading {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-    </style>
 </head>
 
-<body class="font-sans antialiased bg-gray-100">
+<body class="font-sans antialiased">
     <!-- Loading Indicator -->
-    <div class="livewire-loading" id="livewire-loading-bar"></div>
+    <div class="livewire-loading" id="livewire-loading-bar" style="display:none; height: 4px; background: #3b82f6;"></div>
 
-    <div class="app-wrapper fade-in">
-        <!-- Navigation -->
-        @include('layouts.navigation')
+    <div class="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col justify-between">
+        <div>
+            @include('layouts.navigation')
 
-        <!-- Content Wrapper -->
-        <div class="pt-16 flex"> <!-- pt-16 memberi ruang di bawah navbar fixed -->
-            <div class="flex-1">
-                @isset($header)
-                    <header class="shadow relative z-20 bg-white">
-                        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                            {{ $header }}
-                        </div>
-                    </header>
-                @endisset
+            <!-- Page Heading -->
+            @isset($header)
+                <header class="bg-white dark:bg-gray-800 shadow">
+                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                        {{ $header }}
+                    </div>
+                </header>
+            @endisset
 
-                <main class="relative">
-                    @yield('content')
-                </main>
-            </div>
+            <!-- Page Content -->
+            <main class="mb-10">
+                @yield('content')
+            </main>
         </div>
+
+        <!-- Footer -->
+        <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 text-center py-4 text-sm text-gray-600 dark:text-gray-300">
+            <div class="max-w-7xl mx-auto px-4">
+                <p>&copy; {{ date('Y') }} {{ config('app.name', 'Laravel') }}. All rights reserved.</p>
+                <p>Developed by <a href="https://example.com" target="_blank" class="text-blue-600 hover:underline">Your Name</a></p>
+            </div>
+        </footer>
     </div>
 
     <!-- Livewire Scripts -->
@@ -79,27 +55,25 @@
 
     <script>
         document.addEventListener('livewire:init', () => {
-            // Modern Livewire 3+ approach
             let timer;
-            
-            Livewire.hook('request', ({ uri, options, payload, respond, succeed }) => {
-                // Show loading after 300ms delay (for fast requests)
+
+            Livewire.hook('request', ({ respond, succeed }) => {
                 timer = setTimeout(() => {
                     document.getElementById('livewire-loading-bar').style.display = 'block';
                 }, 300);
-                
+
                 respond((response) => {
                     clearTimeout(timer);
                     return response;
                 });
-                
+
                 succeed((response) => {
                     clearTimeout(timer);
                     document.getElementById('livewire-loading-bar').style.display = 'none';
                     return response;
                 });
             });
-            
+
             Livewire.hook('request.failed', () => {
                 clearTimeout(timer);
                 document.getElementById('livewire-loading-bar').style.display = 'none';

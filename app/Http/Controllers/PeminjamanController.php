@@ -320,25 +320,35 @@ class PeminjamanController extends Controller
   public function confirmBookTaken(Request $request, Peminjaman $peminjaman)
     {
         // Validasi status peminjaman
-        if ($peminjaman->status !== 'booking') {
-            return back()->with('error', 'Hanya booking yang bisa dikonfirmasi pengambilannya!');
+        if (!in_array($peminjaman->status, ['pending', 'booking'])) {
+            return back()->with('error', 'Hanya booking/pending yang bisa dikonfirmasi!');
         }
 
         DB::beginTransaction();
         try {
-            // Update status dan tanggal pinjam
+            $buku = $peminjaman->buku;
+            
+            // Cek stok sebelum konfirmasi
+            if ($buku->stok <= 0) {
+                throw new \Exception('Stok buku tidak tersedia!');
+            }
+
+            // Update status
             $peminjaman->update([
                 'status' => 'dipinjam',
-                'tanggal_pinjam' => Carbon::now() 
+                'tanggal_pinjam' => Carbon::now()
             ]);
+
+            // Kurangi stok - HANYA di sini
+            $buku->decrement('stok');
 
             DB::commit();
 
             return redirect()->route('admin.peminjaman.index')
-                ->with('success', 'Pengambilan buku berhasil dikonfirmasi! Status diubah menjadi dipinjam.');
+                ->with('success', 'Buku berhasil dikonfirmasi diambil! Stok berkurang.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            return back()->with('error', 'Gagal konfirmasi: ' . $e->getMessage());
         }
     }
 
