@@ -42,10 +42,11 @@
         </div>
 
         <!-- Footer -->
-        <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 text-center py-4 text-sm text-gray-600 dark:text-gray-300">
-            <div class="max-w-7xl mx-auto px-4">
+        <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 text-center py-6 text-sm text-gray-600 dark:text-gray-300">
+            <div class="max-w-7xl mx-auto px-4 flex flex-col items-center">
+                <img src="{{ asset('images/webphada.png') }}" alt="Logo" class="h-20 w-20 object-contain mb-2">
                 <p>&copy; {{ date('Y') }} {{ config('app.name', 'Laravel') }}. All rights reserved.</p>
-                <p>Developed by <a href="https://example.com" target="_blank" class="text-blue-600 hover:underline">Your Name</a></p>
+                <p>Kejaksaan Negeri Bandar Lampung</p>
             </div>
         </footer>
     </div>

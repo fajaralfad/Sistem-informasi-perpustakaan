@@ -27,11 +27,18 @@ class AdminUserSeeder extends Seeder
                 'role' => 'admin',
                 'email_verified_at' => now(),
             ],
+            [
+                'name' => 'Pustakawan',
+                'email' => 'kejaribalam@perpustakaan.com',
+                'password' => bcrypt('kejari23'),
+                'role' => 'admin',
+                'email_verified_at' => now(),
+            ],
         ];
 
         foreach ($admins as $admin) {
             User::firstOrCreate(
-                ['email' => $admin['email']], // Kondisi unik
+                ['email' => $admin['email']], 
                 $admin
             );
         }

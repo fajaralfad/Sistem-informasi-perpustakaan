@@ -4,12 +4,17 @@
     
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <div class="flex justify-between h-16">
-            <div class="flex">
-                <!-- Logo -->
+        <div class="flex justify-between h-20">
+            <div class="flex items-center">
+                <!-- Logo and Text -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-100 dark:text-white" />
+                    <a href="{{ route('dashboard') }}" class="flex items-center space-x-3">
+                        <img src="{{ asset('images/webphada.png') }}" alt="Logo" class="h-16 w-16 object-contain">
+                        <div class="flex flex-col">
+                            <span class="text-white font-bold text-lg leading-tight">Sistem Informasi</span>
+                            <span class="text-white font-bold text-lg leading-tight">Perpustakaan</span>
+                            <span class="text-gray-300 text-sm">Kejari Bandar Lampung</span>
+                        </div>
                     </a>
                 </div>
 
@@ -24,7 +29,7 @@
                             </x-nav-link>
                             <x-nav-link :href="route('admin.buku.index')" :active="request()->routeIs('admin.buku.*')" 
                                         class="text-gray-300 dark:text-gray-200 hover:text-white dark:hover:text-white border-b-2 border-transparent hover:border-blue-400 dark:hover:border-blue-300 transition-all duration-300">
-                                {{ __('Manajemen Buku') }}
+                                {{ __('Buku') }}
                             </x-nav-link>
                              <x-nav-link :href="route('admin.kategori.index')" :active="request()->routeIs('admin.kategori.*')" 
                                         class="text-gray-300 dark:text-gray-200 hover:text-white dark:hover:text-white border-b-2 border-transparent hover:border-blue-400 dark:hover:border-blue-300 transition-all duration-300">
@@ -36,7 +41,7 @@
                             </x-nav-link>
                             <x-nav-link :href="route('admin.anggota.index')" :active="request()->routeIs('admin.anggota.*')" 
                                         class="text-gray-300 dark:text-gray-200 hover:text-white dark:hover:text-white border-b-2 border-transparent hover:border-blue-400 dark:hover:border-blue-300 transition-all duration-300">
-                                {{ __('Manajemen Anggota') }}
+                                {{ __('Anggota') }}
                             </x-nav-link>
                             <x-nav-link :href="route('admin.peminjaman.index')" :active="request()->routeIs('admin.peminjaman.*')" 
                                         class="text-gray-300 dark:text-gray-200 hover:text-white dark:hover:text-white border-b-2 border-transparent hover:border-blue-400 dark:hover:border-blue-300 transition-all duration-300">
@@ -129,6 +134,17 @@
         <div class="absolute inset-0 bg-gray-800 dark:bg-gray-900 bg-opacity-95 dark:bg-opacity-95 backdrop-blur-md"></div>
         
         <div class="relative">
+            <!-- Mobile Logo Section -->
+            <div class="px-4 py-3 border-b border-gray-700 dark:border-gray-600">
+                <div class="flex items-center space-x-3">
+                    <img src="{{ asset('images/webphada.png') }}" alt="Logo" class="h-12 w-12 object-contain">
+                    <div class="flex flex-col">
+                        <span class="text-white font-bold text-base leading-tight">Sistem Informasi Perpustakaan</span>
+                        <span class="text-gray-300 text-sm">Kejari Bandar Lampung</span>
+                    </div>
+                </div>
+            </div>
+            
             <div class="pt-2 pb-3 space-y-1">
                 @auth
                     @if(auth()->user()->role === 'admin')
@@ -140,6 +156,14 @@
                         <x-responsive-nav-link :href="route('admin.buku.index')" :active="request()->routeIs('admin.buku.*')" 
                                              class="text-gray-300 dark:text-gray-200 hover:text-white dark:hover:text-white hover:bg-gray-700 dark:hover:bg-gray-800 transition-all duration-200">
                             {{ __('Manajemen Buku') }}
+                        </x-responsive-nav-link>
+                        <x-responsive-nav-link :href="route('admin.kategori.index')" :active="request()->routeIs('admin.kategori.*')" 
+                                             class="text-gray-300 dark:text-gray-200 hover:text-white dark:hover:text-white hover:bg-gray-700 dark:hover:bg-gray-800 transition-all duration-200">
+                            {{ __('Kategori') }}
+                        </x-responsive-nav-link>
+                        <x-responsive-nav-link :href="route('admin.pengarang.index')" :active="request()->routeIs('admin.pengarang.*')" 
+                                             class="text-gray-300 dark:text-gray-200 hover:text-white dark:hover:text-white hover:bg-gray-700 dark:hover:bg-gray-800 transition-all duration-200">
+                            {{ __('Pengarang') }}
                         </x-responsive-nav-link>
                         <x-responsive-nav-link :href="route('admin.anggota.index')" :active="request()->routeIs('admin.anggota.*')" 
                                              class="text-gray-300 dark:text-gray-200 hover:text-white dark:hover:text-white hover:bg-gray-700 dark:hover:bg-gray-800 transition-all duration-200">
