@@ -20,47 +20,19 @@
 
     <!-- Search and Filter - Dark Version -->
     <div class="bg-gray-800 rounded-lg shadow-md p-6 mb-6 border border-gray-700">
-        <div class="flex flex-col md:flex-row md:items-center gap-4 mb-4">
-            <!-- Search Input -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div class="flex-1">
                 <label for="search" class="sr-only">Cari pengarang</label>
                 <div class="relative">
                     <input type="text" 
-                           wire:model.live.debounce.300ms="search"
+                           wire:model.live="search"
                            class="block w-full pl-10 pr-3 py-2 border border-gray-600 rounded-lg leading-5 bg-gray-700 text-gray-700 placeholder-gray-400 focus:outline-none focus:placeholder-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                           placeholder="Cari berdasarkan nama, email, atau alamat">
+                           placeholder="Cari pengarang...">
                 </div>
             </div>
-
-            <!-- Per Page Selector -->
-            <div class="flex items-center space-x-2">
-                <label for="perPage" class="text-sm text-gray-300">Tampilkan:</label>
-                <select wire:model.live="perPage" 
-                        id="perPage"
-                        class="border border-gray-600 rounded-md px-3 py-2 text-sm bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="5">5</option>
-                    <option value="10">10</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
-                </select>
-                <span class="text-sm text-gray-300">entri</span>
+            <div class="text-sm text-gray-400">
+                Total: <span class="font-semibold text-white">{{ $pengarangs->count() }}</span> pengarang
             </div>
-
-            <!-- Reset Button -->
-            @if($search)
-            <button wire:click="resetSearch" 
-                    class="inline-flex items-center px-4 py-2 border border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
-                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-                Reset
-            </button>
-            @endif
-        </div>
-
-        <!-- Stats Info -->
-        <div class="text-sm text-gray-400">
-            Total: <span class="font-semibold text-white">{{ $pengarangs->total() }}</span> pengarang
         </div>
     </div>
 

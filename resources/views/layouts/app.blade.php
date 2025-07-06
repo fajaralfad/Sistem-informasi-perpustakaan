@@ -16,6 +16,45 @@
     <link rel="stylesheet" href="{{ asset('assets/app.css') }}">
 
     @livewireStyles
+
+    <style>
+        /* Tambahkan style ini untuk memastikan grid bekerja */
+        .book-grid-container {
+            width: 100%;
+            overflow-x: auto; /* Untuk mobile jika perlu scroll horizontal */
+        }
+        
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            width: 100%;
+        }
+        
+        @media (min-width: 640px) {
+            .book-grid {
+                grid-template-columns: repeat(2, minmax(200px, 1fr));
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .book-grid {
+                grid-template-columns: repeat(3, minmax(200px, 1fr));
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .book-grid {
+                grid-template-columns: repeat(4, minmax(200px, 1fr));
+            }
+        }
+        
+        .book-card {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+    </style>
 </head>
 
 <body class="font-sans antialiased">
@@ -37,7 +76,9 @@
 
             <!-- Page Content -->
             <main class="mb-10">
-                @yield('content')
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    @yield('content')
+                </div>
             </main>
         </div>
 
