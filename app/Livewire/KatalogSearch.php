@@ -13,7 +13,7 @@ class KatalogSearch extends Component
 
     public $search = '';
     public $kategori = '';
-    public $perPage = 12;
+    public $perPage = 20;
 
     protected $queryString = [
         'search' => ['except' => ''],

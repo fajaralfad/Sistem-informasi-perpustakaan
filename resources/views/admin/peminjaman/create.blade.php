@@ -102,7 +102,7 @@
                                 <option value="">Pilih Buku</option>
                                 @foreach($bukus as $buku)
                                     <option value="{{ $buku->id }}" {{ old('buku_id') == $buku->id ? 'selected' : '' }}>
-                                        {{ $buku->judul }} (Stok: {{ $buku->stok }})
+                                        {{ $buku->judul }} (ISBN: {{ $buku->isbn }})
                                     </option>
                                 @endforeach
                             </select>

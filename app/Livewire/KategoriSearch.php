@@ -11,6 +11,10 @@ class KategoriSearch extends Component
     public $sortBy = 'nama';
     public $sortDirection = 'asc';
 
+    // Tambahkan properti untuk delete confirmation
+    public $kategoriIdToDelete;
+    public $kategoriNamaToDelete;
+
     protected $queryString = ['search'];
 
     public function updatedSearch()
@@ -28,25 +32,26 @@ class KategoriSearch extends Component
         }
     }
 
-    public function confirmDelete($kategoriId, $namaKategori)
+    // Ubah method confirmDelete
+    public function confirmDelete($id, $nama)
     {
-        $this->dispatch('confirm-delete', [
-            'id' => $kategoriId,
-            'nama' => $namaKategori,
-            'message' => "Apakah Anda yakin ingin menghapus kategori \"{$namaKategori}\"?\n\nTindakan ini tidak dapat dibatalkan."
-        ]);
+        $this->kategoriIdToDelete = $id;
+        $this->kategoriNamaToDelete = $nama;
     }
 
-    public function deleteKategori($kategoriId)
+    // Tambahkan method delete
+    public function delete()
     {
         try {
-            $kategori = Kategori::findOrFail($kategoriId);
+            $kategori = Kategori::findOrFail($this->kategoriIdToDelete);
             $kategori->delete();
             
-            session()->flash('success', 'Kategori berhasil dihapus!');
+            $this->dispatch('show-toast', message: 'Kategori berhasil dihapus', type: 'success');
         } catch (\Exception $e) {
-            session()->flash('error', 'Gagal menghapus kategori. Silakan coba lagi.');
+            $this->dispatch('show-toast', message: 'Gagal menghapus kategori', type: 'error');
         }
+
+        $this->reset(['kategoriIdToDelete', 'kategoriNamaToDelete']);
     }
 
     public function render()

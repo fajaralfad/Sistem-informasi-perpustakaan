@@ -67,7 +67,7 @@ class BukuController extends Controller
             default => 'judul'
         };
 
-        $bukus = $query->orderBy($sortColumn, $sortOrder)->paginate(12);
+        $bukus = $query->orderBy($sortColumn, $sortOrder)->paginate(15);
 
         // Get filter options
         $kategoris = Kategori::orderBy('nama')->get();

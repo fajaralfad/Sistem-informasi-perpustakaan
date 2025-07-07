@@ -62,6 +62,13 @@ class Peminjaman extends Model
     {
         return $query->where('status', self::STATUS_PENDING);
     }
+
+    // Di model Peminjaman tambahkan scope berikut:
+    public function scopeBorrowedOrBooked($query)
+    {
+        return $query->whereIn('status', [self::STATUS_DIPINJAM, self::STATUS_BOOKING]);
+    }
+    
     /**
      * Relationship dengan User
      */

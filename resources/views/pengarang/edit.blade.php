@@ -81,7 +81,7 @@
                                 <span class="text-gray-400 text-xs ml-2">(Opsional)</span>
                             </label>
                             <input type="email" name="email" id="email" value="{{ old('email', $pengarang->email ?? '') }}"
-                                   class="block w-full bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
+                                   class="block w-full bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
                                    placeholder="contoh@email.com">
                             @error('email')
                                 <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
@@ -120,23 +120,6 @@
                                 <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
                             @enderror
                         </div>
-
-                        <!-- Informasi Status -->
-                        <div class="p-4 bg-gray-700 rounded-lg border border-gray-600">
-                            <div class="flex items-center space-x-3">
-                                <div class="bg-blue-600 bg-opacity-20 p-2 rounded-lg">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-300">Status: Aktif</p>
-                                    <p class="text-xs text-gray-400">Pengarang dapat digunakan untuk buku baru</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Required Fields Note - Dark Version -->
                 <div class="mt-6 p-4 bg-blue-900 bg-opacity-30 rounded-lg border border-blue-700">

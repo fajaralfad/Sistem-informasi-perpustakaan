@@ -36,6 +36,11 @@
         </div>
     </div>
 
+    <!-- Loading State -->
+    <div wire:loading class="flex justify-center items-center py-8">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+    </div>
+
     <!-- Table - Dark Version -->
     <div class="bg-gray-800 rounded-lg shadow-md overflow-hidden border border-gray-700">
         @if($pengarangs->count() > 0)
@@ -145,15 +150,14 @@
                                     </svg>
                                     Edit
                                 </a>
-                                <button type="button" 
-                                        wire:click="confirmDelete({{ $pengarang->id }}, '{{ $pengarang->nama }}')"
-                                        class="bg-red-900 hover:bg-red-800 text-red-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center transition-colors duration-200"
-                                        title="Hapus Pengarang">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                    Hapus
-                                </button>
+                                <button wire:click="confirmDelete({{ $pengarang->id }}, '{{ $pengarang->nama }}')" 
+                                    class="bg-red-900 hover:bg-red-800 text-red-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center transition-colors duration-200"
+                                    title="Hapus Pengarang">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                                Hapus
+                            </button>
                             </div>
                         </td>
                     </tr>
@@ -200,6 +204,33 @@
         </div>
         @endif
     </div>
+
+    @if($pengarangIdToDelete)
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75" x-data="{ open: true }" x-show="open" @keydown.escape.window="open = false">
+        <div class="bg-gray-800 rounded-lg shadow-lg p-6 max-w-md w-full mx-4 border border-gray-700">
+            <div class="flex items-center justify-center w-12 h-12 mx-auto bg-red-900 rounded-full mb-4">
+                <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                </svg>
+            </div>
+            <h2 class="text-lg font-semibold text-white text-center mb-4">Konfirmasi Hapus</h2>
+            <p class="text-gray-300 text-center mb-6">
+                Yakin ingin menghapus pengarang <strong class="text-white">{{ $pengarangNamaToDelete }}</strong>? 
+                <br><span class="text-sm text-red-400">Tindakan ini tidak dapat dibatalkan.</span>
+            </p>
+            <div class="flex justify-center gap-3">
+                <button wire:click="$set('pengarangIdToDelete', null)" 
+                        class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg font-medium transition-colors duration-200">
+                    Batal
+                </button>
+                <button wire:click="delete" 
+                        class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors duration-200">
+                    Ya, Hapus
+                </button>
+            </div>
+        </div>
+    </div>
+    @endif
 </div>
 
 <script>

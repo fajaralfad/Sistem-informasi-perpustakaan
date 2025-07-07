@@ -15,6 +15,10 @@ class PengarangSearch extends Component
     public $sortBy = 'nama';
     public $sortDirection = 'asc';
 
+    // Tambahkan properti untuk delete confirmation
+    public $pengarangIdToDelete;
+    public $pengarangNamaToDelete;
+
     protected $queryString = [
         'search' => ['except' => ''],
         'perPage' => ['except' => 10],
@@ -52,22 +56,32 @@ class PengarangSearch extends Component
         $this->resetPage();
     }
 
-    public function deletePengarang($id)
+    // Tambahkan method confirmDelete
+    public function confirmDelete($id, $nama)
+    {
+        $this->pengarangIdToDelete = $id;
+        $this->pengarangNamaToDelete = $nama;
+    }
+
+    // Tambahkan method delete
+    public function delete()
     {
         try {
-            $pengarang = Pengarang::findOrFail($id);
+            $pengarang = Pengarang::findOrFail($this->pengarangIdToDelete);
             
             // Check if pengarang has books
             if ($pengarang->bukus()->count() > 0) {
-                session()->flash('error', 'Tidak dapat menghapus pengarang yang masih memiliki buku.');
+                $this->dispatch('show-toast', message: 'Tidak dapat menghapus pengarang yang masih memiliki buku', type: 'error');
                 return;
             }
             
             $pengarang->delete();
-            session()->flash('success', 'Pengarang berhasil dihapus.');
+            $this->dispatch('show-toast', message: 'Pengarang berhasil dihapus', type: 'success');
         } catch (\Exception $e) {
-            session()->flash('error', 'Terjadi kesalahan saat menghapus pengarang.');
+            $this->dispatch('show-toast', message: 'Gagal menghapus pengarang', type: 'error');
         }
+
+        $this->reset(['pengarangIdToDelete', 'pengarangNamaToDelete']);
     }
 
     public function render()

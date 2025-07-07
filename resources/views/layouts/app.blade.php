@@ -121,6 +121,46 @@
                 document.getElementById('livewire-loading-bar').style.display = 'none';
             });
         });
+
+        // Toast notification handler
+        Livewire.on('show-toast', (data) => {
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-4 right-4 px-4 py-2 rounded-lg shadow-lg flex items-center ${
+                data.type === 'success' ? 'bg-green-900 text-green-200' : 'bg-red-900 text-red-200'
+            }`;
+            
+            const icon = document.createElement('svg');
+            icon.className = 'w-5 h-5 mr-2';
+            icon.fill = 'none';
+            icon.viewBox = '0 0 24 24';
+            icon.stroke = 'currentColor';
+            
+            const path = document.createElement('path');
+            path.strokeLinecap = 'round';
+            path.strokeLinejoin = 'round';
+            path.strokeWidth = '2';
+            
+            if (data.type === 'success') {
+                path.setAttribute('d', 'M5 13l4 4L19 7');
+            } else {
+                path.setAttribute('d', 'M6 18L18 6M6 6l12 12');
+            }
+            
+            icon.appendChild(path);
+            toast.appendChild(icon);
+            
+            const message = document.createElement('span');
+            message.textContent = data.message;
+            toast.appendChild(message);
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.transition = 'opacity 0.5s ease-out';
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
+        });
     </script>
 
     <!-- Extra Scripts -->

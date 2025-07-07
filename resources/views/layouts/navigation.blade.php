@@ -51,7 +51,7 @@
                                         class="text-gray-300 dark:text-gray-200 hover:text-white dark:hover:text-white border-b-2 border-transparent hover:border-blue-400 dark:hover:border-blue-300 transition-all duration-300">
                                 {{ __('Denda') }}
                             </x-nav-link>
-                            <x-nav-link :href="route('admin.laporan.buku')" :active="request()->routeIs('admin.laporan.*')" 
+                            <x-nav-link :href="route('admin.laporan.index')" :active="request()->routeIs('admin.laporan.*')" 
                                         class="text-gray-300 dark:text-gray-200 hover:text-white dark:hover:text-white border-b-2 border-transparent hover:border-blue-400 dark:hover:border-blue-300 transition-all duration-300">
                                 {{ __('Laporan') }}
                             </x-nav-link>
@@ -177,7 +177,7 @@
                                              class="text-gray-300 dark:text-gray-200 hover:text-white dark:hover:text-white hover:bg-gray-700 dark:hover:bg-gray-800 transition-all duration-200">
                             {{ __('Denda') }}
                         </x-responsive-nav-link>
-                        <x-responsive-nav-link :href="route('admin.laporan.buku')" :active="request()->routeIs('admin.laporan.*')" 
+                        <x-responsive-nav-link :href="route('admin.laporan.index')" :active="request()->routeIs('admin.laporan.*')" 
                                              class="text-gray-300 dark:text-gray-200 hover:text-white dark:hover:text-white hover:bg-gray-700 dark:hover:bg-gray-800 transition-all duration-200">
                             {{ __('Laporan') }}
                         </x-responsive-nav-link>
