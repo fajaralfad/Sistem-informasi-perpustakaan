@@ -47,8 +47,14 @@ class BukuController extends Controller
             'cover' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'stok' => 'required|integer|min:1',
             'isbn' => 'required|array|min:1',
-            'isbn.*' => 'required|string|unique:bukus,isbn'
+            'isbn.*' => 'required|string|distinct'
         ]);
+
+        // Validasi ISBN tidak duplikat dengan buku lain
+        $existingIsbns = Buku::whereIn('isbn', $request->isbn)->pluck('isbn');
+        if ($existingIsbns->isNotEmpty()) {
+            return back()->withErrors(['isbn' => 'ISBN ' . $existingIsbns->implode(', ') . ' sudah digunakan.'])->withInput();
+        }
 
         // Simpan cover jika ada
         $coverPath = null;
@@ -56,19 +62,17 @@ class BukuController extends Controller
             $coverPath = $request->file('cover')->store('buku-covers', 'public');
         }
 
-        // Simpan setiap buku dengan ISBN unik
-        foreach ($request->isbn as $isbn) {
-            Buku::create([
-                'judul' => $validated['judul'],
-                'kategori_id' => $validated['kategori_id'],
-                'pengarang_id' => $validated['pengarang_id'],
-                'isbn' => trim($isbn),
-                'tahun_terbit' => $validated['tahun_terbit'],
-                'stok' => 1, // Setiap buku memiliki stok 1
-                'deskripsi' => $validated['deskripsi'],
-                'cover' => $coverPath,
-            ]);
-        }
+        // Simpan sebagai SATU record dengan multiple ISBN
+        Buku::create([
+            'judul' => $validated['judul'],
+            'kategori_id' => $validated['kategori_id'],
+            'pengarang_id' => $validated['pengarang_id'],
+            'isbn' => json_encode($request->isbn), // Simpan sebagai JSON
+            'tahun_terbit' => $validated['tahun_terbit'],
+            'stok' => $validated['stok'], // Stok total
+            'deskripsi' => $validated['deskripsi'],
+            'cover' => $coverPath,
+        ]);
 
         return redirect()->route('admin.buku.index')
             ->with('success', 'Buku berhasil ditambahkan dengan ' . count($request->isbn) . ' ISBN!');
@@ -76,138 +80,119 @@ class BukuController extends Controller
 
     public function show($id)
     {
-        // Ambil satu buku untuk detail, atau ambil berdasarkan judul
-        $buku = Buku::findOrFail($id);
-        
-        // Ambil semua buku dengan judul yang sama untuk menampilkan semua ISBN
-        $bukusSameTilte = Buku::where('judul', $buku->judul)
-            ->with(['kategori', 'pengarang'])
-            ->get();
-
-        return view('buku.show', compact('buku', 'bukusSameTilte'));
+        $buku = Buku::with(['kategori', 'pengarang'])->findOrFail($id);
+        return view('buku.show', compact('buku'));
     }
 
     public function edit($id)
     {
-        $buku = Buku::findOrFail($id);
-        $kategoris = Kategori::orderBy('nama')->get();
-        $pengarangs = Pengarang::orderBy('nama')->get();
+        $buku = Buku::with(['kategori', 'pengarang'])->findOrFail($id);
         
-        // Ambil semua ISBN untuk buku dengan judul yang sama
-        $bukusSameTitle = Buku::where('judul', $buku->judul)->pluck('isbn')->toArray();
-        
-        return view('buku.edit', compact('buku', 'kategoris', 'pengarangs', 'bukusSameTitle'));
+        return view('buku.edit', [
+            'buku' => $buku,
+            'kategoris' => Kategori::orderBy('nama')->get(),
+            'pengarangs' => Pengarang::orderBy('nama')->get()
+        ]);
     }
 
     public function update(Request $request, $id)
     {
         $buku = Buku::findOrFail($id);
-        $originalTitle = $buku->judul;
         
-        $validated = $request->validate([
-            'judul' => 'required|max:255',
+        // Validasi dasar
+        $rules = [
+            'judul' => 'required|string|max:255',
             'kategori_id' => 'required|exists:kategoris,id',
             'pengarang_id' => 'required|exists:pengarangs,id',
             'tahun_terbit' => 'required|integer|min:1900|max:' . (date('Y') + 2),
-            'deskripsi' => 'nullable',
-            'cover' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'isbn' => 'required|array|min:1',
-            'isbn.*' => 'required|string'
-        ]);
+            'stok' => 'required|integer|min:0',
+            'deskripsi' => 'nullable|string',
+            'cover' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ];
+        
+        // Tambahkan validasi ISBN hanya jika stok > 0
+        if ($request->stok > 0) {
+            $rules['isbn'] = 'required|array|min:1';
+            $rules['isbn.*'] = 'required|string|max:255|distinct';
+        }
+        
+        $validated = $request->validate($rules);
 
-        // Validasi ISBN unik kecuali untuk buku yang sedang diedit
-        foreach ($request->isbn as $isbn) {
-            $existingBuku = Buku::where('isbn', trim($isbn))->where('id', '!=', $id)->first();
-            if ($existingBuku) {
-                return back()->withErrors(['isbn' => "ISBN {$isbn} sudah digunakan oleh buku lain."])->withInput();
+        // Custom validation untuk ISBN duplikat dengan buku lain
+        if ($request->stok > 0 && $request->has('isbn')) {
+            $isbns = array_filter($request->isbn, function($isbn) {
+                return !empty(trim($isbn));
+            });
+            
+            // Cek duplikat dengan buku lain (exclude current book)
+            $existingIsbns = Buku::where('id', '!=', $id)
+                ->where(function($query) use ($isbns) {
+                    foreach ($isbns as $isbn) {
+                        $query->orWhere('isbn', 'LIKE', '%"' . $isbn . '"%');
+                    }
+                })
+                ->get();
+            
+            if ($existingIsbns->isNotEmpty()) {
+                return back()->withErrors(['isbn' => 'Beberapa ISBN sudah digunakan oleh buku lain.'])->withInput();
             }
         }
-
+        
         // Handle cover upload
-        $coverPath = $buku->cover;
+        $coverPath = $buku->cover; // Gunakan cover lama sebagai default
         if ($request->hasFile('cover')) {
-            // Hapus cover lama jika ada
+            // Delete old cover if exists
             if ($buku->cover) {
-                Storage::disk('public')->delete($buku->cover);
+                Storage::delete('public/' . $buku->cover);
             }
-            $coverPath = $request->file('cover')->store('buku-covers', 'public');
+            
+            $coverPath = $request->file('cover')->store('covers', 'public');
         }
-
-        // Jika judul berubah, update semua buku dengan judul yang sama
-        if ($originalTitle !== $validated['judul']) {
-            Buku::where('judul', $originalTitle)->update([
-                'judul' => $validated['judul'],
-                'kategori_id' => $validated['kategori_id'],
-                'pengarang_id' => $validated['pengarang_id'],
-                'tahun_terbit' => $validated['tahun_terbit'],
-                'deskripsi' => $validated['deskripsi'],
-                'cover' => $coverPath,
-            ]);
+        
+        // Update data buku
+        $updateData = [
+            'judul' => $request->judul,
+            'kategori_id' => $request->kategori_id,
+            'pengarang_id' => $request->pengarang_id,
+            'tahun_terbit' => $request->tahun_terbit,
+            'stok' => $request->stok,
+            'deskripsi' => $request->deskripsi,
+            'cover' => $coverPath,
+        ];
+        
+        // Update ISBN
+        if ($request->stok > 0 && $request->has('isbn')) {
+            $isbns = array_filter($request->isbn, function($isbn) {
+                return !empty(trim($isbn));
+            });
+            $updateData['isbn'] = json_encode($isbns);
         } else {
-            // Update data umum untuk semua buku dengan judul yang sama
-            Buku::where('judul', $originalTitle)->update([
-                'kategori_id' => $validated['kategori_id'],
-                'pengarang_id' => $validated['pengarang_id'],
-                'tahun_terbit' => $validated['tahun_terbit'],
-                'deskripsi' => $validated['deskripsi'],
-                'cover' => $coverPath,
-            ]);
+            $updateData['isbn'] = json_encode([]);
         }
-
-        // Handle ISBN changes
-        $currentIsbns = Buku::where('judul', $validated['judul'])->pluck('isbn')->toArray();
-        $newIsbns = array_map('trim', $request->isbn);
-
-        // Hapus ISBN yang tidak ada di request
-        $isbnToDelete = array_diff($currentIsbns, $newIsbns);
-        if (!empty($isbnToDelete)) {
-            Buku::where('judul', $validated['judul'])->whereIn('isbn', $isbnToDelete)->delete();
-        }
-
-        // Tambah ISBN baru
-        $isbnToAdd = array_diff($newIsbns, $currentIsbns);
-        foreach ($isbnToAdd as $isbn) {
-            Buku::create([
-                'judul' => $validated['judul'],
-                'kategori_id' => $validated['kategori_id'],
-                'pengarang_id' => $validated['pengarang_id'],
-                'isbn' => $isbn,
-                'tahun_terbit' => $validated['tahun_terbit'],
-                'stok' => 1,
-                'deskripsi' => $validated['deskripsi'],
-                'cover' => $coverPath,
-            ]);
-        }
-
+        
+        $buku->update($updateData);
+        
         return redirect()->route('admin.buku.index')
-            ->with('success', 'Buku berhasil diperbarui!');
+                        ->with('success', 'Buku berhasil diperbarui.');
     }
 
     /**
-     * Method untuk mendapatkan detail buku berdasarkan judul (untuk AJAX)
+     * Method untuk mendapatkan detail buku berdasarkan ID (untuk AJAX)
      */
-    public function getBookDetails($judul)
+    public function getBookDetails($id)
     {
-        $bukus = Buku::where('judul', $judul)
-            ->with(['kategori', 'pengarang'])
-            ->get();
-            
-        if ($bukus->isEmpty()) {
-            return response()->json(['error' => 'Buku tidak ditemukan'], 404);
-        }
+        $buku = Buku::with(['kategori', 'pengarang'])->findOrFail($id);
         
-        $bookData = $bukus->first();
-        $isbns = $bukus->pluck('isbn')->toArray();
+        $isbns = json_decode($buku->isbn, true) ?? [];
         
         return response()->json([
-            'judul' => $bookData->judul,
-            'kategori' => $bookData->kategori->nama ?? '-',
-            'pengarang' => $bookData->pengarang->nama ?? '-',
-            'tahun_terbit' => $bookData->tahun_terbit,
-            'deskripsi' => $bookData->deskripsi,
-            'cover' => $bookData->cover ? asset('storage/' . $bookData->cover) : null,
-            'total_stok' => $bukus->sum('stok'),
-            'total_copy' => $bukus->count(),
+            'judul' => $buku->judul,
+            'kategori' => $buku->kategori->nama ?? '-',
+            'pengarang' => $buku->pengarang->nama ?? '-',
+            'tahun_terbit' => $buku->tahun_terbit,
+            'deskripsi' => $buku->deskripsi,
+            'cover' => $buku->cover ? asset('storage/' . $buku->cover) : null,
+            'stok' => $buku->stok,
             'isbns' => $isbns
         ]);
     }

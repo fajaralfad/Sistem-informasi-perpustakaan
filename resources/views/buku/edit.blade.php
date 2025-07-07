@@ -7,7 +7,7 @@
         <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
             <div>
                 <h1 class="text-2xl font-bold text-white">
-                    {{ isset($bukuData) ? 'Edit Buku' : 'Tambah Buku Baru' }}
+                    Edit Buku
                 </h1>
                 <nav class="flex mt-2" aria-label="Breadcrumb">
                     <ol class="inline-flex items-center space-x-1 md:space-x-3">
@@ -33,7 +33,7 @@
                                     <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
                                 </svg>
                                 <span class="ml-1 text-sm font-medium text-gray-300">
-                                    {{ isset($bukuData) ? 'Edit' : 'Tambah' }}
+                                    Edit
                                 </span>
                             </div>
                         </li>
@@ -63,12 +63,10 @@
 
         <!-- Form Container - Dark Version -->
         <div class="bg-gray-800 shadow-lg rounded-xl overflow-hidden border border-gray-700">
-            <form action="{{ isset($bukuData) ? route('admin.buku.update', $bukuData->id) : route('admin.buku.store') }}" 
+            <form action="{{ route('admin.buku.update', $buku->id) }}" 
                   method="POST" enctype="multipart/form-data" class="p-6">
                 @csrf
-                @if(isset($bukuData))
-                    @method('PUT')
-                @endif
+                @method('PUT')
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Kolom 1 -->
@@ -79,8 +77,8 @@
                                 Judul Buku <span class="text-red-400">*</span>
                             </label>
                             <input type="text" name="judul" id="judul" 
-                                   value="{{ old('judul', isset($bukuData) ? $bukuData->judul : '') }}"
-                                   class="block w-full bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
+                                   value="{{ old('judul', $buku->judul) }}"
+                                   class="block w-full bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
                                    placeholder="Masukkan judul buku" required>
                             @error('judul')
                                 <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
@@ -92,12 +90,11 @@
                             <label for="kategori_id" class="block text-sm font-medium text-gray-300 mb-1">
                                 Kategori <span class="text-red-400">*</span>
                             </label>
-                            <select name="kategori_id" id="kategori_id" 
-                                    class="block w-full bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" required>
+                           <select name="kategori_id" id="kategori_id" class="block w-full bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
                                 <option value="">Pilih Kategori</option>
                                 @foreach($kategoris as $kategori)
                                     <option value="{{ $kategori->id }}" 
-                                            {{ (old('kategori_id') ?? (isset($bukuData) ? $bukuData->kategori_id : '')) == $kategori->id ? 'selected' : '' }}>
+                                            {{ (old('kategori_id', $buku->kategori_id ?? '') == $kategori->id) ? 'selected' : '' }}>
                                         {{ $kategori->nama }}
                                     </option>
                                 @endforeach
@@ -112,12 +109,11 @@
                             <label for="pengarang_id" class="block text-sm font-medium text-gray-300 mb-1">
                                 Pengarang <span class="text-red-400">*</span>
                             </label>
-                            <select name="pengarang_id" id="pengarang_id" 
-                                    class="block w-full bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" required>
+                            <select name="pengarang_id" id="pengarang_id" class="block w-full bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
                                 <option value="">Pilih Pengarang</option>
                                 @foreach($pengarangs as $pengarang)
                                     <option value="{{ $pengarang->id }}" 
-                                            {{ (old('pengarang_id') ?? (isset($bukuData) ? $bukuData->pengarang_id : '')) == $pengarang->id ? 'selected' : '' }}>
+                                            {{ (old('pengarang_id', $buku->pengarang_id ?? '') == $pengarang->id) ? 'selected' : '' }}>
                                         {{ $pengarang->nama }}
                                     </option>
                                 @endforeach
@@ -130,7 +126,7 @@
                         <!-- Cover Buku -->
                         <div>
                             <label for="cover" class="block text-sm font-medium text-gray-300 mb-1">
-                                Cover Buku {{ isset($bukuData) ? '(kosongkan jika tidak ingin mengubah)' : '' }}
+                                Cover Buku (kosongkan jika tidak ingin mengubah)
                             </label>
                             <div class="mt-1 flex items-center">
                                 <input type="file" name="cover" id="cover"
@@ -140,11 +136,11 @@
                                 <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
                             @enderror
                             
-                            <!-- Current Cover Preview (untuk edit) -->
-                            @if(isset($bukuData) && $bukuData->cover)
+                            <!-- Current Cover Preview -->
+                            @if($buku->cover)
                             <div class="mt-2">
                                 <p class="text-sm text-gray-400 mb-1">Cover Saat Ini:</p>
-                                <img src="{{ asset('storage/' . $bukuData->cover) }}" 
+                                <img src="{{ asset('storage/' . $buku->cover) }}" 
                                      alt="Current Cover" 
                                      class="h-32 border border-gray-700 rounded-lg">
                             </div>
@@ -167,24 +163,24 @@
                             </label>
                             <input type="number" name="tahun_terbit" id="tahun_terbit" 
                                    min="1900" max="{{ date('Y') + 2 }}" 
-                                   value="{{ old('tahun_terbit', isset($bukuData) ? $bukuData->tahun_terbit : '') }}"
-                                   class="block w-full bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
+                                   value="{{ old('tahun_terbit', $buku->tahun_terbit) }}"
+                                   class="block w-full bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
                                    placeholder="Masukkan tahun terbit" required>
                             @error('tahun_terbit')
                                 <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
                             @enderror
                         </div>
 
-                        <!-- Stok -->
+                       <!-- Stok -->
                         <div>
                             <label for="stok" class="block text-sm font-medium text-gray-300 mb-1">
-                                Jumlah Stok <span class="text-red-400">*</span>
+                                Edit/Tambah Stok <span class="text-red-400">*</span>
                             </label>
-                            <input type="number" name="stok" id="stok" min="1" 
-                                   value="{{ old('stok', isset($bukuData) ? $bukuData->stok : 1) }}"
-                                   class="block w-full bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
-                                   placeholder="Masukkan jumlah stok" required
-                                   onchange="generateIsbnFields()">
+                            <input type="number" name="stok" id="stok" min="0" 
+                                value="{{ old('stok', $buku->stok) }}"
+                                class="block w-full bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
+                                placeholder="Masukkan jumlah stok" required
+                                onchange="updateIsbnFields()">
                             @error('stok')
                                 <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
                             @enderror
@@ -195,7 +191,7 @@
                             <label for="deskripsi" class="block text-sm font-medium text-gray-300 mb-1">Deskripsi</label>
                             <textarea name="deskripsi" id="deskripsi" rows="4"
                                       class="block w-full bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
-                                      placeholder="Masukkan deskripsi buku">{{ old('deskripsi', isset($bukuData) ? $bukuData->deskripsi : '') }}</textarea>
+                                      placeholder="Masukkan deskripsi buku">{{ old('deskripsi', $buku->deskripsi) }}</textarea>
                             @error('deskripsi')
                                 <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
                             @enderror
@@ -206,12 +202,43 @@
                 <!-- ISBN Fields -->
                 <div class="mt-6 space-y-4" id="isbn-fields-container">
                     <h3 class="text-lg font-medium text-white">Kode ISBN/Unik</h3>
-                    @if(isset($bukuData))
-                        <p class="text-sm text-gray-400">
-                            Untuk mode edit, ISBN akan dikelola secara otomatis berdasarkan perubahan stok.
-                        </p>
-                    @endif
-                    <!-- Field ISBN akan digenerate oleh JavaScript -->
+                    <p class="text-sm text-gray-400">
+                        Kode ISBN/Unik untuk setiap eksemplar buku. Tambahkan sesuai dengan jumlah stok.
+                    </p>
+                    
+                    <!-- Dynamic ISBN Fields -->
+                    <div id="isbn-fields">
+                        @php
+                            $isbns = is_array($buku->isbn) ? $buku->isbn : json_decode($buku->isbn, true);
+                            $currentStok = $buku->stok ?? 0;
+                        @endphp
+                        
+                        @if($currentStok > 0)
+                            @for($i = 0; $i < $currentStok; $i++)
+                            <div class="isbn-field-group mt-4">
+                                <label for="isbn_{{ $i + 1 }}" class="block text-sm font-medium text-gray-300 mb-1">
+                                    Kode ISBN/Unik untuk Buku ke-{{ $i + 1 }} <span class="text-red-400">*</span>
+                                </label>
+                                <div class="flex gap-2">
+                                    <input type="text" name="isbn[]" id="isbn_{{ $i + 1 }}"
+                                           class="flex-1 bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
+                                           placeholder="Masukkan kode ISBN/Unik" required
+                                           value="{{ old('isbn.'.$i, $isbns[$i] ?? '') }}">
+                                    <button type="button" onclick="generateBarcode({{ $i + 1 }})" 
+                                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-150 ease-in-out">
+                                        Generate
+                                    </button>
+                                </div>
+                            </div>
+                            @endfor
+                        @else
+                            <div class="text-gray-400 text-sm mb-4">
+                                Stok buku kosong - tidak ada ISBN yang diperlukan.
+                            </div>
+                            <!-- Hidden field untuk memastikan bisa update ketika stok 0 -->
+                            <input type="hidden" name="isbn[]" value="">
+                        @endif
+                    </div>
                 </div>
 
                 <!-- Tombol Aksi - Dark Version -->
@@ -225,7 +252,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                         </svg>
-                        {{ isset($bukuData) ? 'Update Buku' : 'Simpan Buku' }}
+                        Update Buku
                     </button>
                 </div>
             </form>
@@ -234,41 +261,36 @@
 </div>
 
 <script>
-// Data untuk edit mode
-const isEditMode = {{ isset($bukuData) ? 'true' : 'false' }};
-const existingIsbns = @json(isset($bukuData) && $bukuData->isbn ? $bukuData->isbn : []);
-
-// Preview Cover Image
-document.getElementById('cover').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('cover-preview-image').src = e.target.result;
-            document.getElementById('cover-preview').classList.remove('hidden');
-        }
-        reader.readAsDataURL(file);
-    }
-});
-
-// Generate ISBN Fields based on Stok
-function generateIsbnFields() {
-    const stok = parseInt(document.getElementById('stok').value) || 1;
-    const container = document.getElementById('isbn-fields-container');
+// Update ISBN Fields when stok changes - PERBAIKAN
+function updateIsbnFields() {
+    const newStok = parseInt(document.getElementById('stok').value) || 0;
+    const container = document.getElementById('isbn-fields');
     
-    // Hapus semua field kecuali judul section
-    while (container.children.length > (isEditMode ? 2 : 1)) {
-        container.removeChild(container.lastChild);
+    // Ambil ISBN yang sudah ada dari field yang sudah ada
+    const existingFields = container.querySelectorAll('input[name="isbn[]"]');
+    const existingIsbns = Array.from(existingFields).map(field => field.value);
+    
+    // Clear existing fields
+    container.innerHTML = '';
+    
+    if (newStok === 0) {
+        // Show message when stok is 0 and add hidden field
+        container.innerHTML = `
+            <div class="text-gray-400 text-sm mb-4">
+                Stok buku kosong - tidak ada ISBN yang diperlukan.
+            </div>
+            <input type="hidden" name="isbn[]" value="">
+        `;
+        return;
     }
     
-    // Tambahkan field baru
-    for (let i = 1; i <= stok; i++) {
+    // Add fields based on new stok
+    for (let i = 1; i <= newStok; i++) {
         const div = document.createElement('div');
-        div.className = 'isbn-field-group';
+        div.className = 'isbn-field-group mt-4';
         
-        // Dapatkan nilai existing ISBN jika ada
-        const existingValue = existingIsbns && existingIsbns[i-1] ? existingIsbns[i-1] : '';
-        const fieldValue = existingValue;
+        // Gunakan ISBN yang sudah ada jika tersedia, jika tidak kosong
+        const existingValue = existingIsbns[i-1] || '';
         
         div.innerHTML = `
             <label for="isbn_${i}" class="block text-sm font-medium text-gray-300 mb-1">
@@ -276,9 +298,9 @@ function generateIsbnFields() {
             </label>
             <div class="flex gap-2">
                 <input type="text" name="isbn[]" id="isbn_${i}"
-                       class="flex-1 bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
+                       class="flex-1 bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
                        placeholder="Masukkan kode ISBN/Unik" required
-                       value="${fieldValue}">
+                       value="${existingValue}">
                 <button type="button" onclick="generateBarcode(${i})" 
                         class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-150 ease-in-out">
                     Generate
@@ -296,10 +318,26 @@ function generateBarcode(index) {
     document.getElementById(`isbn_${index}`).value = randomBarcode;
 }
 
-// Generate fields saat pertama kali load
+// Preview Cover Image
+document.getElementById('cover').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('cover-preview-image').src = e.target.result;
+            document.getElementById('cover-preview').classList.remove('hidden');
+        }
+        reader.readAsDataURL(file);
+    }
+});
+
+// Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
-    const stokValue = parseInt(document.getElementById('stok').value) || 1;
-    generateIsbnFields();
+    const stokInput = document.getElementById('stok');
+    // Set initial ISBN fields berdasarkan stok yang ada
+    if (stokInput.value == 0) {
+        updateIsbnFields();
+    }
 });
 </script>
 @endsection
