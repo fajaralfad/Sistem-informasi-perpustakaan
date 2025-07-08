@@ -98,4 +98,22 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Peminjaman::class, 'user_id'); // Pastikan foreign key sesuai dengan tabel peminjaman
     }
+
+    /**
+     * Relationship dengan Kunjungan
+     */
+    public function kunjungans()
+    {
+        return $this->hasMany(Kunjungan::class);
+    }
+
+    /**
+     * Scope untuk pengguna yang sedang berada di perpustakaan
+     */
+    public function scopeSedangDiPerpustakaan($query)
+    {
+        return $query->whereHas('kunjungans', function($q) {
+            $q->whereNull('waktu_keluar');
+        });
+    }
 }

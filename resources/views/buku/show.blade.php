@@ -78,7 +78,6 @@
                         <div>
                             <h1 class="text-3xl font-bold text-white">{{ $buku->judul }}</h1>
                             <div class="mt-2 flex items-center">
-                                <span class="bg-blue-900 text-blue-200 text-xs px-2 py-1 rounded-full mr-2">ISBN: {{ $buku->isbn }}</span>
                                 <span class="bg-purple-900 text-purple-200 text-xs px-2 py-1 rounded-full">{{ $buku->tahun_terbit }}</span>
                             </div>
                         </div>
@@ -112,29 +111,6 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                             </svg>
                                             {{ $buku->pengarang->nama }}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Status Stok</p>
-                                        <p class="mt-1">
-                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
-                                                {{ $buku->stok > 5 ? 'bg-green-900 text-green-200' : 
-                                                   ($buku->stok > 0 ? 'bg-yellow-900 text-yellow-200' : 'bg-red-900 text-red-200') }}">
-                                                @if($buku->stok > 5)
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                                    </svg>
-                                                @elseif($buku->stok > 0)
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                                    </svg>
-                                                @else
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                    </svg>
-                                                @endif
-                                                {{ $buku->stok }} buku tersedia
-                                            </span>
                                         </p>
                                     </div>
                                 </div>

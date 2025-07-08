@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
+use App\Notifications\NewMemberNotification;
 use App\Models\User;
 use App\Models\Peminjaman;
 use App\Models\Denda;
@@ -13,6 +16,44 @@ class AnggotaController extends Controller
     public function index()
     {
         return view('admin.anggota.index');
+    }
+
+        public function create()
+    {
+        return view('anggota.create');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:500',
+        ]);
+
+        // Generate random password
+        $password = Str::random(10);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($password),
+            'phone' => $request->phone,
+            'address' => $request->address,
+            'role' => 'anggota',
+            // email_verified_at sengaja dikosongkan agar anggota verifikasi sendiri
+        ]);
+
+        // Kirim email verifikasi
+        $user->sendEmailVerificationNotification();
+
+        // Kirim email berisi password sementara
+        // (Anda perlu mengimplementasikan email notification untuk ini)
+        $user->notify(new NewMemberNotification($password));
+
+        return redirect()->route('admin.anggota.index')
+            ->with('success', 'Anggota baru berhasil ditambahkan. Password sementara telah dikirim ke email anggota.');
     }
 
     public function show(User $user)
@@ -105,66 +146,5 @@ class AnggotaController extends Controller
         $type = mime_content_type($path);
 
         return response($file, 200)->header('Content-Type', $type);
-    }
-
-    /**
-     * Print member card - FUNGSI KHUSUS
-     */
-    public function cetakKartu(User $user)
-    {
-        if ($user->role !== 'anggota') {
-            abort(404);
-        }
-
-        return view('admin.anggota.kartu', compact('user'));
-    }
-
-    /**
-     * Export data anggota - FUNGSI TAMBAHAN
-     */
-    public function export(Request $request)
-    {
-        $anggota = User::where('role', 'anggota')
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        $filename = 'data_anggota_' . date('Y-m-d') . '.csv';
-        
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ];
-
-        $callback = function() use ($anggota) {
-            $file = fopen('php://output', 'w');
-            fputcsv($file, ['No', 'Nama', 'Email', 'Tanggal Daftar', 'Status Verifikasi', 'Peminjaman Aktif', 'Denda Belum Lunas']);
-            
-            foreach ($anggota as $index => $user) {
-                // Hitung peminjaman aktif
-                $peminjamanAktif = Peminjaman::where('user_id', $user->id)
-                    ->whereIn('status', ['pending', 'booking', 'dipinjam', 'terlambat'])
-                    ->count();
-
-                // Hitung denda belum lunas
-                $dendaBelumLunas = Denda::whereHas('peminjaman', function($query) use ($user) {
-                        $query->where('user_id', $user->id);
-                    })
-                    ->where('status_pembayaran', false)
-                    ->sum('jumlah');
-
-                fputcsv($file, [
-                    $index + 1,
-                    $user->name,
-                    $user->email,
-                    $user->created_at->format('d/m/Y'),
-                    $user->email_verified_at ? 'Terverifikasi' : 'Belum Verifikasi',
-                    $peminjamanAktif,
-                    'Rp ' . number_format($dendaBelumLunas, 0, ',', '.')
-                ]);
-            }
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
     }
 }

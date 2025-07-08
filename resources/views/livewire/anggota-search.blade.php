@@ -1,4 +1,17 @@
 <div>
+
+    <!-- Di bagian atas halaman index, setelah statistics cards -->
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-white">Daftar Anggota</h2>
+        <a href="{{ route('admin.anggota.create') }}" 
+        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium inline-flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Tambah Anggota
+        </a>
+    </div>
+
     <!-- Statistics Cards - Dark Version -->
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
         <div class="bg-gray-800 overflow-hidden shadow-md rounded-lg border border-gray-700">
@@ -88,8 +101,9 @@
     </div>
 
     <!-- Loading State -->
-    <div wire:loading class="flex justify-center items-center py-8">
-        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+    <div wire:loading class="text-center py-16">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600 mb-4"></div>
+        <p class="text-gray-600 dark:text-gray-400">Memuat data anggota...</p>
     </div>
 
     <!-- Table - Dark Version -->

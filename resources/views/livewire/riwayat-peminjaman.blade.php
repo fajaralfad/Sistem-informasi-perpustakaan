@@ -56,9 +56,10 @@
     </div>
 </div>
 
-    <!-- Loading Spinner - Dark Version -->
-    <div wire:loading class="flex justify-center items-center py-4">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+    <!-- Loading State -->
+    <div wire:loading class="text-center py-16">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600 mb-4"></div>
+        <p class="text-gray-600 dark:text-gray-400">Memuat data riwayat peminjaman...</p>
     </div>
 
     <!-- Borrowing History Table - Dark Version -->

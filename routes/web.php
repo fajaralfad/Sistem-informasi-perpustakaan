@@ -6,11 +6,13 @@ use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\PengarangController;
 use App\Http\Controllers\AnggotaController;
 use App\Http\Controllers\PeminjamanController;
+use App\Http\Controllers\KunjunganController;
 use App\Http\Controllers\DendaController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\PeminjamanConfirmationController;
+
 
 // Member Controllers
 use App\Http\Controllers\Member\DashboardController as MemberDashboardController;
@@ -92,6 +94,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/peminjaman/{peminjaman}/confirm-taken', [PeminjamanController::class, 'confirmBookTaken'])->name('peminjaman.confirm-taken');
         Route::post('/peminjaman/{peminjaman}/confirm', [PeminjamanConfirmationController::class, 'confirm'])->name('peminjaman.confirm');
         Route::post('/peminjaman/{peminjaman}/reject', [PeminjamanConfirmationController::class, 'reject'])->name('peminjaman.reject');
+
+        Route::resource('kunjungan', KunjunganController::class);
+        Route::post('/masuk', [KunjunganController::class, 'catatMasuk'])->name('kunjungan.masuk');
+        Route::post('/keluar/{kunjungan}', [KunjunganController::class, 'catatKeluar'])->name('kunjungan.keluar');
+        Route::get('/aktif', [KunjunganController::class, 'aktif'])->name('kunjungan.aktif');
 
         // Fine Management
         Route::get('/denda', [DendaController::class, 'index'])->name('denda.index');
