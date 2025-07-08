@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Kunjungan extends Model
 {
@@ -111,4 +112,40 @@ class Kunjungan extends Model
     {
         $this->update(['waktu_keluar' => now()]);
     }
+
+    protected function durasi(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if (!$this->waktu_keluar) {
+                    return null;
+                }
+                
+                return $this->waktu_masuk->diff($this->waktu_keluar);
+            }
+        );
+    }
+
+    protected function durasiFormatted(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if (!$this->durasi) {
+                    return 'Masih di perpustakaan';
+                }
+                
+                return $this->durasi->format('%H:%I:%S');
+            }
+        );
+    }
+
+    protected function tujuanFormatted(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                return self::listTujuan()[$this->tujuan] ?? $this->tujuan;
+            }
+        );
+    }
+    
 }

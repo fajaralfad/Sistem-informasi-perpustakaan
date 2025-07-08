@@ -8,7 +8,21 @@ use Illuminate\Http\Request;
 
 class KunjunganController extends Controller
 {
-    // Catat kunjungan masuk
+    public function __construct()
+    {
+    
+    }
+
+    public function index()
+    {
+        return view('admin.kunjungan.index');
+    }
+
+    public function aktif()
+    {
+        return view('admin.kunjungan.aktif');
+    }
+
     public function catatMasuk(Request $request)
     {
         $request->validate([
@@ -24,36 +38,16 @@ class KunjunganController extends Controller
             'kegiatan' => $request->kegiatan,
         ]);
 
-        return redirect()->back()->with('success', 'Kunjungan berhasil dicatat');
+        return redirect()->route('admin.kunjungan.aktif')
+            ->with('success', 'Kunjungan berhasil dicatat');
     }
 
-    // Catat kunjungan keluar
     public function catatKeluar($id)
     {
         $kunjungan = Kunjungan::findOrFail($id);
         $kunjungan->catatKeluar();
 
-        return redirect()->back()->with('success', 'Kunjungan keluar berhasil dicatat');
-    }
-
-    // Daftar kunjungan
-    public function index()
-    {
-        $kunjungans = Kunjungan::with('user')
-            ->latest()
-            ->paginate(10);
-
-        return view('admin.kunjungan.index', compact('kunjungans'));
-    }
-
-    // Kunjungan aktif (yang masih di perpustakaan)
-    public function aktif()
-    {
-        $kunjungans = Kunjungan::with('user')
-            ->whereNull('waktu_keluar')
-            ->latest()
-            ->paginate(10);
-
-        return view('admin.kunjungan.aktif', compact('kunjungans'));
+        return redirect()->route('admin.kunjungan.aktif')
+            ->with('success', 'Kunjungan keluar berhasil dicatat');
     }
 }

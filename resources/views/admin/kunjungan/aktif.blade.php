@@ -2,20 +2,21 @@
 
 @section('content')
 <div class="container mx-auto px-4 py-8">
-    <!-- Header -->
+
+ <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
         <div>
-            <h1 class="text-2xl sm:text-3xl font-bold text-white">Daftar Kunjungan Perpustakaan</h1>
-            <p class="text-gray-300 mt-1">Riwayat kunjungan anggota perpustakaan</p>
+            <h1 class="text-2xl sm:text-3xl font-bold text-white">Daftar Kunjungan Aktif Perpustakaan</h1>
+            <p class="text-gray-300 mt-1">Anggota yang sedang berada di perpustakaan</p>
         </div>
         <div class="mt-4 md:mt-0">
-            <a href="{{ route('admin.kunjungan.aktif') }}" 
+            <a href="{{ route('admin.kunjungan.index') }}" 
                class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                 </svg>
-                Kunjungan Aktif
+                Daftar Kunjungan
             </a>
         </div>
     </div>
@@ -36,7 +37,17 @@
                     <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
                     </svg>
-                    <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Kunjungan</span>
+                    <a href="{{ route('admin.kunjungan.index') }}" class="ml-1 text-sm font-medium text-gray-400 hover:text-white">
+                        Kunjungan
+                    </a>
+                </div>
+            </li>
+            <li aria-current="page">
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Aktif</span>
                 </div>
             </li>
         </ol>
@@ -62,7 +73,7 @@
     @endif
 
     <!-- Livewire Component -->
-    <livewire:kunjungan-search />
+    <livewire:kunjungan-aktif />
 </div>
 
 <script>

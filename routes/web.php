@@ -96,9 +96,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/peminjaman/{peminjaman}/reject', [PeminjamanConfirmationController::class, 'reject'])->name('peminjaman.reject');
 
         Route::resource('kunjungan', KunjunganController::class);
-        Route::post('/masuk', [KunjunganController::class, 'catatMasuk'])->name('kunjungan.masuk');
-        Route::post('/keluar/{kunjungan}', [KunjunganController::class, 'catatKeluar'])->name('kunjungan.keluar');
         Route::get('/aktif', [KunjunganController::class, 'aktif'])->name('kunjungan.aktif');
+        Route::post('/masuk', [KunjunganController::class, 'catatMasuk'])->name('kunjungan.masuk');
+        Route::post('/keluar/{id}', [KunjunganController::class, 'catatKeluar'])->name('admin.kunjungan.keluar');
 
         // Fine Management
         Route::get('/denda', [DendaController::class, 'index'])->name('denda.index');
