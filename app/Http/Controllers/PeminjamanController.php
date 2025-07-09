@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB;
+use App\Exports\PeminjamanExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Notifications\BookingConfirmed;
 use App\Models\Peminjaman;
 use App\Models\Buku;
@@ -642,36 +645,7 @@ class PeminjamanController extends Controller
             ->orderBy('tanggal_kembali', 'asc')
             ->get();
     }
-
-    /**
-     * Get borrowing report data
-     */
-    public function getReportData($startDate = null, $endDate = null)
-    {
-        $query = Peminjaman::with(['user', 'buku', 'denda']);
-        
-        if ($startDate) {
-            $query->whereDate('tanggal_pinjam', '>=', $startDate);
-        }
-        
-        if ($endDate) {
-            $query->whereDate('tanggal_pinjam', '<=', $endDate);
-        }
-        
-        $peminjamans = $query->get();
-        
-        return [
-            'total_peminjaman' => $peminjamans->count(),
-            'peminjaman_aktif' => $peminjamans->where('status', 'dipinjam')->count(),
-            'peminjaman_selesai' => $peminjamans->whereIn('status', ['dikembalikan', 'terlambat'])->count(),
-            'peminjaman_terlambat' => $peminjamans->where('status', 'terlambat')->count(),
-            'total_denda' => $peminjamans->sum(function($p) { 
-                return $p->denda ? $p->denda->sum('jumlah') : 0; 
-            }),
-            'peminjamans' => $peminjamans
-        ];
-    }
-
+    
     /**
      * API endpoint to get user borrowing info for quick lookup
      */
@@ -703,5 +677,107 @@ class PeminjamanController extends Controller
             'can_borrow' => $canBorrow,
             'max_borrowings' => 5
         ]);
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $peminjamans = Peminjaman::with(['user', 'buku.pengarang', 'denda'])
+            ->when($request->search, function($query) use ($request) {
+                $query->whereHas('user', function($userQuery) use ($request) {
+                        $userQuery->where('name', 'like', '%'.$request->search.'%')
+                                ->orWhere('email', 'like', '%'.$request->search.'%');
+                    })
+                    ->orWhereHas('buku', function($bukuQuery) use ($request) {
+                        $bukuQuery->where('judul', 'like', '%'.$request->search.'%')
+                                ->orWhere('isbn', 'like', '%'.$request->search.'%');
+                    });
+            })
+            ->when($request->status, function($query) use ($request) {
+                if ($request->status === 'aktif') {
+                    $query->where('status', 'dipinjam');
+                } elseif ($request->status === 'booking') {
+                    $query->where('status', 'booking');
+                } elseif ($request->status === 'terlambat') {
+                    $query->where('status', 'dipinjam')
+                        ->where('tanggal_kembali', '<', Carbon::now());
+                } elseif ($request->status === 'dikembalikan') {
+                    $query->whereIn('status', ['dikembalikan', 'terlambat'])
+                        ->whereNotNull('tanggal_pengembalian');
+                }
+            })
+            ->when($request->tanggal_dari, function($query) use ($request) {
+                $query->whereDate('tanggal_pinjam', '>=', $request->tanggal_dari);
+            })
+            ->when($request->tanggal_sampai, function($query) use ($request) {
+                $query->whereDate('tanggal_pinjam', '<=', $request->tanggal_sampai);
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $filename = 'laporan-peminjaman-' . Carbon::now()->format('YmdHis') . '.xlsx';
+
+        return Excel::download(new PeminjamanExport($peminjamans), $filename);
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $peminjamans = Peminjaman::with(['user', 'buku.pengarang', 'denda'])
+            ->when($request->search, function($query) use ($request) {
+                $query->whereHas('user', function($userQuery) use ($request) {
+                        $userQuery->where('name', 'like', '%'.$request->search.'%')
+                                ->orWhere('email', 'like', '%'.$request->search.'%');
+                    })
+                    ->orWhereHas('buku', function($bukuQuery) use ($request) {
+                        $bukuQuery->where('judul', 'like', '%'.$request->search.'%')
+                                ->orWhere('isbn', 'like', '%'.$request->search.'%');
+                    });
+            })
+            ->when($request->status, function($query) use ($request) {
+                if ($request->status === 'aktif') {
+                    $query->where('status', 'dipinjam');
+                } elseif ($request->status === 'booking') {
+                    $query->where('status', 'booking');
+                } elseif ($request->status === 'terlambat') {
+                    $query->where('status', 'dipinjam')
+                        ->where('tanggal_kembali', '<', Carbon::now());
+                } elseif ($request->status === 'dikembalikan') {
+                    $query->whereIn('status', ['dikembalikan', 'terlambat'])
+                        ->whereNotNull('tanggal_pengembalian');
+                }
+            })
+            ->when($request->tanggal_dari, function($query) use ($request) {
+                $query->whereDate('tanggal_pinjam', '>=', $request->tanggal_dari);
+            })
+            ->when($request->tanggal_sampai, function($query) use ($request) {
+                $query->whereDate('tanggal_pinjam', '<=', $request->tanggal_sampai);
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $stats = [
+            'total' => $peminjamans->count(),
+            'aktif' => $peminjamans->where('status', 'dipinjam')->count(),
+            'booking' => $peminjamans->where('status', 'booking')->count(),
+            'terlambat' => $peminjamans->where('status', 'dipinjam')
+                        ->filter(function($item) {
+                            return Carbon::parse($item->tanggal_kembali)->lt(now());
+                        })->count(),
+            'dikembalikan' => $peminjamans->whereIn('status', ['dikembalikan', 'terlambat'])->count(),
+            'total_denda' => $peminjamans->sum(function($p) { 
+                return $p->denda ? $p->denda->sum('jumlah') : 0; 
+            }),
+        ];
+
+        $pdf = Pdf::loadView('admin.peminjaman.laporan-pdf', [
+            'peminjamans' => $peminjamans,
+            'stats' => $stats,
+            'tanggal' => Carbon::now()->translatedFormat('d F Y'),
+            'search' => $request->search ?? 'Semua',
+            'status' => $request->status ?? 'Semua',
+            'tanggal_dari' => $request->tanggal_dari ?? '-',
+            'tanggal_sampai' => $request->tanggal_sampai ?? '-',
+        ]);
+
+        return $pdf->download('laporan-peminjaman-' . Carbon::now()->format('YmdHis') . '.pdf');
     }
 }

@@ -97,11 +97,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/peminjaman/{peminjaman}/confirm-taken', [PeminjamanController::class, 'confirmBookTaken'])->name('peminjaman.confirm-taken');
         Route::post('/peminjaman/{peminjaman}/confirm', [PeminjamanConfirmationController::class, 'confirm'])->name('peminjaman.confirm');
         Route::post('/peminjaman/{peminjaman}/reject', [PeminjamanConfirmationController::class, 'reject'])->name('peminjaman.reject');
+        Route::get('/peminjaman/export/excel', [PeminjamanController::class, 'exportExcel'])->name('peminjaman.export.excel');
+        Route::get('/peminjaman/export/pdf', [PeminjamanController::class, 'exportPdf'])->name('peminjaman.export.pdf');
 
         Route::resource('kunjungan', KunjunganController::class);
         Route::get('/aktif', [KunjunganController::class, 'aktif'])->name('kunjungan.aktif');
         Route::post('/masuk', [KunjunganController::class, 'catatMasuk'])->name('kunjungan.masuk');
         Route::post('/keluar/{id}', [KunjunganController::class, 'catatKeluar'])->name('admin.kunjungan.keluar');
+        Route::get('/export/excel', [KunjunganController::class, 'exportExcel'])->name('kunjungan.export.excel');
+        Route::get('/export/pdf', [KunjunganController::class, 'exportPdf'])->name('kunjungan.export.pdf');
 
         // Fine Management
         Route::get('/denda', [DendaController::class, 'index'])->name('denda.index');
