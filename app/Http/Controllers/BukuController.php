@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\BukuExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB; 
 use App\Models\Buku;
 use App\Models\Kategori;
 use App\Models\Pengarang;
@@ -246,5 +250,81 @@ class BukuController extends Controller
             'total_copy' => $bukus->count(),
             'isbns' => $isbns
         ]);
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $buku = Buku::query()
+            ->with(['kategori', 'pengarang'])
+            ->select([
+                'judul',
+                'kategori_id',
+                'pengarang_id',
+                DB::raw('MIN(tahun_terbit) as tahun_terbit'),
+                DB::raw('MIN(created_at) as created_at'),
+                DB::raw('COUNT(*) as total_copy'),
+                DB::raw('SUM(stok) as total_stok'),
+                DB::raw('GROUP_CONCAT(isbn) as isbn_list')
+            ])
+            ->groupBy('judul', 'kategori_id', 'pengarang_id')
+            ->when($request->search, function($query) use ($request) {
+                $query->where('judul', 'like', '%'.$request->search.'%')
+                    ->orWhereHas('pengarang', function($q) use ($request) {
+                        $q->where('nama', 'like', '%'.$request->search.'%');
+                    });
+            })
+            ->when($request->kategori, function($query) use ($request) {
+                $query->where('kategori_id', $request->kategori);
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $filename = 'laporan-buku-' . now()->format('YmdHis') . '.xlsx';
+
+        return Excel::download(new BukuExport($buku), $filename);
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $buku = Buku::query()
+            ->with(['kategori', 'pengarang'])
+            ->select([
+                'judul',
+                'kategori_id',
+                'pengarang_id',
+                DB::raw('MIN(tahun_terbit) as tahun_terbit'),
+                DB::raw('MIN(created_at) as created_at'),
+                DB::raw('COUNT(*) as total_copy'),
+                DB::raw('SUM(stok) as total_stok'),
+                DB::raw('GROUP_CONCAT(isbn) as isbn_list')
+            ])
+            ->groupBy('judul', 'kategori_id', 'pengarang_id')
+            ->when($request->search, function($query) use ($request) {
+                $query->where('judul', 'like', '%'.$request->search.'%')
+                    ->orWhereHas('pengarang', function($q) use ($request) {
+                        $q->where('nama', 'like', '%'.$request->search.'%');
+                    });
+            })
+            ->when($request->kategori, function($query) use ($request) {
+                $query->where('kategori_id', $request->kategori);
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $stats = [
+            'total' => $buku->count(),
+            'total_stok' => $buku->sum('total_stok'),
+            'total_copy' => $buku->sum('total_copy'),
+        ];
+
+        $pdf = Pdf::loadView('buku.laporan-pdf', [
+            'buku' => $buku,
+            'stats' => $stats,
+            'tanggal' => now()->translatedFormat('d F Y'),
+            'search' => $request->search ?? 'Semua',
+            'kategori' => $request->kategori ? Kategori::find($request->kategori)->nama : 'Semua'
+        ]);
+
+        return $pdf->download('laporan-buku-' . now()->format('YmdHis') . '.pdf');
     }
 }
