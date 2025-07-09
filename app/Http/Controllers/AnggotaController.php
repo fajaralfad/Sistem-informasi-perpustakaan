@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\AnggotaExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use App\Notifications\NewMemberNotification;
@@ -146,5 +150,48 @@ class AnggotaController extends Controller
         $type = mime_content_type($path);
 
         return response($file, 200)->header('Content-Type', $type);
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $anggota = User::where('role', 'anggota')
+            ->when($request->search, function($query) use ($request) {
+                $query->where('name', 'like', '%'.$request->search.'%')
+                    ->orWhere('email', 'like', '%'.$request->search.'%');
+            })
+            ->withCount('peminjamans')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $filename = 'laporan-anggota-' . Carbon::now()->format('YmdHis') . '.xlsx';
+
+        return Excel::download(new AnggotaExport($anggota), $filename);
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $anggota = User::where('role', 'anggota')
+            ->when($request->search, function($query) use ($request) {
+                $query->where('name', 'like', '%'.$request->search.'%')
+                    ->orWhere('email', 'like', '%'.$request->search.'%');
+            })
+            ->withCount('peminjamans')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $stats = [
+            'total' => $anggota->count(),
+            'verified' => $anggota->whereNotNull('email_verified_at')->count(),
+            'unverified' => $anggota->whereNull('email_verified_at')->count(),
+        ];
+
+        $pdf = Pdf::loadView('admin.anggota.laporan-pdf', [
+            'anggota' => $anggota,
+            'stats' => $stats,
+            'tanggal' => Carbon::now()->translatedFormat('d F Y'),
+            'search' => $request->search ?? 'Semua',
+        ]);
+
+        return $pdf->download('laporan-anggota-' . Carbon::now()->format('YmdHis') . '.pdf');
     }
 }

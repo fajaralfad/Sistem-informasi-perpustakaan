@@ -91,19 +91,6 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // Rekomendasi Buku (buku populer yang belum pernah dipinjam user ini)
-        $buku_yang_pernah_dipinjam = Peminjaman::where('user_id', $user->id)
-            ->pluck('buku_id')
-            ->toArray();
-
-        $buku_rekomendasi = Buku::with(['pengarang', 'kategori'])
-            ->withCount('peminjamans')
-            ->whereNotIn('id', $buku_yang_pernah_dipinjam)
-            ->where('stok', '>', 0)
-            ->orderBy('peminjamans_count', 'desc')
-            ->take(6)
-            ->get();
-
         // Statistik Tambahan
         $bulan_ini = Peminjaman::where('user_id', $user->id)
             ->whereMonth('tanggal_pinjam', now()->month)
@@ -134,7 +121,6 @@ class DashboardController extends Controller
             'peminjaman_aktif',
             'denda_aktif', 
             'riwayat_terakhir',
-            'buku_rekomendasi',
             'bulan_ini',
             'tahun_ini',
             'chart_labels',

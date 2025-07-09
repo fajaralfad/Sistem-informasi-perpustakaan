@@ -10,7 +10,6 @@ use App\Http\Controllers\KunjunganController;
 use App\Http\Controllers\DendaController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\PeminjamanConfirmationController;
 
 
@@ -84,6 +83,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('anggota/{user}/riwayat', [AnggotaController::class, 'riwayat'])->name('anggota.riwayat');
         Route::get('/anggota/{user}/cetak-kartu', [AnggotaController::class, 'cetakKartu'])->name('anggota.cetak-kartu');
         Route::get('/anggota-debug', [AnggotaController::class, 'debug'])->name('anggota.debug');
+        Route::get('/export-excel', [AnggotaController::class, 'exportExcel'])->name('anggota.export.excel');
+        Route::get('/export-pdf', [AnggotaController::class, 'exportPdf'])->name('anggota.export.pdf');
 
         // Loan Management
         Route::resource('peminjaman', PeminjamanController::class);
@@ -106,12 +107,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/denda/{denda}/bayar', [DendaController::class, 'bayar'])->name('denda.bayar');
         Route::put('/denda/{denda}', [DendaController::class, 'update'])->name('denda.update');
         Route::delete('/denda/{denda}', [DendaController::class, 'destroy'])->name('denda.destroy');
-
-        // Reports
-        Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
-        Route::get('/laporan/peminjaman', [LaporanController::class, 'peminjaman'])->name('laporan.peminjaman');
-        Route::get('/laporan/peminjaman/pdf', [LaporanController::class, 'exportPeminjamanPDF'])->name('laporan.exportPeminjamanPDF');
-        Route::get('/laporan/peminjaman/excel', [LaporanController::class, 'exportPeminjamanExcel'])->name('laporan.exportPeminjamanExcel');
 
         // Global Search
         Route::get('search', function () {

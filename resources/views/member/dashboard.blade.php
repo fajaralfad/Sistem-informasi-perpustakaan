@@ -195,32 +195,6 @@
                 </div>
                 @endif
 
-                <!-- Rekomendasi Buku -->
-                @if(isset($buku_rekomendasi) && $buku_rekomendasi->count() > 0)
-                <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                    <h3 class="text-lg font-semibold text-white mb-4">Rekomendasi Buku Untukmu</h3>
-                    <p class="text-gray-400 text-sm mb-4">Buku populer yang belum pernah Anda pinjam</p>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        @foreach($buku_rekomendasi->take(6) as $buku)
-                        <div class="bg-gray-700 hover:bg-gray-600 rounded-lg p-4 transition-colors border border-gray-600">
-                            <h4 class="font-semibold text-white text-sm mb-2 line-clamp-2">{{ $buku->judul }}</h4>
-                            <p class="text-xs text-gray-400 mb-2">{{ $buku->pengarang->nama ?? 'Pengarang tidak diketahui' }}</p>
-                            <div class="flex items-center justify-between">
-                                <p class="text-xs text-blue-400">{{ $buku->peminjamans_count }} kali dipinjam</p>
-                                <p class="text-xs text-green-400">Stok: {{ $buku->stok }}</p>
-                            </div>
-                            @if($buku->kategori)
-                            <span class="inline-block px-2 py-1 text-xs bg-gray-600 text-gray-200 rounded-full mt-2">
-                                {{ $buku->kategori->nama }}
-                            </span>
-                            @endif
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-                @endif
-            </div>
-
             <!-- Right Column -->
             <div class="space-y-6">
                 <!-- Peminjaman Aktif -->

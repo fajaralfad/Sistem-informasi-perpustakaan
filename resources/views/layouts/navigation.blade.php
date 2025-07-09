@@ -19,7 +19,7 @@
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-7 sm:-my-px sm:ms-10 sm:flex">
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     @auth
                         @if(auth()->user()->role === 'admin')
                             <!-- Admin Navigation Links -->
@@ -54,10 +54,6 @@
                             <x-nav-link :href="route('admin.denda.index')" :active="request()->routeIs('admin.denda.*')" 
                                         class="text-gray-300 dark:text-gray-200 hover:text-white dark:hover:text-white border-b-2 border-transparent hover:border-blue-400 dark:hover:border-blue-300 transition-all duration-300">
                                 {{ __('Denda') }}
-                            </x-nav-link>
-                            <x-nav-link :href="route('admin.laporan.index')" :active="request()->routeIs('admin.laporan.*')" 
-                                        class="text-gray-300 dark:text-gray-200 hover:text-white dark:hover:text-white border-b-2 border-transparent hover:border-blue-400 dark:hover:border-blue-300 transition-all duration-300">
-                                {{ __('Laporan') }}
                             </x-nav-link>
                         @elseif(auth()->user()->role === 'anggota')
                             <!-- Member Navigation Links -->
@@ -184,10 +180,6 @@
                         <x-responsive-nav-link :href="route('admin.denda.index')" :active="request()->routeIs('admin.denda.*')" 
                                              class="text-gray-300 dark:text-gray-200 hover:text-white dark:hover:text-white hover:bg-gray-700 dark:hover:bg-gray-800 transition-all duration-200">
                             {{ __('Denda') }}
-                        </x-responsive-nav-link>
-                        <x-responsive-nav-link :href="route('admin.laporan.index')" :active="request()->routeIs('admin.laporan.*')" 
-                                             class="text-gray-300 dark:text-gray-200 hover:text-white dark:hover:text-white hover:bg-gray-700 dark:hover:bg-gray-800 transition-all duration-200">
-                            {{ __('Laporan') }}
                         </x-responsive-nav-link>
                     @elseif(auth()->user()->role === 'anggota')
                         <!-- Member Mobile Links -->
