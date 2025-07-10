@@ -261,22 +261,23 @@
                                         </button>
                                     </form>
 
-                                @elseif($peminjaman->status === 'booking' && $peminjaman->tanggal_pinjam <= now())
-                                    <button onclick="openConfirmTakenModal(
-                                        '{{ $peminjaman->id }}',
-                                        '{{ $peminjaman->buku->judul }}',
-                                        '{{ $peminjaman->buku->pengarang->nama ?? '-' }}',
-                                        '{{ $peminjaman->user->name }}',
-                                        '{{ $peminjaman->user->email }}',
-                                        '{{ $peminjaman->tanggal_pinjam->format('d M Y H:i') }}'
-                                    )" 
-                                    class="bg-green-900 hover:bg-green-800 text-green-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center transition-colors duration-200" 
-                                    title="Konfirmasi Pengambilan">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                        Konfirmasi Ambil
-                                    </button>
+                               @elseif($peminjaman->status === 'booking' && $peminjaman->tanggal_pinjam <= now())
+                                <button onclick="openConfirmTakenModal(
+                                    '{{ $peminjaman->id }}',
+                                    '{{ $peminjaman->buku->judul }}',
+                                    '{{ $peminjaman->buku->pengarang->nama ?? '-' }}',
+                                    '{{ $peminjaman->user->name }}',
+                                    '{{ $peminjaman->user->email }}',
+                                    '{{ $peminjaman->tanggal_pinjam->format('d M Y H:i') }}'
+                                )" 
+                                class="bg-green-900 hover:bg-green-800 text-green-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center transition-colors duration-200" 
+                                title="Konfirmasi Pengambilan">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    Konfirmasi Ambil
+                                </button>
+                                
 
                                 @elseif($peminjaman->status === 'booking')
                                     <!-- Tombol Batalkan Booking -->
@@ -450,7 +451,7 @@
             </div>
         </div>
         
-        <form id="confirmTakenForm" method="POST">
+        <form id="confirmTakenForm" method="POST" action="">
             @csrf
             <div class="flex justify-end gap-3">
                 <button type="button" onclick="closeConfirmTakenModal()" 
@@ -479,18 +480,19 @@
             document.getElementById('perpanjangModal').classList.remove('flex');
         }
 
-        function openConfirmTakenModal(peminjamanId, bookTitle, bookAuthor, userName, userEmail, bookingDate) {
-            document.getElementById('bookTitle').textContent = bookTitle;
-            document.getElementById('bookAuthor').textContent = bookAuthor;
-            document.getElementById('userName').textContent = userName;
-            document.getElementById('userEmail').textContent = userEmail;
-            document.getElementById('bookingDate').textContent = bookingDate;
-            
-            document.getElementById('confirmTakenForm').action = `/admin/peminjaman/${peminjamanId}/confirm-taken`;
-            
-            document.getElementById('confirmTakenModal').classList.remove('hidden');
-            document.getElementById('confirmTakenModal').classList.add('flex');
-        }
+       function openConfirmTakenModal(peminjamanId, bookTitle, bookAuthor, userName, userEmail, bookingDate) {
+        document.getElementById('bookTitle').textContent = bookTitle;
+        document.getElementById('bookAuthor').textContent = bookAuthor;
+        document.getElementById('userName').textContent = userName;
+        document.getElementById('userEmail').textContent = userEmail;
+        document.getElementById('bookingDate').textContent = bookingDate;
+        
+        // Update this line to use the correct route
+        document.getElementById('confirmTakenForm').action = `/admin/peminjaman/${peminjamanId}/confirm-taken`;
+        
+        document.getElementById('confirmTakenModal').classList.remove('hidden');
+        document.getElementById('confirmTakenModal').classList.add('flex');
+    }
 
         function closeConfirmTakenModal() {
             document.getElementById('confirmTakenModal').classList.add('hidden');

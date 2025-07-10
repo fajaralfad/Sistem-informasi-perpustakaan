@@ -70,8 +70,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Book Management
         Route::resource('buku', BukuController::class);
         Route::get('buku/search', [BukuController::class, 'search'])->name('buku.search');
-        Route::get('/export/excel', [BukuController::class, 'exportExcel'])->name('buku.export.excel');
-        Route::get('/export/pdf', [BukuController::class, 'exportPdf'])->name('buku.export.pdf');
+        Route::get('/buku/export/excel', [BukuController::class, 'exportExcel'])->name('buku.export.excel');
+        Route::get('/buku/export/pdf', [BukuController::class, 'exportPdf'])->name('buku.export.pdf');
         
         // Category Management
         Route::resource('kategori', KategoriController::class)->except(['show']);

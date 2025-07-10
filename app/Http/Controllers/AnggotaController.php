@@ -24,7 +24,7 @@ class AnggotaController extends Controller
 
         public function create()
     {
-        return view('anggota.create');
+        return view('admin.anggota.create');
     }
 
     public function store(Request $request)
@@ -159,7 +159,14 @@ class AnggotaController extends Controller
                 $query->where('name', 'like', '%'.$request->search.'%')
                     ->orWhere('email', 'like', '%'.$request->search.'%');
             })
-            ->withCount('peminjamans')
+            ->withCount([
+                'peminjamans as peminjaman_aktif_count' => function($query) {
+                    $query->where('status', 'dipinjam');
+                },
+                'peminjamans as peminjaman_selesai_count' => function($query) {
+                    $query->where('status', 'dikembalikan');
+                }
+            ])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -175,7 +182,14 @@ class AnggotaController extends Controller
                 $query->where('name', 'like', '%'.$request->search.'%')
                     ->orWhere('email', 'like', '%'.$request->search.'%');
             })
-            ->withCount('peminjamans')
+            ->withCount([
+                'peminjamans as peminjaman_aktif_count' => function($query) {
+                    $query->where('status', 'dipinjam');
+                },
+                'peminjamans as peminjaman_selesai_count' => function($query) {
+                    $query->where('status', 'dikembalikan');
+                }
+            ])
             ->orderBy('created_at', 'desc')
             ->get();
 

@@ -110,6 +110,8 @@ class BukuController extends Controller
         $statusPending = false;
         $canBook = true;
         $bookingMessage = '';
+        $dibookingOlehAnggotaLain = false;
+        $dipinjamOlehAnggotaLain = false;
         
         if ($user) {
             // Check if user already borrowed this book (any status)
@@ -135,6 +137,18 @@ class BukuController extends Controller
                 ->where('status', 'pending')
                 ->exists();
                 
+            // Check if book is booked by other members
+            $dibookingOlehAnggotaLain = Peminjaman::where('buku_id', $buku->id)
+                ->where('user_id', '!=', $user->id)
+                ->where('status', 'booking')
+                ->exists();
+                
+            // Check if book is borrowed by other members
+            $dipinjamOlehAnggotaLain = Peminjaman::where('buku_id', $buku->id)
+                ->where('user_id', '!=', $user->id)
+                ->where('status', 'dipinjam')
+                ->exists();
+                
             // Check total active bookings (including pending)
             $totalBookings = Peminjaman::where('user_id', $user->id)
                 ->whereIn('status', ['booking', 'pending'])
@@ -151,10 +165,16 @@ class BukuController extends Controller
                 $bookingMessage = 'Anda sudah melakukan booking untuk buku ini dan menunggu konfirmasi admin.';
             } elseif ($sudahBooking) {
                 $canBook = false;
-                $bookingMessage = 'Anda sudah melakukan booking untuk buku ini.';
+                $bookingMessage = 'Booking Anda untuk buku ini telah berhasil. Silakan ambil di perpustakaan pada tanggal yang telah ditentukan.';
             } elseif ($sedangDipinjam) {
                 $canBook = false;
                 $bookingMessage = 'Anda sedang meminjam buku ini.';
+            } elseif ($dibookingOlehAnggotaLain) {
+                $canBook = false;
+                $bookingMessage = 'Buku ini sudah dibooking oleh anggota lain dan menunggu konfirmasi admin.';
+            } elseif ($dipinjamOlehAnggotaLain) {
+                $canBook = false;
+                $bookingMessage = 'Buku ini sedang dipinjam oleh anggota lain.';
             } elseif ($totalBookings >= self::MAX_BOOKINGS) {
                 $canBook = false;
                 $bookingMessage = 'Anda sudah mencapai batas maksimal booking (' . self::MAX_BOOKINGS . ' buku).';
@@ -175,7 +195,9 @@ class BukuController extends Controller
             'sudahBooking',
             'statusPending',
             'canBook',
-            'bookingMessage'
+            'bookingMessage',
+            'dibookingOlehAnggotaLain',
+            'dipinjamOlehAnggotaLain'
         ));
     }
 }

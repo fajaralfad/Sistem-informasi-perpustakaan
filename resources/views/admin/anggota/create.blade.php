@@ -32,7 +32,7 @@
                                 <svg class="w-6 h-6 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
                                 </svg>
-                                <span class="ml-1 text-sm font-medium text-gray-300">Tambah Baru</span>
+                                <span class="ml-1 text-sm font-medium text-white">Tambah Baru</span>
                             </div>
                         </li>
                     </ol>
@@ -77,7 +77,7 @@
                                 Email <span class="text-red-400">*</span>
                             </label>
                             <input type="email" id="email" name="email" value="{{ old('email') }}"
-                                   class="block w-full bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-gray-600  placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
+                                   class="block w-full bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
                                    placeholder="contoh@email.com" required>
                             @error('email')
                                 <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
@@ -91,7 +91,7 @@
                                 <span class="text-gray-400 text-xs ml-2">(Opsional)</span>
                             </label>
                             <input type="text" id="phone" name="phone" value="{{ old('phone') }}"
-                                   class="block w-full bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-gray-600  placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
+                                   class="block w-full bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
                                    placeholder="081234567890">
                             @error('phone')
                                 <p class="mt-1 text-sm text-red-400">{{ $message }}</p>

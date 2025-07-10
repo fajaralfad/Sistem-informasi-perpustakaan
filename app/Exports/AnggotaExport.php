@@ -30,10 +30,10 @@ class AnggotaExport implements FromCollection, WithHeadings, WithMapping, WithSt
             'Nama',
             'Email',
             'Telepon',
-            'Alamat',
             'Status Verifikasi',
             'Tanggal Daftar',
-            'Total Peminjaman',
+            'Peminjaman Aktif',
+            'Peminjaman Selesai'
         ];
     }
 
@@ -44,21 +44,45 @@ class AnggotaExport implements FromCollection, WithHeadings, WithMapping, WithSt
             $anggota->name,
             $anggota->email,
             $anggota->phone ?? '-',
-            $anggota->address ?? '-',
             $anggota->email_verified_at ? 'Terverifikasi' : 'Belum Verifikasi',
-            $anggota->created_at->format('d/m/Y H:i'),
-            $anggota->peminjamans->count(),
+            $anggota->created_at->format('d/m/Y'),
+            $anggota->peminjaman_aktif_count,
+            $anggota->peminjaman_selesai_count
         ];
     }
 
     public function styles(Worksheet $sheet)
     {
         return [
-            // Style the first row as bold text
-            1 => ['font' => ['bold' => true]],
+            // Style the header row
+            1 => [
+                'font' => [
+                    'bold' => true,
+                    'color' => ['rgb' => 'FFFFFF']
+                ],
+                'fill' => [
+                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'color' => ['rgb' => '4F81BD']
+                ]
+            ],
             
-            // Styling specific cells
-            'A:H' => ['alignment' => ['wrapText' => true]],
+            // Set auto-size for columns
+            'A:H' => [
+                'alignment' => [
+                    'wrapText' => true,
+                    'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP
+                ]
+            ],
+            
+            // Set border for all cells
+            'A1:H' . ($this->anggota->count() + 1) => [
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                        'color' => ['rgb' => '000000']
+                    ]
+                ]
+            ]
         ];
     }
 }

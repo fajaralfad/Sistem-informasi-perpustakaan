@@ -15,6 +15,11 @@ class AnggotaSearch extends Component
     public $search = '';
     public $perPage = 10;
 
+    // Untuk modal delete confirmation
+    public $userIdToDelete;
+    public $userNameToDelete;
+    public $deleteError = '';
+
     protected $queryString = [
         'search' => ['except' => ''],
         'page' => ['except' => 1],
@@ -36,39 +41,43 @@ class AnggotaSearch extends Component
         $this->resetPage();
     }
 
-    public function deleteConfirmation($userId)
+    public function confirmDelete($userId, $userName)
     {
-        $user = User::findOrFail($userId);
+        $this->userIdToDelete = $userId;
+        $this->userNameToDelete = $userName;
+        $this->deleteError = '';
+    }
+
+    public function delete()
+    {
+        $user = User::findOrFail($this->userIdToDelete);
         
         $validation = $this->validateMemberForDeletion($user);
         
         if (!$validation['can_delete']) {
-            $this->dispatch('show-delete-error', message: $validation['message']);
+            $this->deleteError = $validation['message'];
+            $this->dispatch('show-toast', 
+                message: $this->deleteError, 
+                type: 'error'
+            );
             return;
         }
 
-        $this->dispatch('confirm-delete', userId: $userId);
-    }
-
-    
-    public function deleteAnggota($userId)
-    {
         try {
-            $user = User::findOrFail($userId);
-            
-            $validation = $this->validateMemberForDeletion($user);
-            
-            if (!$validation['can_delete']) {
-                $this->dispatch('show-delete-error', message: $validation['message']);
-                return;
-            }
-
             $userName = $user->name;
             $user->delete();
             
-            $this->dispatch('show-delete-success', message: "Anggota {$userName} berhasil dihapus.");
+            $this->reset(['userIdToDelete', 'userNameToDelete', 'deleteError']);
+            $this->dispatch('show-toast', 
+                message: "Anggota {$userName} berhasil dihapus.", 
+                type: 'success'
+            );
         } catch (\Exception $e) {
-            $this->dispatch('show-delete-error', message: 'Terjadi kesalahan saat menghapus anggota: ' . $e->getMessage());
+            $this->deleteError = 'Terjadi kesalahan saat menghapus anggota: ' . $e->getMessage();
+            $this->dispatch('show-toast', 
+                message: $this->deleteError, 
+                type: 'error'
+            );
         }
     }
 
@@ -119,10 +128,8 @@ class AnggotaSearch extends Component
         }
 
         return [
-        'can_delete' => $canDelete,
-        'message' => $canDelete 
-            ? 'Anggota dapat dihapus' 
-            : implode("\n", $messages), // Ubah format pesan menjadi plain text
+            'can_delete' => $canDelete,
+            'message' => implode(", ", $messages),
         ];
     }
 

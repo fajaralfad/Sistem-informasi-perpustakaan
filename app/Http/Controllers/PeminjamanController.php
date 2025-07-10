@@ -320,40 +320,41 @@ class PeminjamanController extends Controller
         return redirect()->back()->with('success', 'Booking berhasil dibatalkan!');
     }
 
-  public function confirmBookTaken(Request $request, Peminjaman $peminjaman)
-    {
-        // Validasi status peminjaman
-        if (!in_array($peminjaman->status, ['pending', 'booking'])) {
-            return back()->with('error', 'Hanya booking/pending yang bisa dikonfirmasi!');
+ public function confirmBookTaken(Request $request, Peminjaman $peminjaman)
+{
+    \Log::info('1. Memulai konfirmasi - Status awal: '.$peminjaman->status);
+    
+    DB::beginTransaction();
+    try {
+        \Log::info('2. Memeriksa stok buku');
+        $buku = $peminjaman->buku;
+        
+        if ($buku->stok <= 0) {
+            \Log::error('3. Stok habis untuk buku ID: '.$buku->id);
+            throw new \Exception('Stok buku tidak tersedia!');
         }
 
-        DB::beginTransaction();
-        try {
-            $buku = $peminjaman->buku;
-            
-            // Cek stok sebelum konfirmasi
-            if ($buku->stok <= 0) {
-                throw new \Exception('Stok buku tidak tersedia!');
-            }
+        \Log::info('4. Memperbarui status ke dipinjam');
+        $peminjaman->update([
+            'status' => 'dipinjam',
+            'tanggal_pinjam' => now()
+        ]);
 
-            // Update status
-            $peminjaman->update([
-                'status' => 'dipinjam',
-                'tanggal_pinjam' => Carbon::now()
-            ]);
+        \Log::info('5. Mengurangi stok buku');
+        $buku->decrement('stok');
 
-            // Kurangi stok - HANYA di sini
-            $buku->decrement('stok');
+        DB::commit();
+        \Log::info('6. Berhasil memperbarui status');
 
-            DB::commit();
-
-            return redirect()->route('admin.peminjaman.index')
-                ->with('success', 'Buku berhasil dikonfirmasi diambil! Stok berkurang.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'Gagal konfirmasi: ' . $e->getMessage());
-        }
+        return redirect()->route('admin.peminjaman.index')
+               ->with('success', 'Buku berhasil dikonfirmasi diambil!');
+               
+    } catch (\Exception $e) {
+        DB::rollBack();
+        \Log::error('ERROR: '.$e->getMessage()."\n".$e->getTraceAsString());
+        return back()->with('error', 'Gagal konfirmasi: '.$e->getMessage());
     }
+}
 
     private function hitungDenda($peminjaman, $waktuPengembalian, $tanggalKembali)
     {

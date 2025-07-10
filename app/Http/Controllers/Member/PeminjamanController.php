@@ -252,46 +252,6 @@ class PeminjamanController extends Controller
     }
 
     /**
-     * Get borrowing statistics for member
-     */
-    public function statistik()
-    {
-        $user = auth()->user();
-        
-        $stats = [
-            'total_peminjaman' => Peminjaman::where('user_id', $user->id)->count(),
-            'peminjaman_aktif' => Peminjaman::where('user_id', $user->id)->where('status', 'dipinjam')->count(),
-            'peminjaman_selesai' => Peminjaman::where('user_id', $user->id)->whereIn('status', ['dikembalikan', 'terlambat'])->count(),
-            'total_denda' => Denda::whereHas('peminjaman', function($q) use ($user) {
-                $q->where('user_id', $user->id);
-            })->sum('jumlah'),
-            'denda_belum_lunas' => Denda::whereHas('peminjaman', function($q) use ($user) {
-                $q->where('user_id', $user->id);
-            })->where('tanggal_bayar', null)->sum('jumlah')
-        ];
-
-        // Statistik bulanan (6 bulan terakhir)
-        $statistikBulanan = [];
-        for ($i = 5; $i >= 0; $i--) {
-            $bulan = Carbon::now()->subMonths($i);
-            $jumlah = Peminjaman::where('user_id', $user->id)
-                ->whereYear('created_at', $bulan->year)
-                ->whereMonth('created_at', $bulan->month)
-                ->count();
-            
-            $statistikBulanan[] = [
-                'bulan' => $bulan->format('M Y'),
-                'jumlah' => $jumlah
-            ];
-        }
-
-        return response()->json([
-            'stats' => $stats,
-            'monthly_stats' => $statistikBulanan
-        ]);
-    }
-
-    /**
      * Handle booking request (Modified for better JSON response handling)
      */
     public function storeBooking(Request $request)
