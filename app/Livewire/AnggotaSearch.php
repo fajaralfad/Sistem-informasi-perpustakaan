@@ -141,7 +141,10 @@ class AnggotaSearch extends Component
                 $query->where(function ($q) {
                     $q->where('name', 'like', '%' . $this->search . '%')
                       ->orWhere('email', 'like', '%' . $this->search . '%')
-                      ->orWhere('id', 'like', '%' . $this->search . '%');
+                      ->orWhere('id', 'like', '%' . $this->search . '%')
+                      ->orWhere('nip', 'like', '%' . $this->search . '%')
+                      ->orWhere('nrp', 'like', '%' . $this->search . '%')
+                      ->orWhere('phone', 'like', '%' . $this->search . '%');
                 });
             })
             ->orderBy('created_at', 'desc')

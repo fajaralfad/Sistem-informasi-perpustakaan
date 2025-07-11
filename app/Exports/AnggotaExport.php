@@ -28,6 +28,8 @@ class AnggotaExport implements FromCollection, WithHeadings, WithMapping, WithSt
         return [
             'ID',
             'Nama',
+            'NIP',
+            'NRP',
             'Email',
             'Telepon',
             'Status Verifikasi',
@@ -42,6 +44,8 @@ class AnggotaExport implements FromCollection, WithHeadings, WithMapping, WithSt
         return [
             $anggota->id,
             $anggota->name,
+            $anggota->nip,
+            $anggota->nrp,
             $anggota->email,
             $anggota->phone ?? '-',
             $anggota->email_verified_at ? 'Terverifikasi' : 'Belum Verifikasi',

@@ -140,16 +140,13 @@
                                 </div>
                             </th>
                             <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                User ID
+                                Kontak
                             </th>
                             <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                Email
+                                Identitas
                             </th>
                             <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                Role
-                            </th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                Status Verifikasi
+                                Status
                             </th>
                             <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                                 Tanggal Daftar
@@ -162,6 +159,7 @@
                     <tbody class="bg-gray-800 divide-y divide-gray-700">
                         @foreach($users as $user)
                         <tr class="hover:bg-gray-700 transition-colors duration-150">
+                            <!-- Anggota Column -->
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <div class="flex-shrink-0 h-10 w-10">
@@ -180,44 +178,88 @@
                                     </div>
                                     <div class="ml-4">
                                         <div class="text-sm font-medium text-white">{{ $user->name }}</div>
+                                        <div class="text-xs text-gray-400">#{{ $user->id }}</div>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-900 text-blue-200">
-                                    #{{ $user->id }}
-                                </span>
-                            </td>
+                            
+                            <!-- Kontak Column -->
                             <td class="px-6 py-4">
                                 <div class="text-sm text-white">
                                     {{ $user->email }}
                                 </div>
+                                <div class="text-xs text-gray-400 mt-1">
+                                    @if($user->phone)
+                                        <div class="flex items-center">
+                                            <svg class="w-3 h-3 mr-1 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                            </svg>
+                                            {{ $user->phone }}
+                                        </div>
+                                    @else
+                                        <span class="text-gray-500">-</span>
+                                    @endif
+                                </div>
                             </td>
+                            
+                            <!-- Identitas Column -->
                             <td class="px-6 py-4">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-900 text-purple-200">
-                                    {{ $user->role }}
-                                </span>
+                                <div class="space-y-1">
+                                    @if($user->nip)
+                                        <div class="text-xs">
+                                            <span class="text-gray-400">NIP:</span>
+                                            <span class="text-white ml-1">{{ $user->nip }}</span>
+                                        </div>
+                                    @endif
+                                    @if($user->nrp)
+                                        <div class="text-xs">
+                                            <span class="text-gray-400">NRP:</span>
+                                            <span class="text-white ml-1">{{ $user->nrp }}</span>
+                                        </div>
+                                    @endif
+                                    @if(!$user->nip && !$user->nrp)
+                                        <span class="text-xs text-gray-500">-</span>
+                                    @endif
+                                </div>
                             </td>
+                            
+                            <!-- Status Column -->
                             <td class="px-6 py-4">
-                                @if($user->email_verified_at)
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-900 text-green-200">
-                                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                        </svg>
-                                        Terverifikasi
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-900 text-red-200">
-                                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                                        </svg>
-                                        Belum Verifikasi
-                                    </span>
-                                @endif
+                                <div class="space-y-1">
+                                    <div>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-900 text-purple-200">
+                                            {{ $user->role }}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        @if($user->email_verified_at)
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-900 text-green-200">
+                                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                                </svg>
+                                                Terverifikasi
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-900 text-red-200">
+                                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                                </svg>
+                                                Belum Verifikasi
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
                             </td>
+                            
+                            <!-- Tanggal Daftar Column -->
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
                                 {{ $user->created_at->format('d M Y') }}
+                                <div class="text-xs text-gray-500">
+                                    {{ $user->created_at->format('H:i') }}
+                                </div>
                             </td>
+                            
+                            <!-- Aksi Column -->
                             <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                 <div class="flex justify-center space-x-2">
                                     <!-- Tombol Detail -->
@@ -230,8 +272,18 @@
                                         </svg>
                                         Lihat
                                     </a>
+
+                                    <!-- Tombol Edit -->
+                                    <a href="{{ route('admin.anggota.edit', $user) }}" 
+                                    class="bg-yellow-600 hover:bg-yellow-700 text-yellow-100 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center transition-colors duration-200"
+                                    title="Edit Anggota">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                        Edit
+                                    </a>
                                     
-                                     <!-- Tombol Hapus -->
+                                    <!-- Tombol Hapus -->
                                     <button wire:click="confirmDelete({{ $user->id }}, '{{ $user->name }}')"
                                             class="bg-red-900 hover:bg-red-800 text-red-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center transition-colors duration-200"
                                             title="Hapus Anggota">

@@ -80,10 +80,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('pengarang', PengarangController::class)->except(['show']);
 
         // Member Management
-        Route::resource('anggota', AnggotaController::class);
-        Route::get('/anggota/foto/{filename}', [AnggotaController::class, 'foto'])->name('anggota.foto');
-        Route::get('anggota/{user}/riwayat', [AnggotaController::class, 'riwayat'])->name('anggota.riwayat');
-        Route::get('/anggota/{user}/cetak-kartu', [AnggotaController::class, 'cetakKartu'])->name('anggota.cetak-kartu');
+        Route::get('/anggota', [AnggotaController::class, 'index'])->name('anggota.index');
+        Route::get('/anggota/create', [AnggotaController::class, 'create'])->name('anggota.create');
+        Route::post('/anggota', [AnggotaController::class, 'store'])->name('anggota.store');
+        Route::get('/anggota/{user}', [AnggotaController::class, 'show'])->name('anggota.show');
+        Route::get('/anggota/{user}/edit', [AnggotaController::class, 'edit'])->name('anggota.edit');
+        Route::put('/anggota/{user}', [AnggotaController::class, 'update'])->name('anggota.update');
+        Route::delete('/anggota/{user}', [AnggotaController::class, 'destroy'])->name('anggota.destroy');
+        
         Route::get('/anggota-debug', [AnggotaController::class, 'debug'])->name('anggota.debug');
         Route::get('/export-excel', [AnggotaController::class, 'exportExcel'])->name('anggota.export.excel');
         Route::get('/export-pdf', [AnggotaController::class, 'exportPdf'])->name('anggota.export.pdf');

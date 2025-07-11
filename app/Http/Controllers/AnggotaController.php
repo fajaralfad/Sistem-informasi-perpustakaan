@@ -33,7 +33,8 @@ class AnggotaController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:500',
+            'nip' => 'nullable|string|max:20|unique:users',
+            'nrp' => 'nullable|string|max:20|unique:users',
         ]);
 
         // Generate random password
@@ -44,8 +45,9 @@ class AnggotaController extends Controller
             'email' => $request->email,
             'password' => Hash::make($password),
             'phone' => $request->phone,
-            'address' => $request->address,
             'role' => 'anggota',
+            'nip' => $request->nip,
+            'nrp' => $request->nrp,
             // email_verified_at sengaja dikosongkan agar anggota verifikasi sendiri
         ]);
 
@@ -72,6 +74,7 @@ class AnggotaController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
+    
     public function edit(User $user)
     {
         if ($user->role !== 'anggota') {
@@ -94,7 +97,8 @@ class AnggotaController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:500',
+            'nip' => 'nullable|string|max:20|unique:users,nip,' . $user->id,
+            'nrp' => 'nullable|string|max:20|unique:users,nrp,' . $user->id,
         ]);
 
         $user->update($validated);

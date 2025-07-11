@@ -48,6 +48,54 @@
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
+        <!-- Phone Number -->
+        <div class="space-y-2">
+            <x-input-label for="phone" :value="__('Nomor Telepon')" class="text-gray-700 dark:text-gray-300 font-semibold text-sm" />
+            <div class="relative group">
+                <x-text-input id="phone" 
+                    class="block w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-gray-50 dark:bg-gray-700 dark:text-gray-100 focus:bg-white dark:focus:bg-gray-600 text-sm shadow-sm"
+                    type="tel" 
+                    name="phone" 
+                    :value="old('phone')" 
+                    required 
+                    autocomplete="tel"
+                    placeholder="081234567890" />
+            </div>
+            <x-input-error :messages="$errors->get('phone')" class="mt-2" />
+        </div>
+
+        <!-- NIP -->
+        <div class="space-y-2">
+            <x-input-label for="nip" :value="__('NIP')" class="text-gray-700 dark:text-gray-300 font-semibold text-sm" />
+            <div class="relative group">
+                <x-text-input id="nip" 
+                    class="block w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-gray-50 dark:bg-gray-700 dark:text-gray-100 focus:bg-white dark:focus:bg-gray-600 text-sm shadow-sm"
+                    type="text" 
+                    name="nip" 
+                    :value="old('nip')" 
+                    required 
+                    autocomplete="off"
+                    placeholder="Nomor Induk Pegawai" />
+            </div>
+            <x-input-error :messages="$errors->get('nip')" class="mt-2" />
+        </div>
+
+        <!-- NRP -->
+        <div class="space-y-2">
+            <x-input-label for="nrp" :value="__('NRP')" class="text-gray-700 dark:text-gray-300 font-semibold text-sm" />
+            <div class="relative group">
+                <x-text-input id="nrp" 
+                    class="block w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-gray-50 dark:bg-gray-700 dark:text-gray-100 focus:bg-white dark:focus:bg-gray-600 text-sm shadow-sm"
+                    type="text" 
+                    name="nrp" 
+                    :value="old('nrp')" 
+                    required 
+                    autocomplete="off"
+                    placeholder="Nomor Registrasi Pegawai" />
+            </div>
+            <x-input-error :messages="$errors->get('nrp')" class="mt-2" />
+        </div>
+
         <!-- Password -->
         <div class="space-y-2">
             <x-input-label for="password" :value="__('Password')" class="text-gray-700 dark:text-gray-300 font-semibold text-sm" />
