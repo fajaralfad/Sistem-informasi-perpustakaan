@@ -72,6 +72,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('buku/search', [BukuController::class, 'search'])->name('buku.search');
         Route::get('/buku/export/excel', [BukuController::class, 'exportExcel'])->name('buku.export.excel');
         Route::get('/buku/export/pdf', [BukuController::class, 'exportPdf'])->name('buku.export.pdf');
+        Route::get('/buku-populer', [BukuController::class, 'bukuPopuler'])->name('buku.populer');
+        Route::get('/anggota-aktif', [UserController::class, 'anggotaAktif'])->name('admin.anggota.aktif'); 
         
         // Category Management
         Route::resource('kategori', KategoriController::class)->except(['show']);
@@ -87,7 +89,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/anggota/{user}/edit', [AnggotaController::class, 'edit'])->name('anggota.edit');
         Route::put('/anggota/{user}', [AnggotaController::class, 'update'])->name('anggota.update');
         Route::delete('/anggota/{user}', [AnggotaController::class, 'destroy'])->name('anggota.destroy');
-        
         Route::get('/anggota-debug', [AnggotaController::class, 'debug'])->name('anggota.debug');
         Route::get('/export-excel', [AnggotaController::class, 'exportExcel'])->name('anggota.export.excel');
         Route::get('/export-pdf', [AnggotaController::class, 'exportPdf'])->name('anggota.export.pdf');

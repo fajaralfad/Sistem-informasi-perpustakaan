@@ -145,7 +145,7 @@
             <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-lg font-semibold text-white">Buku Paling Populer</h2>
-                    <a href="{{ route('admin.buku.index') }}" class="text-gray-400 hover:text-white text-sm flex items-center">
+                    <a href="{{ route('admin.buku.populer') }}" class="text-gray-400 hover:text-white text-sm flex items-center">
                         Lihat Semua
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />

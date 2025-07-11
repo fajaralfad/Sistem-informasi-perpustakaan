@@ -327,4 +327,16 @@ class BukuController extends Controller
 
         return $pdf->download('laporan-buku-' . now()->format('YmdHis') . '.pdf');
     }
+
+    public function bukuPopuler()
+    {
+        $bukuPopuler = Buku::withCount(['peminjamans' => function($query) {
+            $query->where('status', '!=', 'dibatalkan');
+        }])
+        ->with('pengarang')
+        ->orderBy('peminjamans_count', 'desc')
+        ->paginate(10);
+
+        return view('buku.populer', compact('bukuPopuler'));
+    }
 }

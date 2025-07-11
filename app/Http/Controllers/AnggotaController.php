@@ -212,4 +212,5 @@ class AnggotaController extends Controller
 
         return $pdf->download('laporan-anggota-' . Carbon::now()->format('YmdHis') . '.pdf');
     }
+    
 }
