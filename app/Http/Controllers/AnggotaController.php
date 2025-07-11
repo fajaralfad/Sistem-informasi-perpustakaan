@@ -212,5 +212,32 @@ class AnggotaController extends Controller
 
         return $pdf->download('laporan-anggota-' . Carbon::now()->format('YmdHis') . '.pdf');
     }
-    
+    public function anggotaAktif()
+{
+    // Alternatif 1: Menggunakan where clause langsung
+    $anggotaAktif = User::where('role', 'anggota')
+        ->withCount(['peminjamans' => function($query) {
+            $query->where('status', '!=', 'dibatalkan');
+        }])
+        ->orderBy('peminjamans_count', 'desc')
+        ->paginate(10);
+
+    // Alternatif 2: Menggunakan scope yang sudah ada di model
+    // $anggotaAktif = User::anggota()
+    //     ->withCount(['peminjamans' => function($query) {
+    //         $query->where('status', '!=', 'dibatalkan');
+    //     }])
+    //     ->orderBy('peminjamans_count', 'desc')
+    //     ->paginate(10);
+
+    // Alternatif 3: Menggunakan scope members
+    // $anggotaAktif = User::members()
+    //     ->withCount(['peminjamans' => function($query) {
+    //         $query->where('status', '!=', 'dibatalkan');
+    //     }])
+    //     ->orderBy('peminjamans_count', 'desc')
+    //     ->paginate(10);
+
+    return view('admin.anggota.aktif', compact('anggotaAktif'));
+}
 }
