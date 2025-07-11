@@ -134,21 +134,6 @@
                         </div>
                     </div>
 
-                    <!-- Kolom 2 -->
-                    <div class="space-y-4">
-                        <!-- Alamat -->
-                        <div>
-                            <label for="address" class="block text-sm font-medium text-gray-300 mb-1">
-                                Alamat
-                            </label>
-                            <textarea id="address" name="address" rows="3"
-                                class="block w-full bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
-                                placeholder="Alamat lengkap anggota">{{ old('address', $user->address ?? '') }}</textarea>
-                            @error('address')
-                                <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
-                            @enderror
-                        </div>
-
                         <!-- Preview Foto Profil -->
                         <div>
                             <label class="block text-sm font-medium text-gray-300 mb-1">Foto Profil</label>

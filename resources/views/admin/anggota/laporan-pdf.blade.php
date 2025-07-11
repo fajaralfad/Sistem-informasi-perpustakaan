@@ -6,7 +6,7 @@
     <style>
         body { 
             font-family: Arial, sans-serif;
-            font-size: 10px; /* Reduced base font size */
+            font-size: 10px;
         }
         .header { 
             text-align: center; 
@@ -29,18 +29,18 @@
             width: 100%; 
             border-collapse: collapse; 
             margin-bottom: 10px;
-            font-size: 9px; /* Smaller font for table */
+            font-size: 8px; /* Slightly smaller font to accommodate extra columns */
         }
         th, td { 
             border: 1px solid #ddd; 
-            padding: 4px; /* Reduced padding */
+            padding: 3px; /* Reduced padding */
             text-align: left;
-            line-height: 1.3; /* Tighter line spacing */
+            line-height: 1.2; /* Tighter line spacing */
         }
         th { 
             background-color: #f2f2f2; 
             font-weight: bold;
-            font-size: 9px;
+            font-size: 8px;
         }
         .footer { 
             margin-top: 15px; 
@@ -55,11 +55,22 @@
             display: inline-block; 
             margin-right: 10px; 
         }
-        /* Ensure table fits page width */
+        /* Compact table layout */
         table {
-            table-layout: auto;
+            table-layout: fixed;
             width: 100%;
         }
+        /* Column width adjustments */
+        .col-id { width: 4%; }
+        .col-name { width: 15%; }
+        .col-email { width: 15%; }
+        .col-nip { width: 10%; }
+        .col-nrp { width: 10%; }
+        .col-phone { width: 8%; }
+        .col-status { width: 8%; }
+        .col-date { width: 8%; }
+        .col-active { width: 7%; }
+        .col-completed { width: 7%; }
         /* Optional: Add page break for printing */
         @media print {
             .page-break {
@@ -87,14 +98,16 @@
     <table>
         <thead>
             <tr>
-                <th width="5%">ID</th>
-                <th width="20%">Nama</th>
-                <th width="20%">Email</th>
-                <th width="12%">Telepon</th>
-                <th width="10%">Status</th>
-                <th width="10%">Tanggal Daftar</th>
-                <th width="10%">Peminjaman Aktif</th>
-                <th width="13%">Peminjaman Selesai</th>
+                <th class="col-id">ID</th>
+                <th class="col-name">Nama</th>
+                <th class="col-email">Email</th>
+                <th class="col-nip">NIP</th>
+                <th class="col-nrp">NRP</th>
+                <th class="col-phone">Telepon</th>
+                <th class="col-status">Status</th>
+                <th class="col-date">Tanggal Daftar</th>
+                <th class="col-active">Peminjaman Aktif</th>
+                <th class="col-completed">Peminjaman Selesai</th>
             </tr>
         </thead>
         <tbody>
@@ -103,6 +116,8 @@
                 <td>{{ $item->id }}</td>
                 <td>{{ $item->name }}</td>
                 <td>{{ $item->email }}</td>
+                <td>{{ $item->nip ?? '-' }}</td>
+                <td>{{ $item->nrp ?? '-' }}</td>
                 <td>{{ $item->phone ?? '-' }}</td>
                 <td>{{ $item->email_verified_at ? 'Terverifikasi' : 'Belum Verifikasi' }}</td>
                 <td>{{ $item->created_at->format('d/m/Y') }}</td>

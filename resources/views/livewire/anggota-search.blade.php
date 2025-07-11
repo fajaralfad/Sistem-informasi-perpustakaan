@@ -202,19 +202,19 @@
                                 </div>
                             </td>
                             
-                            <!-- Identitas Column -->
+                            <!-- Identitas Column - Modified Version -->
                             <td class="px-6 py-4">
-                                <div class="space-y-1">
+                                <div class="space-y-1 min-w-[120px]"> <!-- Added min-width to prevent wrapping -->
                                     @if($user->nip)
-                                        <div class="text-xs">
-                                            <span class="text-gray-400">NIP:</span>
-                                            <span class="text-white ml-1">{{ $user->nip }}</span>
+                                        <div class="flex items-start">
+                                            <span class="text-xs text-gray-400 mr-1 whitespace-nowrap">NIP:</span>
+                                            <span class="text-xs text-white font-mono break-all">{{ $user->nip }}</span>
                                         </div>
                                     @endif
                                     @if($user->nrp)
-                                        <div class="text-xs">
-                                            <span class="text-gray-400">NRP:</span>
-                                            <span class="text-white ml-1">{{ $user->nrp }}</span>
+                                        <div class="flex items-start">
+                                            <span class="text-xs text-gray-400 mr-1 whitespace-nowrap">NRP:</span>
+                                            <span class="text-xs text-white font-mono break-all">{{ $user->nrp }}</span>
                                         </div>
                                     @endif
                                     @if(!$user->nip && !$user->nrp)
@@ -225,12 +225,6 @@
                             
                             <!-- Status Column -->
                             <td class="px-6 py-4">
-                                <div class="space-y-1">
-                                    <div>
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-900 text-purple-200">
-                                            {{ $user->role }}
-                                        </span>
-                                    </div>
                                     <div>
                                         @if($user->email_verified_at)
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-900 text-green-200">
