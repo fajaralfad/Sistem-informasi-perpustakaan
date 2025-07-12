@@ -2,19 +2,28 @@
 @extends('layouts.app')
 
 @section('content')
-<!-- Main Container with Gradient Background and Pattern -->
-<div class="dashboard-container">
-    <div class="container mx-auto px-4 py-8 relative z-10">
-        <!-- Header -->
-        <div class="flex justify-between items-center mb-8">
-            <div class="animate-fade-in">
-                <h1 class="text-4xl font-bold text-white drop-shadow-lg">Semua Aktivitas</h1>
-                <p class="text-white text-opacity-90 text-lg">Riwayat lengkap aktivitas perpustakaan</p>
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+    <div class="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
+        <!-- Header Section -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+            <div class="relative">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg blur opacity-20"></div>
+                <div class="relative bg-gray-800 rounded-lg p-6 border border-gray-700">
+                    <h1 class="text-2xl sm:text-3xl font-bold text-white mb-2 flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        Semua Aktivitas
+                    </h1>
+                    <p class="text-gray-300 text-sm sm:text-base">Riwayat lengkap aktivitas perpustakaan</p>
+                </div>
             </div>
-            <div class="flex items-center space-x-4">
-                <a href="{{ route('admin.dashboard') }}" class="card-glass text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            <div class="flex gap-2">
+                <a href="{{ route('admin.dashboard') }}" class="bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-600 hover:to-gray-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition duration-300 flex items-center gap-2 shadow-lg">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                     </svg>
                     Kembali ke Dashboard
                 </a>
@@ -23,30 +32,34 @@
 
         <!-- Error Message -->
         @if(session('error'))
-        <div class="content-card-glass mb-6 border-l-4 border-red-500">
-            <div class="p-4">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm text-red-300">{{ session('error') }}</p>
-                    </div>
+        <div class="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-6">
+            <div class="flex items-center gap-3">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
                 </div>
+                <p class="text-sm text-red-300">{{ session('error') }}</p>
             </div>
         </div>
         @endif
 
-        <!-- Filter Bar -->
-        <div class="content-card-glass mb-6">
-            <div class="flex flex-wrap gap-4 items-center justify-between">
-                <div class="flex flex-wrap gap-4">
+        <!-- Filter Section -->
+        <div class="bg-gray-800 rounded-lg border border-gray-700 shadow-2xl overflow-hidden mb-6">
+            <div class="bg-gradient-to-r from-gray-700 to-gray-600 px-6 py-4 border-b border-gray-600">
+                <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z"></path>
+                    </svg>
+                    Filter Aktivitas
+                </h2>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <!-- Filter Waktu -->
-                    <div class="flex items-center space-x-2">
-                        <label class="text-white text-sm font-medium">Waktu:</label>
-                        <select id="filterTime" class="dashboard-select text-sm">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-300">Waktu</label>
+                        <select id="filterTime" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                             <option value="all" {{ $filter == 'all' ? 'selected' : '' }}>30 Hari Terakhir</option>
                             <option value="today" {{ $filter == 'today' ? 'selected' : '' }}>Hari Ini</option>
                             <option value="week" {{ $filter == 'week' ? 'selected' : '' }}>Minggu Ini</option>
@@ -55,9 +68,9 @@
                     </div>
 
                     <!-- Filter Tipe -->
-                    <div class="flex items-center space-x-2">
-                        <label class="text-white text-sm font-medium">Tipe:</label>
-                        <select id="filterType" class="dashboard-select text-sm">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-300">Tipe</label>
+                        <select id="filterType" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                             <option value="all" {{ $type == 'all' ? 'selected' : '' }}>Semua Aktivitas</option>
                             <option value="peminjaman" {{ $type == 'peminjaman' ? 'selected' : '' }}>Peminjaman</option>
                             <option value="pengembalian" {{ $type == 'pengembalian' ? 'selected' : '' }}>Pengembalian</option>
@@ -65,112 +78,120 @@
                             <option value="denda" {{ $type == 'denda' ? 'selected' : '' }}>Denda</option>
                         </select>
                     </div>
-                </div>
 
-                <!-- Items per page -->
-                <div class="flex items-center space-x-2">
-                    <label class="text-white text-sm font-medium">Tampilkan:</label>
-                    <select id="perPage" class="dashboard-select text-sm">
-                        <option value="20" {{ $perPage == 20 ? 'selected' : '' }}>20</option>
-                        <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50</option>
-                        <option value="100" {{ $perPage == 100 ? 'selected' : '' }}>100</option>
-                    </select>
+                    <!-- Items per page -->
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-300">Tampilkan</label>
+                        <select id="perPage" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="20" {{ $perPage == 20 ? 'selected' : '' }}>20</option>
+                            <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50</option>
+                            <option value="100" {{ $perPage == 100 ? 'selected' : '' }}>100</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Aktivitas List -->
-        <div class="content-card-glass">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-lg font-semibold text-white">
-                    Aktivitas Terkini
-                    @if($pagination['total'] > 0)
-                        <span class="text-sm font-normal text-gray-300 ml-2">
-                            ({{ $pagination['from'] }}-{{ $pagination['to'] }} dari {{ $pagination['total'] }})
-                        </span>
-                    @endif
-                </h2>
-                
-                <!-- Refresh Button -->
-                <button id="refreshBtn" class="text-white hover:text-blue-300 transition-colors duration-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                </button>
+        <!-- Activities Table -->
+        <div class="bg-gray-800 rounded-lg border border-gray-700 shadow-2xl overflow-hidden">
+            <div class="bg-gradient-to-r from-gray-700 to-gray-600 px-6 py-4 border-b border-gray-600">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                        </svg>
+                        Aktivitas Terkini
+                        @if($pagination['total'] > 0)
+                            <span class="text-sm font-normal text-gray-300 ml-2">
+                                ({{ $pagination['from'] }}-{{ $pagination['to'] }} dari {{ $pagination['total'] }})
+                            </span>
+                        @endif
+                    </h2>
+                    <!-- Refresh Button -->
+                    <button id="refreshBtn" class="text-white hover:text-blue-300 transition-colors duration-200 p-2 rounded-lg hover:bg-gray-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                    </button>
+                </div>
             </div>
 
             <!-- Loading State -->
             <div id="loadingState" class="hidden">
-                <div class="flex items-center justify-center py-8">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                <div class="flex items-center justify-center py-12">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                     <span class="ml-3 text-white">Memuat aktivitas...</span>
                 </div>
             </div>
 
             <!-- Activities List -->
-            <div id="activitiesList">
+            <div id="activitiesList" class="divide-y divide-gray-700">
                 @if($aktivitasPaginated->count() > 0)
-                    <div class="space-y-3">
-                        @foreach($aktivitasPaginated as $aktivitas)
-                        <div class="activity-item {{ $aktivitas['type'] }}-activity">
-                            <div class="flex items-start space-x-4 p-4 rounded-lg border border-white border-opacity-10 hover:border-opacity-20 transition-all duration-300 hover:bg-white hover:bg-opacity-5">
-                                <!-- Icon -->
-                                <div class="flex-shrink-0">
-                                    <div class="w-10 h-10 rounded-full {{ $aktivitas['bgColor'] }} flex items-center justify-center {{ $aktivitas['textColor'] }}">
-                                        {!! $aktivitas['icon'] !!}
-                                    </div>
+                    @foreach($aktivitasPaginated as $aktivitas)
+                    <div class="px-6 py-4 hover:bg-gray-700 transition duration-300 group">
+                        <div class="flex items-center gap-4">
+                            <!-- Icon -->
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 rounded-full {{ $aktivitas['bgColor'] }} flex items-center justify-center {{ $aktivitas['textColor'] }}">
+                                    {!! $aktivitas['icon'] !!}
                                 </div>
-                                
-                                <!-- Content -->
-                                <div class="flex-1 min-w-0">
-                                    <div class="flex items-center justify-between">
-                                        <p class="text-sm font-medium text-white">
+                            </div>
+                            
+                            <!-- Content -->
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h3 class="text-sm font-medium text-white group-hover:text-blue-300 transition duration-200">
                                             {{ $aktivitas['judul'] }}
+                                        </h3>
+                                        <p class="text-xs text-gray-400 mt-1">
+                                            {{ $aktivitas['deskripsi'] }}
                                         </p>
-                                        <span class="text-xs text-gray-400 flex-shrink-0 ml-4">
-                                            {{ $aktivitas['waktu'] }}
-                                        </span>
                                     </div>
-                                    <p class="mt-1 text-sm text-gray-300">
-                                        {{ $aktivitas['deskripsi'] }}
-                                    </p>
-                                    
-                                    <!-- Type Badge -->
-                                    <div class="mt-2">
+                                    <div class="flex items-center gap-3">
+                                        <!-- Type Badge -->
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $aktivitas['bgColor'] }} {{ $aktivitas['textColor'] }}">
                                             {{ ucfirst($aktivitas['type']) }}
+                                        </span>
+                                        <!-- Time -->
+                                        <span class="text-xs text-gray-400 flex-shrink-0">
+                                            {{ $aktivitas['waktu'] }}
                                         </span>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        @endforeach
                     </div>
+                    @endforeach
                 @else
                     <!-- Empty State -->
-                    <div class="text-center py-12">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-3.5a2 2 0 00-1.9 1.4L16 16l-1.6 1.6a2 2 0 01-1.9 1.4H9.5a2 2 0 01-1.9-1.4L6 16l-1.6-1.6A2 2 0 012.5 13H0" />
-                        </svg>
-                        <h3 class="mt-2 text-sm font-medium text-gray-300">Tidak ada aktivitas</h3>
-                        <p class="mt-1 text-sm text-gray-400">Belum ada aktivitas untuk filter yang dipilih.</p>
+                    <div class="px-6 py-12 text-center">
+                        <div class="flex flex-col items-center justify-center gap-3">
+                            <svg class="w-12 h-12 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-3.5a2 2 0 00-1.9 1.4L16 16l-1.6 1.6a2 2 0 01-1.9 1.4H9.5a2 2 0 01-1.9-1.4L6 16l-1.6-1.6A2 2 0 012.5 13H0" />
+                            </svg>
+                            <div class="text-center">
+                                <p class="text-gray-400 text-sm font-medium">Belum ada aktivitas</p>
+                                <p class="text-gray-500 text-xs mt-1">Aktivitas akan muncul setelah ada kegiatan di perpustakaan</p>
+                            </div>
+                        </div>
                     </div>
                 @endif
             </div>
 
             <!-- Pagination -->
             @if($pagination['total'] > 0 && $pagination['last_page'] > 1)
-            <div class="mt-6 border-t border-white border-opacity-10 pt-6">
+            <div class="bg-gray-750 px-6 py-4 border-t border-gray-700">
                 <div class="flex items-center justify-between">
                     <div class="flex-1 flex justify-between sm:hidden">
                         @if($pagination['current_page'] > 1)
-                        <button id="prevPageMobile" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <button id="prevPageMobile" class="relative inline-flex items-center px-4 py-2 border border-gray-600 text-sm font-medium rounded-md text-gray-300 bg-gray-700 hover:bg-gray-600">
                             Sebelumnya
                         </button>
                         @endif
                         
                         @if($pagination['has_more_pages'])
-                        <button id="nextPageMobile" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <button id="nextPageMobile" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-600 text-sm font-medium rounded-md text-gray-300 bg-gray-700 hover:bg-gray-600">
                             Selanjutnya
                         </button>
                         @endif
@@ -178,14 +199,14 @@
                     
                     <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                         <div>
-                            <p class="text-sm text-gray-300">
-                                Menampilkan <span class="font-medium">{{ $pagination['from'] }}</span> sampai <span class="font-medium">{{ $pagination['to'] }}</span> dari <span class="font-medium">{{ $pagination['total'] }}</span> hasil
+                            <p class="text-sm text-gray-400">
+                                Menampilkan <span class="font-medium text-white">{{ $pagination['from'] }}</span> - <span class="font-medium text-white">{{ $pagination['to'] }}</span> dari <span class="font-medium text-white">{{ $pagination['total'] }}</span> aktivitas
                             </p>
                         </div>
-                        <div>
+                        <div class="pagination-wrapper">
                             <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
                                 @if($pagination['current_page'] > 1)
-                                <button id="prevPage" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-600 bg-gray-800 text-sm font-medium text-gray-300 hover:bg-gray-700">
+                                <button id="prevPage" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-600 bg-gray-700 text-sm font-medium text-gray-300 hover:bg-gray-600">
                                     <span class="sr-only">Sebelumnya</span>
                                     <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
@@ -199,27 +220,27 @@
                                 @endphp
                                 
                                 @if($start > 1)
-                                <button data-page="1" class="page-btn relative inline-flex items-center px-4 py-2 border border-gray-600 bg-gray-800 text-sm font-medium text-gray-300 hover:bg-gray-700">1</button>
+                                <button data-page="1" class="page-btn relative inline-flex items-center px-4 py-2 border border-gray-600 bg-gray-700 text-sm font-medium text-gray-300 hover:bg-gray-600">1</button>
                                 @if($start > 2)
-                                <span class="relative inline-flex items-center px-4 py-2 border border-gray-600 bg-gray-800 text-sm font-medium text-gray-500">...</span>
+                                <span class="relative inline-flex items-center px-4 py-2 border border-gray-600 bg-gray-700 text-sm font-medium text-gray-500">...</span>
                                 @endif
                                 @endif
                                 
                                 @for($i = $start; $i <= $end; $i++)
-                                <button data-page="{{ $i }}" class="page-btn relative inline-flex items-center px-4 py-2 border border-gray-600 text-sm font-medium {{ $i == $pagination['current_page'] ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700' }}">
+                                <button data-page="{{ $i }}" class="page-btn relative inline-flex items-center px-4 py-2 border border-gray-600 text-sm font-medium {{ $i == $pagination['current_page'] ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600' }}">
                                     {{ $i }}
                                 </button>
                                 @endfor
                                 
                                 @if($end < $pagination['last_page'])
                                 @if($end < $pagination['last_page'] - 1)
-                                <span class="relative inline-flex items-center px-4 py-2 border border-gray-600 bg-gray-800 text-sm font-medium text-gray-500">...</span>
+                                <span class="relative inline-flex items-center px-4 py-2 border border-gray-600 bg-gray-700 text-sm font-medium text-gray-500">...</span>
                                 @endif
-                                <button data-page="{{ $pagination['last_page'] }}" class="page-btn relative inline-flex items-center px-4 py-2 border border-gray-600 bg-gray-800 text-sm font-medium text-gray-300 hover:bg-gray-700">{{ $pagination['last_page'] }}</button>
+                                <button data-page="{{ $pagination['last_page'] }}" class="page-btn relative inline-flex items-center px-4 py-2 border border-gray-600 bg-gray-700 text-sm font-medium text-gray-300 hover:bg-gray-600">{{ $pagination['last_page'] }}</button>
                                 @endif
                                 
                                 @if($pagination['has_more_pages'])
-                                <button id="nextPage" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-600 bg-gray-800 text-sm font-medium text-gray-300 hover:bg-gray-700">
+                                <button id="nextPage" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-600 bg-gray-700 text-sm font-medium text-gray-300 hover:bg-gray-600">
                                     <span class="sr-only">Selanjutnya</span>
                                     <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
@@ -236,106 +257,49 @@
     </div>
 </div>
 
-@push('styles')
 <style>
-.dashboard-container {
-    min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    position: relative;
-}
-
-.dashboard-container::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: 
-        radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 0%, transparent 50%),
-        radial-gradient(circle at 75% 75%, rgba(255,255,255,0.1) 0%, transparent 50%);
-    pointer-events: none;
-}
-
-.content-card-glass {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 16px;
-    padding: 1.5rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-}
-
-.card-glass {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-}
-
-.dashboard-select {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    color: white;
-    padding: 0.5rem 1rem;
-    outline: none;
-    transition: all 0.3s ease;
-}
-
-.dashboard-select:focus {
-    border-color: rgba(255, 255, 255, 0.4);
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
-}
-
-.dashboard-select option {
-    background: #374151;
-    color: white;
-}
-
-.activity-item {
-    transition: all 0.3s ease;
-}
-
-.activity-item:hover {
-    transform: translateY(-2px);
-}
-
-.animate-fade-in {
-    animation: fadeIn 0.6s ease-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.peminjaman-activity {
-    border-left: 3px solid #3b82f6;
-}
-
-.pengembalian-activity {
-    border-left: 3px solid #10b981;
-}
-
-.user-activity {
-    border-left: 3px solid #8b5cf6;
-}
-
-.denda-activity {
-    border-left: 3px solid #ef4444;
-}
-
-.system-activity {
-    border-left: 3px solid #6b7280;
-}
-
-.error-activity {
-    border-left: 3px solid #ef4444;
-}
+    .pagination-wrapper .pagination {
+        display: flex;
+        gap: 0.25rem;
+    }
+    
+    .pagination-wrapper .pagination a,
+    .pagination-wrapper .pagination span {
+        padding: 0.5rem 0.75rem;
+        text-decoration: none;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    
+    .pagination-wrapper .pagination a {
+        background-color: #374151;
+        color: #d1d5db;
+        border: 1px solid #4b5563;
+    }
+    
+    .pagination-wrapper .pagination a:hover {
+        background-color: #4b5563;
+        color: #ffffff;
+    }
+    
+    .pagination-wrapper .pagination .active span {
+        background-color: #3b82f6;
+        color: #ffffff;
+        border: 1px solid #3b82f6;
+    }
+    
+    .pagination-wrapper .pagination .disabled span {
+        background-color: #1f2937;
+        color: #6b7280;
+        border: 1px solid #374151;
+    }
+    
+    .bg-gray-750 {
+        background-color: #334155;
+    }
 </style>
-@endpush
 
 @push('scripts')
 <script>
