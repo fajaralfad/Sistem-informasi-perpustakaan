@@ -4,14 +4,30 @@
 <!-- Main Container -->
 <div class="min-h-screen bg-gray-900">
     <div class="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
-        <!-- Header Dashboard -->
+       <!-- Header Dashboard -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
             <div>
                 <h1 class="text-2xl sm:text-3xl font-bold text-white">Dashboard Perpustakaan</h1>
                 <p class="text-gray-300 mt-1">Ringkasan aktivitas dan statistik perpustakaan</p>
             </div>
-            <div class="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium border border-gray-700">
-                {{ now()->format('l, d F Y') }}
+            <div class="flex items-center gap-4">
+                <!-- Notifikasi Pending -->
+                <a href="{{ route('admin.peminjaman.index', ['status' => 'pending']) }}" 
+                class="relative bg-gray-800 hover:bg-gray-700 rounded-lg p-2 transition-all duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                    @if($peminjamanPending > 0)
+                        <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                            {{ $peminjamanPending }}
+                        </span>
+                    @endif
+                </a>
+                
+                <!-- Tanggal -->
+                <div class="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium border border-gray-700">
+                    {{ now()->format('l, d F Y') }}
+                </div>
             </div>
         </div>
 
@@ -220,6 +236,29 @@
         </div>
     </div>
 </div>
+
+@push('styles')
+<style>
+    .notification-badge {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+        }
+        70% {
+            transform: scale(1.1);
+            box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+        }
+        100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+        }
+    }
+</style>
+@endpush
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

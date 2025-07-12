@@ -16,6 +16,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        
         // Pastikan hanya admin yang bisa mengakses
         if (auth()->user()->role !== 'admin') {
             return redirect()->route('member.dashboard');
