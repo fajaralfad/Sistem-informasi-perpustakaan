@@ -68,9 +68,30 @@ class AnggotaController extends Controller
             abort(404);
         }
 
-        return view('admin.anggota.show', compact('user'));
-    }
+        // Get loan statistics
+        $peminjamans = Peminjaman::where('user_id', $user->id)
+            ->with(['buku', 'denda'])
+            ->orderBy('created_at', 'desc')
+            ->get();
 
+        $stats = [
+            'total_peminjaman' => $peminjamans->count(),
+            'peminjaman_aktif' => $peminjamans->whereIn('status', ['pending', 'booking', 'dipinjam', 'terlambat'])->count(),
+            'peminjaman_selesai' => $peminjamans->where('status', 'dikembalikan')->count(),
+            'total_denda' => Denda::whereHas('peminjaman', function($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })->sum('jumlah'),
+            'denda_belum_lunas' => Denda::whereHas('peminjaman', function($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })->where('status_pembayaran', false)->sum('jumlah')
+        ];
+
+        return view('admin.anggota.show', [
+            'user' => $user,
+            'peminjamans' => $peminjamans,
+            'stats' => $stats
+        ]);
+    }
     /**
      * Show the form for editing the specified resource.
      */

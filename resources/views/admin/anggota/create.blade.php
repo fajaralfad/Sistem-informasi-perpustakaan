@@ -73,7 +73,7 @@
                                 Nama Lengkap <span class="text-red-400">*</span>
                             </label>
                             <input type="text" id="name" name="name" value="{{ old('name', $user->name ?? '') }}"
-                                   class="block w-full bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
+                                   class="block w-full bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
                                    placeholder="Masukkan nama lengkap anggota" required>
                             @error('name')
                                 <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
@@ -86,7 +86,7 @@
                                 NIP
                             </label>
                             <input type="text" id="nip" name="nip" value="{{ old('nip', $user->nip ?? '') }}"
-                                class="block w-full bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
+                                class="block w-full bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
                                 placeholder="Nomor Induk Pegawai">
                             @error('nip')
                                 <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
@@ -99,7 +99,7 @@
                                 NRP
                             </label>
                             <input type="text" id="nrp" name="nrp" value="{{ old('nrp', $user->nrp ?? '') }}"
-                                class="block w-full bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
+                                class="block w-full bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
                                 placeholder="Nomor Registrasi Pegawai">
                             @error('nrp')
                                 <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
@@ -112,7 +112,7 @@
                                 Email <span class="text-red-400">*</span>
                             </label>
                             <input type="email" id="email" name="email" value="{{ old('email', $user->email ?? '') }}"
-                                   class="block w-full bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
+                                   class="block w-full bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
                                    placeholder="contoh@email.com" required {{ $isEdit ? 'readonly' : '' }}>
                             @error('email')
                                 <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
@@ -126,7 +126,7 @@
                                 <span class="text-gray-400 text-xs ml-2">(Opsional)</span>
                             </label>
                             <input type="text" id="phone" name="phone" value="{{ old('phone', $user->phone ?? '') }}"
-                                   class="block w-full bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
+                                   class="block w-full bg-gray-700 border border-gray-600 rounded-lg shadow-sm py-2 px-3 text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
                                    placeholder="081234567890">
                             @error('phone')
                                 <p class="mt-1 text-sm text-red-400">{{ $message }}</p>

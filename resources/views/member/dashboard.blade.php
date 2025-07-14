@@ -26,7 +26,7 @@
                     </svg>
                 </div>
                 <div class="flex-1">
-                    <h3 class="text-lg font-semibold text-white mb-3">Tips Peminjaman Buku</h3>
+                    <h3 class="text-lg font-semibold text-white mb-3">Aturan Peminjaman Buku</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-white">
                         <div class="flex items-start">
                             <span class="text-indigo-200 mr-2 mt-1">•</span>

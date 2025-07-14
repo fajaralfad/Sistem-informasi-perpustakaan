@@ -125,252 +125,251 @@ class DashboardController extends Controller
  * Private method untuk mendapatkan aktivitas terkini yang sudah diperbarui dengan kunjungan
  */
 private function getAktivitasTerkini($limit = 8, $filter = null, $type = null)
-{
-    $aktivitas = collect();
-    
-    // Tentukan rentang waktu berdasarkan filter
-    $dateFilter = match($filter) {
-        'today' => Carbon::now()->startOfDay(),
-        'week' => Carbon::now()->subWeek(),
-        'month' => Carbon::now()->subMonth(),
-        default => Carbon::now()->subDays(30)
-    };
+    {
+        $aktivitas = collect();
+        
+        // Tentukan rentang waktu berdasarkan filter
+        $dateFilter = match($filter) {
+            'today' => Carbon::now()->startOfDay(),
+            'week' => Carbon::now()->subWeek(),
+            'month' => Carbon::now()->subMonth(),
+            default => Carbon::now()->subDays(30)
+        };
 
-    try {
-        // Ambil peminjaman baru (pending dan booking)
-        if ($type === 'all' || $type === 'peminjaman' || is_null($type)) {
-            $peminjamanTerbaru = Peminjaman::with(['buku', 'user'])
-                ->whereIn('status', [
-                    Peminjaman::STATUS_PENDING,
-                    Peminjaman::STATUS_BOOKING,
-                    Peminjaman::STATUS_DIPINJAM
-                ])
-                ->where('created_at', '>=', $dateFilter)
-                ->orderBy('created_at', 'desc')
-                ->take(50)
-                ->get();
+        try {
+            // Ambil peminjaman baru (pending dan booking)
+            if ($type === 'all' || $type === 'peminjaman' || is_null($type)) {
+                $peminjamanTerbaru = Peminjaman::with(['buku', 'user'])
+                    ->whereIn('status', [
+                        Peminjaman::STATUS_PENDING,
+                        Peminjaman::STATUS_BOOKING,
+                        Peminjaman::STATUS_DIPINJAM
+                    ])
+                    ->where('created_at', '>=', $dateFilter)
+                    ->orderBy('created_at', 'desc')
+                    ->take(50)
+                    ->get();
 
-            foreach ($peminjamanTerbaru as $peminjaman) {
-                if ($peminjaman->buku && $peminjaman->user) {
-                    $statusText = match($peminjaman->status) {
-                        Peminjaman::STATUS_PENDING => 'Peminjaman Pending',
-                        Peminjaman::STATUS_BOOKING => 'Booking Dikonfirmasi',
-                        Peminjaman::STATUS_DIPINJAM => 'Buku Dipinjam',
-                        default => 'Peminjaman Baru'
-                    };
+                foreach ($peminjamanTerbaru as $peminjaman) {
+                    if ($peminjaman->buku && $peminjaman->user) {
+                        $statusText = match($peminjaman->status) {
+                            Peminjaman::STATUS_PENDING => 'Peminjaman Pending',
+                            Peminjaman::STATUS_BOOKING => 'Booking Dikonfirmasi',
+                            Peminjaman::STATUS_DIPINJAM => 'Buku Dipinjam',
+                            default => 'Peminjaman Baru'
+                        };
 
-                    $iconColor = match($peminjaman->status) {
-                        Peminjaman::STATUS_PENDING => ['bg-yellow-500 bg-opacity-20', 'text-yellow-300'],
-                        Peminjaman::STATUS_BOOKING => ['bg-blue-500 bg-opacity-20', 'text-blue-300'],
-                        Peminjaman::STATUS_DIPINJAM => ['bg-green-500 bg-opacity-20', 'text-green-300'],
-                        default => ['bg-blue-500 bg-opacity-20', 'text-blue-300']
-                    };
+                        $iconColor = match($peminjaman->status) {
+                            Peminjaman::STATUS_PENDING => ['bg-yellow-500 bg-opacity-20', 'text-yellow-300'],
+                            Peminjaman::STATUS_BOOKING => ['bg-blue-500 bg-opacity-20', 'text-blue-300'],
+                            Peminjaman::STATUS_DIPINJAM => ['bg-green-500 bg-opacity-20', 'text-green-300'],
+                            default => ['bg-blue-500 bg-opacity-20', 'text-blue-300']
+                        };
 
+                        $aktivitas->push([
+                            'icon' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>',
+                            'judul' => $statusText,
+                            'deskripsi' => 'Buku "' . Str::limit($peminjaman->buku->judul, 30) . '" oleh ' . $peminjaman->user->name,
+                            'waktu' => Carbon::parse($peminjaman->created_at)->diffForHumans(),
+                            'timestamp' => $peminjaman->created_at,
+                            'type' => 'peminjaman',
+                            'bgColor' => $iconColor[0],
+                            'textColor' => $iconColor[1]
+                        ]);
+                    }
+                }
+            }
+
+            // Ambil pengembalian (dikembalikan)
+            if ($type === 'all' || $type === 'pengembalian' || is_null($type)) {
+                $pengembalianTerbaru = Peminjaman::with(['buku', 'user'])
+                    ->whereIn('status', [
+                        Peminjaman::STATUS_DIKEMBALIKAN,
+                        Peminjaman::STATUS_TERLAMBAT
+                    ])
+                    ->whereNotNull('tanggal_pengembalian')
+                    ->where('updated_at', '>=', $dateFilter)
+                    ->orderBy('updated_at', 'desc')
+                    ->take(50)
+                    ->get();
+
+                foreach ($pengembalianTerbaru as $pengembalian) {
+                    if ($pengembalian->buku && $pengembalian->user) {
+                        $statusText = $pengembalian->status === Peminjaman::STATUS_TERLAMBAT 
+                            ? 'Pengembalian Terlambat' 
+                            : 'Pengembalian Buku';
+                        
+                        $iconColor = $pengembalian->status === Peminjaman::STATUS_TERLAMBAT 
+                            ? ['bg-orange-500 bg-opacity-20', 'text-orange-300']
+                            : ['bg-green-500 bg-opacity-20', 'text-green-300'];
+
+                        $aktivitas->push([
+                            'icon' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>',
+                            'judul' => $statusText,
+                            'deskripsi' => 'Buku "' . Str::limit($pengembalian->buku->judul, 30) . '" dikembalikan oleh ' . $pengembalian->user->name,
+                            'waktu' => Carbon::parse($pengembalian->updated_at)->diffForHumans(),
+                            'timestamp' => $pengembalian->updated_at,
+                            'type' => 'pengembalian',
+                            'bgColor' => $iconColor[0],
+                            'textColor' => $iconColor[1]
+                        ]);
+                    }
+                }
+            }
+
+            // Ambil konfirmasi admin
+            if ($type === 'all' || $type === 'konfirmasi' || is_null($type)) {
+                $konfirmasiTerbaru = Peminjaman::with(['buku', 'user'])
+                    ->whereIn('status', [
+                        Peminjaman::STATUS_BOOKING,
+                        Peminjaman::STATUS_DITOLAK
+                    ])
+                    ->whereNotNull('confirmed_at')
+                    ->where('confirmed_at', '>=', $dateFilter)
+                    ->orderBy('confirmed_at', 'desc')
+                    ->take(50)
+                    ->get();
+
+                foreach ($konfirmasiTerbaru as $konfirmasi) {
+                    if ($konfirmasi->buku && $konfirmasi->user) {
+                        $statusText = $konfirmasi->status === Peminjaman::STATUS_DITOLAK 
+                            ? 'Peminjaman Ditolak' 
+                            : 'Booking Dikonfirmasi';
+                        
+                        $iconColor = $konfirmasi->status === Peminjaman::STATUS_DITOLAK 
+                            ? ['bg-red-500 bg-opacity-20', 'text-red-300']
+                            : ['bg-blue-500 bg-opacity-20', 'text-blue-300'];
+
+                        $icon = $konfirmasi->status === Peminjaman::STATUS_DITOLAK 
+                            ? '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>'
+                            : '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+
+                        $aktivitas->push([
+                            'icon' => $icon,
+                            'judul' => $statusText,
+                            'deskripsi' => 'Buku "' . Str::limit($konfirmasi->buku->judul, 30) . '" untuk ' . $konfirmasi->user->name,
+                            'waktu' => Carbon::parse($konfirmasi->confirmed_at)->diffForHumans(),
+                            'timestamp' => $konfirmasi->confirmed_at,
+                            'type' => 'konfirmasi',
+                            'bgColor' => $iconColor[0],
+                            'textColor' => $iconColor[1]
+                        ]);
+                    }
+                }
+            }
+
+            // Ambil user baru
+            if ($type === 'all' || $type === 'user' || is_null($type)) {
+                $userBaru = User::where('role', 'anggota')
+                    ->where('created_at', '>=', $dateFilter)
+                    ->orderBy('created_at', 'desc')
+                    ->take(50)
+                    ->get();
+
+                foreach ($userBaru as $user) {
                     $aktivitas->push([
-                        'icon' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>',
-                        'judul' => $statusText,
-                        'deskripsi' => 'Buku "' . Str::limit($peminjaman->buku->judul, 30) . '" oleh ' . $peminjaman->user->name,
-                        'waktu' => $peminjaman->created_at->diffForHumans(),
-                        'timestamp' => $peminjaman->created_at,
-                        'type' => 'peminjaman',
-                        'bgColor' => $iconColor[0],
-                        'textColor' => $iconColor[1]
+                        'icon' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>',
+                        'judul' => 'User Baru',
+                        'deskripsi' => $user->name . ' bergabung sebagai anggota perpustakaan',
+                        'waktu' => Carbon::parse($user->created_at)->diffForHumans(),
+                        'timestamp' => $user->created_at,
+                        'type' => 'user',
+                        'bgColor' => 'bg-purple-500 bg-opacity-20',
+                        'textColor' => 'text-purple-300'
                     ]);
                 }
             }
-        }
 
-        // Ambil pengembalian (dikembalikan)
-        if ($type === 'all' || $type === 'pengembalian' || is_null($type)) {
-            $pengembalianTerbaru = Peminjaman::with(['buku', 'user'])
-                ->whereIn('status', [
-                    Peminjaman::STATUS_DIKEMBALIKAN,
-                    Peminjaman::STATUS_TERLAMBAT
-                ])
-                ->whereNotNull('tanggal_pengembalian')
-                ->where('updated_at', '>=', $dateFilter)
-                ->orderBy('updated_at', 'desc')
-                ->take(50)
-                ->get();
+            // Ambil denda baru
+            if ($type === 'all' || $type === 'denda' || is_null($type)) {
+                $dendaBaru = Denda::with(['peminjaman.buku', 'peminjaman.user'])
+                    ->where('created_at', '>=', $dateFilter)
+                    ->orderBy('created_at', 'desc')
+                    ->take(50)
+                    ->get();
 
-            foreach ($pengembalianTerbaru as $pengembalian) {
-                if ($pengembalian->buku && $pengembalian->user) {
-                    $statusText = $pengembalian->status === Peminjaman::STATUS_TERLAMBAT 
-                        ? 'Pengembalian Terlambat' 
-                        : 'Pengembalian Buku';
-                    
-                    $iconColor = $pengembalian->status === Peminjaman::STATUS_TERLAMBAT 
-                        ? ['bg-orange-500 bg-opacity-20', 'text-orange-300']
-                        : ['bg-green-500 bg-opacity-20', 'text-green-300'];
-
-                    $aktivitas->push([
-                        'icon' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>',
-                        'judul' => $statusText,
-                        'deskripsi' => 'Buku "' . Str::limit($pengembalian->buku->judul, 30) . '" dikembalikan oleh ' . $pengembalian->user->name,
-                        'waktu' => $pengembalian->updated_at->diffForHumans(),
-                        'timestamp' => $pengembalian->updated_at,
-                        'type' => 'pengembalian',
-                        'bgColor' => $iconColor[0],
-                        'textColor' => $iconColor[1]
-                    ]);
+                foreach ($dendaBaru as $denda) {
+                    if ($denda->peminjaman && $denda->peminjaman->user) {
+                        $aktivitas->push([
+                            'icon' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>',
+                            'judul' => 'Denda Baru',
+                            'deskripsi' => 'Denda Rp ' . number_format($denda->jumlah, 0, ',', '.') . ' untuk ' . $denda->peminjaman->user->name,
+                            'waktu' => Carbon::parse($denda->created_at)->diffForHumans(),
+                            'timestamp' => $denda->created_at,
+                            'type' => 'denda',
+                            'bgColor' => 'bg-red-500 bg-opacity-20',
+                            'textColor' => 'text-red-300'
+                        ]);
+                    }
                 }
             }
-        }
 
-        // Ambil konfirmasi admin
-        if ($type === 'all' || $type === 'konfirmasi' || is_null($type)) {
-            $konfirmasiTerbaru = Peminjaman::with(['buku', 'user'])
-                ->whereIn('status', [
-                    Peminjaman::STATUS_BOOKING,
-                    Peminjaman::STATUS_DITOLAK
-                ])
-                ->whereNotNull('confirmed_at')
-                ->where('confirmed_at', '>=', $dateFilter)
-                ->orderBy('confirmed_at', 'desc')
-                ->take(50)
-                ->get();
+            // Ambil kunjungan baru
+            if ($type === 'all' || $type === 'kunjungan' || is_null($type)) {
+                $kunjunganTerbaru = Kunjungan::with('user')
+                    ->where('waktu_masuk', '>=', $dateFilter)
+                    ->orderBy('waktu_masuk', 'desc')
+                    ->take(50)
+                    ->get();
 
-            foreach ($konfirmasiTerbaru as $konfirmasi) {
-                if ($konfirmasi->buku && $konfirmasi->user) {
-                    $statusText = $konfirmasi->status === Peminjaman::STATUS_DITOLAK 
-                        ? 'Peminjaman Ditolak' 
-                        : 'Booking Dikonfirmasi';
-                    
-                    $iconColor = $konfirmasi->status === Peminjaman::STATUS_DITOLAK 
-                        ? ['bg-red-500 bg-opacity-20', 'text-red-300']
-                        : ['bg-blue-500 bg-opacity-20', 'text-blue-300'];
+                foreach ($kunjunganTerbaru as $kunjungan) {
+                    if ($kunjungan->user) {
+                        $statusText = $kunjungan->waktu_keluar ? 'Kunjungan Selesai' : 'Kunjungan Aktif';
+                        
+                        $iconColor = $kunjungan->waktu_keluar 
+                            ? ['bg-green-500 bg-opacity-20', 'text-green-300']
+                            : ['bg-blue-500 bg-opacity-20', 'text-blue-300'];
 
-                    $icon = $konfirmasi->status === Peminjaman::STATUS_DITOLAK 
-                        ? '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>'
-                        : '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
-
-                    $aktivitas->push([
-                        'icon' => $icon,
-                        'judul' => $statusText,
-                        'deskripsi' => 'Buku "' . Str::limit($konfirmasi->buku->judul, 30) . '" untuk ' . $konfirmasi->user->name,
-                        'waktu' => $konfirmasi->confirmed_at->diffForHumans(),
-                        'timestamp' => $konfirmasi->confirmed_at,
-                        'type' => 'konfirmasi',
-                        'bgColor' => $iconColor[0],
-                        'textColor' => $iconColor[1]
-                    ]);
+                        $aktivitas->push([
+                            'icon' => $kunjungan->waktu_keluar 
+                                ? '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>'
+                                : '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>',
+                            'judul' => $statusText,
+                            'deskripsi' => $kunjungan->user->name . ' - Tujuan: ' . Kunjungan::listTujuan()[$kunjungan->tujuan] . ($kunjungan->kegiatan ? ' - Kegiatan: ' . Str::limit($kunjungan->kegiatan, 30) : ''),
+                            'waktu' => Carbon::parse($kunjungan->waktu_masuk)->diffForHumans(),
+                            'timestamp' => $kunjungan->waktu_masuk,
+                            'type' => 'kunjungan',
+                            'bgColor' => $iconColor[0],
+                            'textColor' => $iconColor[1]
+                        ]);
+                    }
                 }
             }
-        }
 
-        // Ambil user baru
-        if ($type === 'all' || $type === 'user' || is_null($type)) {
-            $userBaru = User::where('role', 'anggota')
-                ->where('created_at', '>=', $dateFilter)
-                ->orderBy('created_at', 'desc')
-                ->take(50)
-                ->get();
-
-            foreach ($userBaru as $user) {
+            // Jika tidak ada aktivitas, buat contoh
+            if ($aktivitas->isEmpty()) {
                 $aktivitas->push([
-                    'icon' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>',
-                    'judul' => 'User Baru',
-                    'deskripsi' => $user->name . ' bergabung sebagai anggota perpustakaan',
-                    'waktu' => $user->created_at->diffForHumans(),
-                    'timestamp' => $user->created_at,
-                    'type' => 'user',
-                    'bgColor' => 'bg-purple-500 bg-opacity-20',
-                    'textColor' => 'text-purple-300'
+                    'icon' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+                    'judul' => 'Sistem Aktif',
+                    'deskripsi' => 'Dashboard perpustakaan siap digunakan',
+                    'waktu' => 'Sekarang',
+                    'timestamp' => now(),
+                    'type' => 'system',
+                    'bgColor' => 'bg-gray-500 bg-opacity-20',
+                    'textColor' => 'text-gray-300'
                 ]);
             }
-        }
 
-        // Ambil denda baru
-        if ($type === 'all' || $type === 'denda' || is_null($type)) {
-            $dendaBaru = Denda::with(['peminjaman.buku', 'peminjaman.user'])
-                ->where('created_at', '>=', $dateFilter)
-                ->orderBy('created_at', 'desc')
-                ->take(50)
-                ->get();
-
-            foreach ($dendaBaru as $denda) {
-                if ($denda->peminjaman && $denda->peminjaman->user) {
-                    $aktivitas->push([
-                        'icon' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>',
-                        'judul' => 'Denda Baru',
-                        'deskripsi' => 'Denda Rp ' . number_format($denda->jumlah, 0, ',', '.') . ' untuk ' . $denda->peminjaman->user->name,
-                        'waktu' => $denda->created_at->diffForHumans(),
-                        'timestamp' => $denda->created_at,
-                        'type' => 'denda',
-                        'bgColor' => 'bg-red-500 bg-opacity-20',
-                        'textColor' => 'text-red-300'
-                    ]);
-                }
-            }
-        }
-
-        // Ambil kunjungan baru
-        if ($type === 'all' || $type === 'kunjungan' || is_null($type)) {
-            $kunjunganTerbaru = Kunjungan::with('user')
-                ->where('waktu_masuk', '>=', $dateFilter)
-                ->orderBy('waktu_masuk', 'desc')
-                ->take(50)
-                ->get();
-
-            foreach ($kunjunganTerbaru as $kunjungan) {
-                if ($kunjungan->user) {
-                    $statusText = $kunjungan->waktu_keluar ? 'Kunjungan Selesai' : 'Kunjungan Aktif';
-                    
-                    $iconColor = $kunjungan->waktu_keluar 
-                        ? ['bg-green-500 bg-opacity-20', 'text-green-300']
-                        : ['bg-blue-500 bg-opacity-20', 'text-blue-300'];
-
-                    $aktivitas->push([
-                        'icon' => $kunjungan->waktu_keluar 
-                            ? '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>'
-                            : '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>',
-                        'judul' => $statusText,
-                        'deskripsi' => $kunjungan->user->name . ' - Tujuan: ' . Kunjungan::listTujuan()[$kunjungan->tujuan] . ($kunjungan->kegiatan ? ' - Kegiatan: ' . Str::limit($kunjungan->kegiatan, 30) : ''),
-                        'waktu' => $kunjungan->waktu_masuk->diffForHumans(),
-                        'timestamp' => $kunjungan->waktu_masuk,
-                        'type' => 'kunjungan',
-                        'bgColor' => $iconColor[0],
-                        'textColor' => $iconColor[1]
-                    ]);
-                }
-            }
-        }
-
-        // Jika tidak ada aktivitas, buat contoh
-        if ($aktivitas->isEmpty()) {
-            $aktivitas->push([
-                'icon' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
-                'judul' => 'Sistem Aktif',
-                'deskripsi' => 'Dashboard perpustakaan siap digunakan',
+        } catch (\Exception $e) {
+            Log::error('Error fetching aktivitas: ' . $e->getMessage());
+            
+            return collect([[
+                'icon' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>',
+                'judul' => 'Error Loading',
+                'deskripsi' => 'Terjadi kesalahan saat memuat aktivitas',
                 'waktu' => 'Sekarang',
                 'timestamp' => now(),
-                'type' => 'system',
-                'bgColor' => 'bg-gray-500 bg-opacity-20',
-                'textColor' => 'text-gray-300'
-            ]);
+                'type' => 'error',
+                'bgColor' => 'bg-red-500 bg-opacity-20',
+                'textColor' => 'text-red-300'
+            ]]);
         }
 
-    } catch (\Exception $e) {
-        Log::error('Error fetching aktivitas: ' . $e->getMessage());
+        // Urutkan berdasarkan waktu terbaru dan ambil sesuai limit
+        $sorted = $aktivitas->sortByDesc('timestamp')->values();
         
-        return collect([[
-            'icon' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>',
-            'judul' => 'Error Loading',
-            'deskripsi' => 'Terjadi kesalahan saat memuat aktivitas',
-            'waktu' => 'Sekarang',
-            'timestamp' => now(),
-            'type' => 'error',
-            'bgColor' => 'bg-red-500 bg-opacity-20',
-            'textColor' => 'text-red-300'
-        ]]);
+        return $limit ? $sorted->take($limit) : $sorted;
     }
-
-    // Urutkan berdasarkan waktu terbaru dan ambil sesuai limit
-    $sorted = $aktivitas->sortByDesc('timestamp')->values();
-    
-    return $limit ? $sorted->take($limit) : $sorted;
-}
-
     /**
      * Method aktivitas yang dipanggil dari route - DIPERBAIKI DENGAN PAGINATION
      */
