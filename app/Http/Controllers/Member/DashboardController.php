@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Member;
 use App\Http\Controllers\Controller;
 use App\Models\Buku;
 use App\Models\User;
+use App\Models\Wishlist;
 use App\Models\Peminjaman;
 use App\Models\Denda;
 use Carbon\Carbon;
@@ -116,6 +117,12 @@ class DashboardController extends Controller
             $chart_data[] = $count;
         }
 
+        $wishlists = Wishlist::with(['buku', 'buku.pengarang'])
+        ->where('user_id', $user->id)
+        ->latest()
+        ->take(4)
+        ->get();
+
         return view('member.dashboard', compact(
             'stats',
             'peminjaman_aktif',
@@ -124,8 +131,10 @@ class DashboardController extends Controller
             'bulan_ini',
             'tahun_ini',
             'chart_labels',
+            'wishlists',
             'chart_data'
         ));
+
     }
 
     /**

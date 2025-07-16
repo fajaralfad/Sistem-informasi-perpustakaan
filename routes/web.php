@@ -156,6 +156,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/denda/{denda}', [MemberDendaController::class, 'show'])->name('denda.show');
         Route::get('/denda/{denda}/bayar', [MemberDendaController::class, 'formBayar'])->name('denda.bayar');
         Route::delete('/denda/{denda}/batalkan', [MemberDendaController::class, 'batalkanPembayaran'])->name('denda.batalkan');
+
+        Route::post('/wishlist/store', [MemberWishlistController::class, 'store'])->name('wishlist.store');
+        Route::delete('/wishlist/{id}', [MemberWishlistController::class, 'destroy'])->name('wishlist.destroy');
+        Route::get('/wishlist', [MemberWishlistController::class, 'index'])->name('wishlist.index');
+        Route::get('/member/wishlist/check/{buku_id}', [MemberWishlistController::class, 'check'])->name('wishlist.check');
+       
         
         // Profile Management
         Route::get('/profile', [MemberProfileController::class, 'profile'])->name('profile');

@@ -341,6 +341,55 @@
                     @endif
                 </div>
                 @endif
+
+                <!-- Daftar Favorit -->
+                @if($wishlists && $wishlists->count() > 0)
+                <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-white">Buku Favorit</h3>
+                        <a href="{{ route('member.wishlist.index') }}" class="text-gray-400 hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                    </div>
+                    <div class="space-y-3">
+                        @foreach($wishlists as $wishlist)
+                        <div class="bg-gray-700 hover:bg-gray-600 rounded-lg p-3 transition-colors">
+                            <div class="flex items-start gap-3">
+                                <div class="flex-shrink-0 w-12 h-16 bg-gray-600 rounded overflow-hidden">
+                                    @if($wishlist->buku->cover)
+                                        <img src="{{ Storage::url($wishlist->buku->cover) }}" 
+                                            alt="{{ $wishlist->buku->judul }}" 
+                                            class="w-full h-full object-cover">
+                                    @else
+                                        <div class="w-full h-full flex items-center justify-center bg-gray-500">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                            </svg>
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="font-medium text-white text-sm">{{ Str::limit($wishlist->buku->judul, 30) }}</h4>
+                                    <p class="text-xs text-gray-400">{{ $wishlist->buku->pengarang->nama ?? 'N/A' }}</p>
+                                    <p class="text-xs text-gray-400 mt-1">
+                                        {{ $wishlist->buku->kategori->nama ?? 'Tidak berkategori' }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                    @if($wishlists->count() > 4)
+                    <div class="mt-4 text-center">
+                        <a href="{{ route('member.wishlist.index') }}" class="text-blue-400 hover:text-blue-300 text-sm font-medium">
+                            Lihat semua favorit →
+                        </a>
+                    </div>
+                    @endif
+                </div>
+                @endif
             </div>
         </div>
     </div>
@@ -446,6 +495,34 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 300000); // 5 menit
 });
+
+// Fungsi untuk refresh daftar wishlist
+function refreshWishlist() {
+    fetch('/member/wishlist/count')
+        .then(response => response.json())
+        .then(data => {
+            // Update count jika ada
+            if (data.count !== undefined) {
+                const wishlistCountElements = document.querySelectorAll('[data-wishlist-count]');
+                wishlistCountElements.forEach(el => {
+                    el.textContent = data.count;
+                });
+            }
+            
+            // Jika ada elemen wishlist, refresh isinya
+            const wishlistContainer = document.getElementById('wishlist-container');
+            if (wishlistContainer) {
+                fetch('/member/wishlist/partial')
+                    .then(response => response.text())
+                    .then(html => {
+                        wishlistContainer.innerHTML = html;
+                    });
+            }
+        });
+}
+
+// Panggil setiap 30 detik
+setInterval(refreshWishlist, 30000);
 </script>
 @endpush
 @endsection
