@@ -61,7 +61,7 @@
             </div>
             <div class="ml-3">
                 <p class="text-sm text-blue-700">
-                    <strong>Informasi:</strong> Untuk meminjam buku, silakan datang langsung ke perpustakaan dengan membawa kartu anggota atau anda bisa booking buku melalui halaman detail buku.
+                    <strong>Informasi:</strong> Untuk meminjam buku, silakan datang langsung ke perpustakaan dengan membawa kartu NIP/NRP atau anda bisa booking buku melalui halaman detail buku.
                 </p>
             </div>
         </div>

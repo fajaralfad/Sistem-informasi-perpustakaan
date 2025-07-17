@@ -112,6 +112,7 @@ class BukuController extends Controller
         $bookingMessage = '';
         $dibookingOlehAnggotaLain = false;
         $dipinjamOlehAnggotaLain = false;
+        $pendingOlehAnggotaLain = false;
         
         if ($user) {
             // Check if user already borrowed this book (any status)
@@ -143,6 +144,12 @@ class BukuController extends Controller
                 ->where('status', 'booking')
                 ->exists();
                 
+            // Check if book is pending by other members
+            $pendingOlehAnggotaLain = Peminjaman::where('buku_id', $buku->id)
+                ->where('user_id', '!=', $user->id)
+                ->where('status', 'pending')
+                ->exists();
+                
             // Check if book is borrowed by other members
             $dipinjamOlehAnggotaLain = Peminjaman::where('buku_id', $buku->id)
                 ->where('user_id', '!=', $user->id)
@@ -171,8 +178,11 @@ class BukuController extends Controller
                 $bookingMessage = 'Anda sedang meminjam buku ini.';
             } elseif ($dibookingOlehAnggotaLain) {
                 $canBook = false;
-                $bookingMessage = 'Buku ini sudah dibooking oleh anggota lain dan menunggu konfirmasi admin.';
-            } elseif ($dipinjamOlehAnggotaLain) {
+                $bookingMessage = 'Buku ini sudah dibooking oleh anggota lain.';
+            }elseif ($pendingOlehAnggotaLain) {
+                $canBook = false;
+                $bookingMessage = 'Buku ini sedang dalam proses booking oleh anggota lain.';
+            }elseif ($dipinjamOlehAnggotaLain) {
                 $canBook = false;
                 $bookingMessage = 'Buku ini sedang dipinjam oleh anggota lain.';
             } elseif ($totalBookings >= self::MAX_BOOKINGS) {
@@ -197,7 +207,8 @@ class BukuController extends Controller
             'canBook',
             'bookingMessage',
             'dibookingOlehAnggotaLain',
-            'dipinjamOlehAnggotaLain'
+            'dipinjamOlehAnggotaLain',
+            'pendingOlehAnggotaLain'
         ));
     }
 }
