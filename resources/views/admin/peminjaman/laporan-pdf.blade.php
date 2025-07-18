@@ -63,7 +63,7 @@
 <body>
     <div class="header">
         <div class="title">Laporan Peminjaman Buku</div>
-        <div class="subtitle">Perpustakaan Digital</div>
+        <div class="subtitle">Perpustakaan kejaksaan negeri bandar lampung</div>
     </div>
 
     <div class="info">
