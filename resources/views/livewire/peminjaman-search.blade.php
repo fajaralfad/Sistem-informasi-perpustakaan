@@ -120,6 +120,14 @@
                             </div>
                         </th>
                         <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                            <div class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                                </svg>
+                                ISBN
+                            </div>
+                        </th>
+                        <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                             Tanggal Pinjam
                         </th>
                         <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
@@ -165,6 +173,10 @@
                                     <div class="text-sm text-gray-400">{{ $peminjaman->buku->pengarang->nama ?? '-' }}</div>
                                 </div>
                             </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-white">{{ $peminjaman->buku->isbn }}</div>
+                            <div class="text-sm text-gray-400">Tahun: {{ $peminjaman->buku->tahun_terbit }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm text-white">{{ $peminjaman->tanggal_pinjam->format('d M Y') }}</div>
