@@ -62,15 +62,15 @@
         }
         /* Column width adjustments */
         .col-id { width: 4%; }
-        .col-name { width: 15%; }
-        .col-email { width: 15%; }
-        .col-nip { width: 10%; }
-        .col-nrp { width: 10%; }
-        .col-phone { width: 8%; }
-        .col-status { width: 8%; }
-        .col-date { width: 8%; }
-        .col-active { width: 7%; }
-        .col-completed { width: 7%; }
+        .col-name { width: 20%; }
+        .col-email { width: 20%; }
+        .col-nip { width: 20%; }
+        .col-nrp { width: 15%; }
+        .col-phone { width: 15%; }
+        .col-status { width: 10%; }
+        .col-date { width: 10%; }
+        .col-active { width: 10%; }
+        .col-completed { width: 10%; }
         /* Optional: Add page break for printing */
         @media print {
             .page-break {

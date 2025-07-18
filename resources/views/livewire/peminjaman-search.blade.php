@@ -381,7 +381,7 @@
             <div class="mb-6">
                 <label for="hari" class="block text-sm font-medium text-gray-300 mb-2">Jumlah Hari Perpanjangan</label>
                 <input type="number" name="hari" id="hari" min="1" max="14" value="7" 
-                       class="block w-full border border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-white">
+                       class="block w-full border border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-black">
                 <p class="mt-1 text-sm text-gray-400">Maksimal 14 hari perpanjangan</p>
             </div>
             <div class="flex justify-end gap-3">

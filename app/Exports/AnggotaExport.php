@@ -7,9 +7,12 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
-class AnggotaExport implements FromCollection, WithHeadings, WithMapping, WithStyles
+class AnggotaExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithColumnWidths, WithColumnFormatting
 {
     protected $anggota;
 
@@ -44,10 +47,10 @@ class AnggotaExport implements FromCollection, WithHeadings, WithMapping, WithSt
         return [
             $anggota->id,
             $anggota->name,
-            $anggota->nip,
-            $anggota->nrp,
+            "'" . $anggota->nip, // Tambahkan prefix apostrophe untuk memaksa sebagai text
+            "'" . $anggota->nrp, // Tambahkan prefix apostrophe untuk NRP juga
             $anggota->email,
-            $anggota->phone ?? '-',
+            $anggota->phone ? "'" . $anggota->phone : '-', // Telepon juga diberi prefix jika ada
             $anggota->email_verified_at ? 'Terverifikasi' : 'Belum Verifikasi',
             $anggota->created_at->format('d/m/Y'),
             $anggota->peminjaman_aktif_count,
@@ -55,10 +58,19 @@ class AnggotaExport implements FromCollection, WithHeadings, WithMapping, WithSt
         ];
     }
 
+    public function columnFormats(): array
+    {
+        return [
+            'C' => NumberFormat::FORMAT_TEXT, // NIP sebagai teks
+            'D' => NumberFormat::FORMAT_TEXT, // NRP sebagai teks juga untuk konsistensi
+            'F' => NumberFormat::FORMAT_TEXT, // Telepon sebagai teks
+        ];
+    }
+
     public function styles(Worksheet $sheet)
     {
         return [
-            // Style the header row
+            // Header row styling
             1 => [
                 'font' => [
                     'bold' => true,
@@ -69,24 +81,31 @@ class AnggotaExport implements FromCollection, WithHeadings, WithMapping, WithSt
                     'color' => ['rgb' => '4F81BD']
                 ]
             ],
-            
-            // Set auto-size for columns
-            'A:H' => [
-                'alignment' => [
-                    'wrapText' => true,
-                    'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP
-                ]
-            ],
-            
-            // Set border for all cells
-            'A1:H' . ($this->anggota->count() + 1) => [
+            // Border untuk semua cell
+            'A1:J' . ($this->anggota->count() + 1) => [
                 'borders' => [
                     'allBorders' => [
                         'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
                         'color' => ['rgb' => '000000']
                     ]
                 ]
-            ]
+            ],
+        ];
+    }
+
+    public function columnWidths(): array
+    {
+        return [
+            'A' => 5,     // ID
+            'B' => 25,    // Nama
+            'C' => 20,    // NIP (cukup panjang untuk ASN)
+            'D' => 20,    // NRP
+            'E' => 30,    // Email
+            'F' => 18,    // Telepon
+            'G' => 20,    // Status Verifikasi
+            'H' => 15,    // Tanggal Daftar
+            'I' => 18,    // Peminjaman Aktif
+            'J' => 20,    // Peminjaman Selesai
         ];
     }
 }
