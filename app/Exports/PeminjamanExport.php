@@ -30,6 +30,7 @@ class PeminjamanExport implements FromCollection, WithHeadings, WithMapping, Wit
             'Nama Anggota',
             'Email Anggota',
             'Judul Buku',
+            'ISBN', // Kolom baru untuk ISBN
             'Pengarang',
             'Tanggal Pinjam',
             'Tanggal Kembali',
@@ -46,6 +47,7 @@ class PeminjamanExport implements FromCollection, WithHeadings, WithMapping, Wit
             $peminjaman->user->name,
             $peminjaman->user->email,
             $peminjaman->buku->judul,
+            $peminjaman->buku->isbn ?? '-', // Data ISBN dari relasi buku
             $peminjaman->buku->pengarang->nama ?? '-',
             $peminjaman->tanggal_pinjam->format('d/m/Y H:i'),
             $peminjaman->tanggal_kembali->format('d/m/Y H:i'),
@@ -62,7 +64,10 @@ class PeminjamanExport implements FromCollection, WithHeadings, WithMapping, Wit
             1 => ['font' => ['bold' => true]],
             
             // Styling specific cells
-            'A:J' => ['alignment' => ['wrapText' => true]],
+            'A:K' => ['alignment' => ['wrapText' => true]], // Diubah dari A:J ke A:K karena tambahan kolom
+            
+            // Set width for ISBN column (column E)
+            'E' => ['width' => 15],
         ];
     }
 

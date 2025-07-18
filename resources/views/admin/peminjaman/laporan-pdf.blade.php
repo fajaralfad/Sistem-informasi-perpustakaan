@@ -90,6 +90,7 @@
                 <th>No</th>
                 <th>Nama Anggota</th>
                 <th>Judul Buku</th>
+                <th>ISBN</th>
                 <th>Pengarang</th>
                 <th>Tanggal Pinjam</th>
                 <th>Tanggal Kembali</th>
@@ -104,6 +105,7 @@
                 <td>{{ $key + 1 }}</td>
                 <td>{{ $peminjaman->user->name }}</td>
                 <td>{{ $peminjaman->buku->judul }}</td>
+                <td>{{ $peminjaman->buku->isbn }}</td>
                 <td>{{ $peminjaman->buku->pengarang->nama ?? '-' }}</td>
                 <td>{{ $peminjaman->tanggal_pinjam->format('d/m/Y H:i') }}</td>
                 <td>{{ $peminjaman->tanggal_kembali->format('d/m/Y H:i') }}</td>
