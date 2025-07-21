@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -76,25 +78,24 @@ class Kunjungan extends Model
     /**
      * Accessor untuk durasi kunjungan
      */
-    public function getDurasiAttribute()
+    // In your Kunjungan model
+    public function getDurationMinutesAttribute()
     {
-        if (!$this->waktu_keluar) {
-            return null;
-        }
+        if (!$this->waktu_keluar) return null;
         
-        return $this->waktu_masuk->diff($this->waktu_keluar);
+        return Carbon::parse($this->waktu_masuk)
+            ->diffInMinutes(Carbon::parse($this->waktu_keluar));
     }
 
-    /**
-     * Format durasi menjadi jam:menit:detik
-     */
-    public function getDurasiFormattedAttribute()
+    public function getFormattedDurationAttribute()
     {
-        if (!$this->durasi) {
-            return 'Masih di perpustakaan';
-        }
+        if (!$this->waktu_keluar) return 'Masih di perpustakaan';
         
-        return $this->durasi->format('%H:%I:%S');
+        $minutes = $this->duration_minutes;
+        $hours = floor($minutes / 60);
+        $remainingMinutes = $minutes % 60;
+        
+        return sprintf('%02d:%02d', $hours, $remainingMinutes);
     }
 
     /**

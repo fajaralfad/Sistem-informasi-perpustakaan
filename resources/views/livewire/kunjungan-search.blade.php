@@ -129,11 +129,15 @@
                             
                             <!-- Durasi Column -->
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm {{ $kunjungan->durasi_formatted === 'Masih di perpustakaan' ? 'text-yellow-400' : 'text-white' }}">
-                                    {{ $kunjungan->durasi_formatted }}
+                                <div class="text-sm {{ !$kunjungan->waktu_keluar ? 'text-yellow-400' : 'text-white' }}">
+                                    @if($kunjungan->waktu_keluar)
+                                        {{ $kunjungan->formatted_duration }} ({{ $kunjungan->duration_minutes }} menit)
+                                    @else
+                                        Masih di perpustakaan
+                                    @endif
                                 </div>
                             </td>
-                            
+                                                        
                             <!-- Tujuan Column -->
                             <td class="px-6 py-4">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-900 text-blue-200">

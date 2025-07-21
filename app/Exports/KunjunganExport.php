@@ -8,6 +8,7 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Carbon\Carbon;
 
 class KunjunganExport implements FromCollection, WithHeadings, WithMapping, WithStyles
 {
@@ -32,6 +33,7 @@ class KunjunganExport implements FromCollection, WithHeadings, WithMapping, With
             'Waktu Masuk',
             'Waktu Keluar',
             'Durasi (menit)',
+            'Durasi (jam:menit)',
             'Tujuan',
             'Kegiatan',
             'Status',
@@ -40,14 +42,35 @@ class KunjunganExport implements FromCollection, WithHeadings, WithMapping, With
 
     public function map($kunjungan): array
     {
+        $durationMinutes = null;
+        $durationFormatted = '-';
+        
+        if ($kunjungan->waktu_keluar) {
+            // Handle different possible duration formats
+            if (is_int($kunjungan->durasi)) {
+                $durationMinutes = $kunjungan->durasi;
+            } elseif (is_object($kunjungan->durasi) && method_exists($kunjungan->durasi, 'totalMinutes')) {
+                // Handle CarbonInterval case
+                $durationMinutes = $kunjungan->durasi->totalMinutes;
+            } else {
+                // Calculate from scratch if needed
+                $waktuMasuk = Carbon::parse($kunjungan->waktu_masuk);
+                $waktuKeluar = Carbon::parse($kunjungan->waktu_keluar);
+                $durationMinutes = $waktuMasuk->diffInMinutes($waktuKeluar);
+            }
+            
+            $durationFormatted = $this->formatDuration($durationMinutes);
+        }
+
         return [
             $kunjungan->id,
             $kunjungan->user->name,
             $kunjungan->user->email,
             $kunjungan->waktu_masuk->format('d/m/Y H:i'),
             $kunjungan->waktu_keluar ? $kunjungan->waktu_keluar->format('d/m/Y H:i') : '-',
-            $kunjungan->durasi,
-            $kunjungan->tujuan_formatted,
+            $kunjungan->waktu_keluar ? $durationMinutes : '-',
+            $durationFormatted,
+            $kunjungan->tujuan_formatted ?? Kunjungan::listTujuan()[$kunjungan->tujuan] ?? $kunjungan->tujuan,
             $kunjungan->kegiatan ?? '-',
             $kunjungan->waktu_keluar ? 'Selesai' : 'Aktif',
         ];
@@ -60,7 +83,31 @@ class KunjunganExport implements FromCollection, WithHeadings, WithMapping, With
             1 => ['font' => ['bold' => true]],
             
             // Styling specific cells
-            'A:I' => ['alignment' => ['wrapText' => true]],
+            'A:J' => [
+                'alignment' => ['wrapText' => true],
+                'font' => ['size' => 11]
+            ],
+            
+            // Auto-size columns
+            'A' => ['width' => 12],
+            'B' => ['width' => 25],
+            'C' => ['width' => 25],
+            'D' => ['width' => 18],
+            'E' => ['width' => 18],
+            'F' => ['width' => 15],
+            'G' => ['width' => 15],
+            'H' => ['width' => 20],
+            'I' => ['width' => 30],
+            'J' => ['width' => 12],
         ];
+    }
+
+    protected function formatDuration($minutes)
+    {
+        // Ensure we have an integer value
+        $minutes = (int)$minutes;
+        $hours = floor($minutes / 60);
+        $remainingMinutes = $minutes % 60;
+        return sprintf('%02d:%02d', $hours, $remainingMinutes);
     }
 }
