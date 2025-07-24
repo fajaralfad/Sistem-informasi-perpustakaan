@@ -57,43 +57,73 @@ class BukuSearch extends Component
 
     public function delete()
     {
-        $buku = Buku::findOrFail($this->bukuIdToDelete);
-        $judul = $buku->judul;
-        
-        // Gunakan scope borrowedOrBooked dari model Peminjaman
-        $isBorrowedOrBooked = Peminjaman::whereHas('buku', function($query) use ($judul) {
-                $query->where('judul', $judul);
-            })
-            ->borrowedOrBooked() // Menggunakan scope yang sudah ada
-            ->exists();
+        try {
+            $buku = Buku::findOrFail($this->bukuIdToDelete);
+            $judul = $buku->judul;
+            
+            // Gunakan scope borrowedOrBooked dari model Peminjaman
+            $isBorrowedOrBooked = Peminjaman::whereHas('buku', function($query) use ($judul) {
+                    $query->where('judul', $judul);
+                })
+                ->borrowedOrBooked() // Menggunakan scope yang sudah ada
+                ->exists();
 
-        if ($isBorrowedOrBooked) {
-            $this->deleteError = 'Buku tidak dapat dihapus karena masih dipinjam atau dalam status booking!';
+            if ($isBorrowedOrBooked) {
+                $this->deleteError = 'Buku tidak dapat dihapus karena masih dipinjam atau dalam status booking!';
+                $this->dispatch('show-toast', 
+                    message: $this->deleteError, 
+                    type: 'error'
+                );
+                
+                // Reset modal data dan tutup modal
+                $this->reset(['bukuIdToDelete', 'bukuJudulToDelete', 'deleteError']);
+                $this->dispatch('close-delete-modal');
+                return;
+            }
+
+            // Hapus semua buku dengan judul yang sama
+            $bukusToDelete = Buku::where('judul', $judul)->get();
+            
+            DB::transaction(function () use ($bukusToDelete) {
+                foreach ($bukusToDelete as $bukuToDelete) {
+                    // Hapus cover jika ada
+                    if ($bukuToDelete->cover) {
+                        Storage::disk('public')->delete($bukuToDelete->cover);
+                    }
+                    $bukuToDelete->delete();
+                }
+            });
+
+            // Reset modal data
+            $this->reset(['bukuIdToDelete', 'bukuJudulToDelete', 'deleteError']);
+            
+            // Dispatch events untuk menutup modal dan menampilkan toast
+            $this->dispatch('close-delete-modal');
             $this->dispatch('show-toast', 
-                message: $this->deleteError, 
+                message: 'Buku dan semua copy berhasil dihapus', 
+                type: 'success'
+            );
+            
+            // Redirect ke halaman index atau refresh halaman
+            return $this->redirect(request()->header('Referer') ?: route('buku.index'));
+            
+        } catch (\Exception $e) {
+            $this->dispatch('show-toast', 
+                message: 'Gagal menghapus buku: ' . $e->getMessage(), 
                 type: 'error'
             );
-            return;
+            
+            // Reset modal data dan tutup modal
+            $this->reset(['bukuIdToDelete', 'bukuJudulToDelete', 'deleteError']);
+            $this->dispatch('close-delete-modal');
         }
+    }
 
-        // Hapus semua buku dengan judul yang sama
-        $bukusToDelete = Buku::where('judul', $judul)->get();
-        
-        DB::transaction(function () use ($bukusToDelete) {
-            foreach ($bukusToDelete as $bukuToDelete) {
-                // Hapus cover jika ada
-                if ($bukuToDelete->cover) {
-                    Storage::disk('public')->delete($bukuToDelete->cover);
-                }
-                $bukuToDelete->delete();
-            }
-        });
-
+    // Method untuk membatalkan delete dan menutup modal
+    public function cancelDelete()
+    {
         $this->reset(['bukuIdToDelete', 'bukuJudulToDelete', 'deleteError']);
-        $this->dispatch('show-toast', 
-            message: 'Buku dan semua copy berhasil dihapus', 
-            type: 'success'
-        );
+        $this->dispatch('close-delete-modal');
     }
 
     public function showAllIsbn($judul, $isbnList)
