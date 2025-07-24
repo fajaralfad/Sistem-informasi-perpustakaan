@@ -69,14 +69,35 @@ class PengarangSearch extends Component
         try {
             $pengarang = Pengarang::findOrFail($this->pengarangIdToDelete);
             
-            // Check if pengarang has books
+            // Check menggunakan scope borrowedOrBooked
+            $activeBorrowings = \App\Models\Peminjaman::borrowedOrBooked()
+                ->whereHas('buku', function ($query) use ($pengarang) {
+                    $query->where('pengarang_id', $pengarang->id);
+                })
+                ->count();
+                
+            if ($activeBorrowings > 0) {
+                $this->dispatch('show-toast', 
+                    message: 'Tidak dapat menghapus pengarang yang masih memiliki buku dengan peminjaman aktif', 
+                    type: 'error'
+                );
+                $this->reset(['pengarangIdToDelete', 'pengarangNamaToDelete']);
+                return;
+            }
+            
+            // Check if pengarang has books (existing validation)
             if ($pengarang->bukus()->count() > 0) {
-                $this->dispatch('show-toast', message: 'Tidak dapat menghapus pengarang yang masih memiliki buku', type: 'error');
+                $this->dispatch('show-toast', 
+                    message: 'Tidak dapat menghapus pengarang yang masih memiliki buku', 
+                    type: 'error'
+                );
+                $this->reset(['pengarangIdToDelete', 'pengarangNamaToDelete']);
                 return;
             }
             
             $pengarang->delete();
             $this->dispatch('show-toast', message: 'Pengarang berhasil dihapus', type: 'success');
+            
         } catch (\Exception $e) {
             $this->dispatch('show-toast', message: 'Gagal menghapus pengarang', type: 'error');
         }
