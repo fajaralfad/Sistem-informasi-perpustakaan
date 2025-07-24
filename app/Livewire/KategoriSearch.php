@@ -44,9 +44,26 @@ class KategoriSearch extends Component
     {
         try {
             $kategori = Kategori::findOrFail($this->kategoriIdToDelete);
-            $kategori->delete();
             
+            // Check menggunakan scope borrowedOrBooked
+            $activeBorrowings = \App\Models\Peminjaman::borrowedOrBooked()
+                ->whereHas('buku', function ($query) use ($kategori) {
+                    $query->where('kategori_id', $kategori->id);
+                })
+                ->count();
+                
+            if ($activeBorrowings > 0) {
+                $this->dispatch('show-toast', 
+                    message: 'Tidak dapat menghapus kategori yang masih memiliki buku dengan peminjaman aktif', 
+                    type: 'error'
+                );
+                $this->reset(['kategoriIdToDelete', 'kategoriNamaToDelete']);
+                return;
+            }
+            
+            $kategori->delete();
             $this->dispatch('show-toast', message: 'Kategori berhasil dihapus', type: 'success');
+            
         } catch (\Exception $e) {
             $this->dispatch('show-toast', message: 'Gagal menghapus kategori', type: 'error');
         }
