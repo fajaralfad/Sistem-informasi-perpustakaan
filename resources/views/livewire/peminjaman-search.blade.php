@@ -1,4 +1,23 @@
 <div>
+     <!-- Flash Messages - Dark Version -->
+    @if(session('success'))
+    <div class="alert-success bg-green-900 border border-green-700 text-green-200 px-4 py-3 rounded-lg mb-6 flex items-center">
+        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+        </svg>
+        {{ session('success') }}
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div class="alert-error bg-red-900 border border-red-700 text-red-200 px-4 py-3 rounded-lg mb-6 flex items-center">
+        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+        </svg>
+        {{ session('error') }}
+    </div>
+    @endif
+
     <div class="flex justify-end gap-3 mb-4">
     <a href="{{ route('admin.peminjaman.export.excel') }}?search={{ $search }}&status={{ $status }}&tanggal_dari={{ $tanggal_dari }}&tanggal_sampai={{ $tanggal_sampai }}" 
     class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium inline-flex items-center">
@@ -377,107 +396,107 @@
         @endif
     </div>
 
-<!-- Modal Perpanjang - Dark Version -->
-<div id="perpanjangModal" class="fixed inset-0 bg-black bg-opacity-75 items-center justify-center hidden z-50">
-    <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4 shadow-2xl border border-gray-700">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-white">Perpanjang Peminjaman</h3>
-            <button onclick="closePerpanjangModal()" class="text-gray-400 hover:text-gray-300">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
-        </div>
-        <form id="perpanjangForm" method="POST">
-            @csrf
-            <div class="mb-6">
-                <label for="hari" class="block text-sm font-medium text-gray-300 mb-2">Jumlah Hari Perpanjangan</label>
-                <input type="number" name="hari" id="hari" min="1" max="14" value="7" 
-                       class="block w-full border border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-black">
-                <p class="mt-1 text-sm text-gray-400">Maksimal 14 hari perpanjangan</p>
-            </div>
-            <div class="flex justify-end gap-3">
-                <button type="button" onclick="closePerpanjangModal()" 
-                        class="bg-gray-700 hover:bg-gray-600 text-gray-200 px-4 py-2 rounded-lg font-medium transition-colors duration-200">
-                    Batal
-                </button>
-                <button type="submit" 
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200">
-                    Perpanjang
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Modal Konfirmasi Pengambilan Buku - Dark Version -->
-<div id="confirmTakenModal" class="fixed inset-0 bg-black bg-opacity-75 items-center justify-center hidden z-50">
-    <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4 shadow-2xl border border-gray-700">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-white">Konfirmasi Pengambilan Buku</h3>
-            <button onclick="closeConfirmTakenModal()" class="text-gray-400 hover:text-gray-300">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
-        </div>
-        
-        <div class="mb-4">
-            <div class="flex items-center gap-4 mb-3">
-                <div class="flex-shrink-0 h-12 w-12 bg-blue-900 rounded-lg flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477 4.5 1.253" />
+    <!-- Modal Perpanjang - Dark Version -->
+    <div id="perpanjangModal" class="fixed inset-0 bg-black bg-opacity-75 items-center justify-center hidden z-50">
+        <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4 shadow-2xl border border-gray-700">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-white">Perpanjang Peminjaman</h3>
+                <button onclick="closePerpanjangModal()" class="text-gray-400 hover:text-gray-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
+                </button>
+            </div>
+            <form id="perpanjangForm" method="POST">
+                @csrf
+                <div class="mb-6">
+                    <label for="hari" class="block text-sm font-medium text-gray-300 mb-2">Jumlah Hari Perpanjangan</label>
+                    <input type="number" name="hari" id="hari" min="1" max="14" value="7" 
+                        class="block w-full border border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-black">
+                    <p class="mt-1 text-sm text-gray-400">Maksimal 14 hari perpanjangan</p>
                 </div>
-                <div>
-                    <h4 id="bookTitle" class="font-medium text-white"></h4>
-                    <p id="bookAuthor" class="text-sm text-gray-400"></p>
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="closePerpanjangModal()" 
+                            class="bg-gray-700 hover:bg-gray-600 text-gray-200 px-4 py-2 rounded-lg font-medium transition-colors duration-200">
+                        Batal
+                    </button>
+                    <button type="submit" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200">
+                        Perpanjang
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Konfirmasi Pengambilan Buku - Dark Version -->
+    <div id="confirmTakenModal" class="fixed inset-0 bg-black bg-opacity-75 items-center justify-center hidden z-50">
+        <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4 shadow-2xl border border-gray-700">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-white">Konfirmasi Pengambilan Buku</h3>
+                <button onclick="closeConfirmTakenModal()" class="text-gray-400 hover:text-gray-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="mb-4">
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="flex-shrink-0 h-12 w-12 bg-blue-900 rounded-lg flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477 4.5 1.253" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 id="bookTitle" class="font-medium text-white"></h4>
+                        <p id="bookAuthor" class="text-sm text-gray-400"></p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <div class="flex-shrink-0 h-12 w-12 bg-purple-900 rounded-full flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 id="userName" class="font-medium text-white"></h4>
+                        <p id="userEmail" class="text-sm text-gray-400"></p>
+                    </div>
                 </div>
             </div>
             
-            <div class="flex items-center gap-4">
-                <div class="flex-shrink-0 h-12 w-12 bg-purple-900 rounded-full flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                </div>
-                <div>
-                    <h4 id="userName" class="font-medium text-white"></h4>
-                    <p id="userEmail" class="text-sm text-gray-400"></p>
+            <div class="mb-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Tanggal Booking</label>
+                        <p id="bookingDate" class="text-sm text-white"></p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Tanggal Pengambilan</label>
+                        <input type="datetime-local" id="pickupDate" 
+                            class="block w-full border border-gray-600 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-gray-700 text-gray-700"
+                            value="{{ now()->format('Y-m-d\TH:i') }}">
+                    </div>
                 </div>
             </div>
+            
+            <form id="confirmTakenForm" method="POST" action="">
+                @csrf
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="closeConfirmTakenModal()" 
+                            class="bg-gray-700 hover:bg-gray-600 text-gray-200 px-4 py-2 rounded-lg font-medium transition-colors duration-200">
+                        Batal
+                    </button>
+                    <button type="submit" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200">
+                        Konfirmasi Pengambilan
+                    </button>
+                </div>
+            </form>
         </div>
-        
-        <div class="mb-6">
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-1">Tanggal Booking</label>
-                    <p id="bookingDate" class="text-sm text-white"></p>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-1">Tanggal Pengambilan</label>
-                    <input type="datetime-local" id="pickupDate" 
-                           class="block w-full border border-gray-600 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-gray-700 text-gray-700"
-                           value="{{ now()->format('Y-m-d\TH:i') }}">
-                </div>
-            </div>
-        </div>
-        
-        <form id="confirmTakenForm" method="POST" action="">
-            @csrf
-            <div class="flex justify-end gap-3">
-                <button type="button" onclick="closeConfirmTakenModal()" 
-                        class="bg-gray-700 hover:bg-gray-600 text-gray-200 px-4 py-2 rounded-lg font-medium transition-colors duration-200">
-                    Batal
-                </button>
-                <button type="submit" 
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200">
-                    Konfirmasi Pengambilan
-                </button>
-            </div>
-        </form>
     </div>
-</div>
 
     <!-- Scripts -->
     <script>
@@ -561,6 +580,18 @@
                     });
                 });
             }
+        });
+
+        // Auto hide flash messages
+        const alerts = document.querySelectorAll('.alert-error, .alert-success');
+        alerts.forEach(function(alert) {
+            setTimeout(function() {
+                alert.style.transition = 'opacity 0.5s ease-out';
+                alert.style.opacity = '0';
+                setTimeout(function() {
+                    alert.remove();
+                }, 500);
+            }, 5000);
         });
     </script>
 </div>

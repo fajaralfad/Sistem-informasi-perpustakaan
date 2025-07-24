@@ -1,20 +1,21 @@
 <div>
+    <!-- Export Buttons -->
     <div class="flex justify-end gap-3 mb-4">
-    <a href="{{ route('admin.buku.export.excel') }}?search={{ $search }}&kategori={{ $kategori }}" 
-       class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium inline-flex items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
-        Export Excel
-    </a>
-    
-    <a href="{{ route('admin.buku.export.pdf') }}?search={{ $search }}&kategori={{ $kategori }}" 
-       class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium inline-flex items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
-        Export PDF
-    </a>
+        <a href="{{ route('admin.buku.export.excel') }}?search={{ $search }}&kategori={{ $kategori }}" 
+           class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium inline-flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Export Excel
+        </a>
+        
+        <a href="{{ route('admin.buku.export.pdf') }}?search={{ $search }}&kategori={{ $kategori }}" 
+           class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium inline-flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Export PDF
+        </a>
     </div>
     
     <!-- Search and Filter Section -->
@@ -230,7 +231,7 @@
         @endif
     </div>
 
-    <!-- Delete Confirmation Modal -->
+    <!-- Delete Confirmation Modal (Simplified - Will use Toast) -->
     @if($bukuIdToDelete)
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75" x-data="{ open: true }" x-show="open" @keydown.escape.window="open = false">
         <div class="bg-gray-800 rounded-lg shadow-lg p-6 max-w-md w-full mx-4 border border-gray-700">
@@ -258,7 +259,7 @@
     </div>
     @endif
 
-    <!-- ISBN Modal -->
+    <!-- ISBN Modal (Simplified - Will use Toast) -->
     @if($showIsbnModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75" x-data="{ open: true }" x-show="open" @keydown.escape.window="open = false">
         <div class="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4 border border-gray-700">
@@ -294,47 +295,41 @@
     @push('scripts')
     <script>
         document.addEventListener('livewire:initialized', () => {
-            // Handle ISBN copy
+            // Handle ISBN copy with Toast
             Livewire.on('copied-isbn', (event) => {
                 const isbn = event.isbn;
                 
                 navigator.clipboard.writeText(isbn).then(() => {
-                    // Show toast notification
-                    const toast = document.createElement('div');
-                    toast.className = 'fixed bottom-4 right-4 px-4 py-2 bg-green-500 text-white rounded shadow';
-                    toast.textContent = 'ISBN berhasil disalin: ' + isbn;
-                    document.body.appendChild(toast);
-                    
-                    // Remove toast after 3 seconds
-                    setTimeout(() => toast.remove(), 3000);
+                    // Use the existing toast handler from app layout
+                    Livewire.dispatch('show-toast', {
+                        type: 'success',
+                        message: 'ISBN berhasil disalin: ' + isbn
+                    });
                 }).catch(err => {
                     console.error('Failed to copy ISBN:', err);
-                    fallbackCopyToClipboard(isbn);
+                    Livewire.dispatch('show-toast', {
+                        type: 'error',
+                        message: 'Gagal menyalin ISBN: ' + err.message
+                    });
+                });
+            });
+
+            // Handle delete confirmation with Toast
+            Livewire.on('delete-confirmed', (event) => {
+                Livewire.dispatch('show-toast', {
+                    type: 'success',
+                    message: 'Buku berhasil dihapus: ' + event.title
+                });
+            });
+
+            // Handle errors with Toast
+            Livewire.on('error', (event) => {
+                Livewire.dispatch('show-toast', {
+                    type: 'error',
+                    message: event.message
                 });
             });
         });
-
-        // Fallback copy method
-        function fallbackCopyToClipboard(text) {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
-            
-            try {
-                const successful = document.execCommand('copy');
-                if (successful) {
-                    alert('ISBN berhasil disalin: ' + text);
-                } else {
-                    alert('Gagal menyalin ISBN. Silakan salin manual.');
-                }
-            } catch (err) {
-                console.error('Fallback copy failed:', err);
-                alert('Gagal menyalin ISBN. Silakan salin manual: ' + text);
-            }
-            
-            document.body.removeChild(textarea);
-        }
     </script>
     @endpush
 </div>

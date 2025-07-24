@@ -172,7 +172,7 @@ class PeminjamanController extends Controller
         $durasi = $this->getDurasiInfo($tanggalPinjam, $tanggalKembali);
         $message = 'Peminjaman berhasil dibuat! Status: Dipinjam. Durasi: ' . $durasi;
 
-        return redirect()->route('admin.peminjaman.index')->with('success', $message);
+        return redirect()->route('admin.peminjaman.index')->with('success', 'Peminjaman berhasil ditambahkan.');
     }
 
     /**
