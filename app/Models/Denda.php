@@ -18,6 +18,8 @@ class Denda extends Model
         'keterangan'
     ];
 
+    public $timestamps = true;
+
     protected $casts = [
         'status_pembayaran' => 'boolean',
         'tanggal_bayar' => 'datetime',
