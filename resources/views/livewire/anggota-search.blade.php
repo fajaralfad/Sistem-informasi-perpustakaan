@@ -1,5 +1,4 @@
 <div>
-
     <!-- Di bagian atas halaman index, setelah statistics cards -->
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold text-white">Daftar Anggota</h2>

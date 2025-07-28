@@ -38,14 +38,6 @@
             <h1 class="text-2xl sm:text-3xl font-bold text-white">Detail Denda</h1>
             <p class="text-gray-300 mt-1">Informasi lengkap tentang denda</p>
         </div>
-        <div>
-            <a href="{{ route('admin.denda.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-sm font-medium text-gray-300 hover:bg-gray-600 transition-colors duration-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                Kembali
-            </a>
-        </div>
     </div>
 
     <!-- Flash Messages -->
