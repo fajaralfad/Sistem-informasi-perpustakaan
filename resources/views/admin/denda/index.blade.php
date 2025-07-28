@@ -85,7 +85,7 @@
                     <label for="search" class="sr-only">Cari denda</label>
                     <div class="relative">
                         <input type="text" id="search" name="search" 
-                               class="block w-full pl-10 pr-3 py-2 border border-gray-600 rounded-lg leading-5 bg-gray-700 text-gray-700 placeholder-gray-400 focus:outline-none focus:placeholder-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                               class="block w-full pl-10 pr-3 py-2 border border-gray-600 rounded-lg leading-5 bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:placeholder-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
                                placeholder="Cari anggota, buku, atau jumlah denda..." onkeyup="searchTable()">
                     </div>
                 </div>
@@ -198,17 +198,15 @@
                                 </a>
                                 
                                 @if(!$denda->status_pembayaran)
-                                <form action="{{ route('admin.denda.bayar', $denda->id) }}" method="POST" class="inline" onsubmit="return confirmPayment('{{ $denda->peminjaman->user->name ?? 'Tidak Diketahui' }}', '{{ number_format($denda->jumlah, 0, ',', '.') }}')">
-                                    @csrf
-                                    <button type="submit" 
-                                            class="bg-green-900 hover:bg-green-800 text-green-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center transition-colors duration-200"
-                                            title="Bayar Denda">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        Bayar
-                                    </button>
-                                </form>
+                                <button type="button" 
+                                        onclick="showPaymentModal('{{ $denda->peminjaman->user->name ?? 'Tidak Diketahui' }}', '{{ number_format($denda->jumlah, 0, ',', '.') }}', '{{ route('admin.denda.bayar', $denda->id) }}')"
+                                        class="bg-green-900 hover:bg-green-800 text-green-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center transition-colors duration-200"
+                                        title="Bayar Denda">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    Bayar
+                                </button>
                                 @endif
                             </div>
                         </td>
@@ -252,6 +250,36 @@
     </div>
 </div>
 
+<!-- Modal Pembayaran Denda -->
+<div id="paymentModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 hidden">
+    <div class="bg-gray-800 rounded-lg shadow-lg p-6 max-w-md w-full mx-4 border border-gray-700">
+        <div class="flex items-center justify-center w-12 h-12 mx-auto bg-green-900 rounded-full mb-4">
+            <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <h2 class="text-lg font-semibold text-white text-center mb-4">Konfirmasi Pembayaran</h2>
+        <p class="text-gray-300 text-center mb-6">
+            Yakin ingin menandai denda untuk <strong class="text-white" id="modalAnggotaName"></strong> sebesar 
+            <strong class="text-white" id="modalDendaAmount"></strong> sebagai lunas?
+            <br><span class="text-sm text-green-400">Status akan berubah menjadi "Lunas" dan tercatat dalam sistem.</span>
+        </p>
+        <div class="flex justify-center gap-3">
+            <button id="cancelPayment" 
+                    class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg font-medium transition-colors duration-200">
+                Batal
+            </button>
+            <form id="confirmPaymentForm" method="POST" class="inline">
+                @csrf
+                <button type="submit" 
+                        class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors duration-200">
+                    Ya, Bayar
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
 // Search function
 function searchTable() {
@@ -275,13 +303,54 @@ function searchTable() {
     }
 }
 
-// Confirm payment function
-function confirmPayment(namaAnggota, jumlahDenda) {
-    return confirm(`Konfirmasi pembayaran denda untuk "${namaAnggota}" sebesar Rp ${jumlahDenda}?\n\nTindakan ini akan mengubah status denda menjadi lunas.`);
+// Function untuk menampilkan modal pembayaran
+function showPaymentModal(namaAnggota, jumlahDenda, actionUrl) {
+    const modal = document.getElementById('paymentModal');
+    const modalAnggotaName = document.getElementById('modalAnggotaName');
+    const modalDendaAmount = document.getElementById('modalDendaAmount');
+    const confirmPaymentForm = document.getElementById('confirmPaymentForm');
+    
+    // Set data ke modal
+    modalAnggotaName.textContent = namaAnggota;
+    modalDendaAmount.textContent = 'Rp ' + jumlahDenda;
+    confirmPaymentForm.action = actionUrl;
+    
+    // Tampilkan modal
+    modal.classList.remove('hidden');
 }
 
-// Auto hide flash messages
+// Function untuk menyembunyikan modal
+function hidePaymentModal() {
+    const modal = document.getElementById('paymentModal');
+    modal.classList.add('hidden');
+}
+
+// Event listeners
 document.addEventListener('DOMContentLoaded', function() {
+    // Event listener untuk tombol batal
+    const cancelButton = document.getElementById('cancelPayment');
+    if (cancelButton) {
+        cancelButton.addEventListener('click', hidePaymentModal);
+    }
+    
+    // Event listener untuk klik di luar modal (backdrop)
+    const modal = document.getElementById('paymentModal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                hidePaymentModal();
+            }
+        });
+    }
+    
+    // Event listener untuk tombol ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            hidePaymentModal();
+        }
+    });
+    
+    // Auto hide flash messages
     const alerts = document.querySelectorAll('.alert-error, .alert-success');
     alerts.forEach(function(alert) {
         setTimeout(function() {
