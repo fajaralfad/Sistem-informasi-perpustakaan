@@ -223,19 +223,16 @@
                                 </a>
                                 
                                 @if($peminjaman->status === 'dipinjam')
-                                    <form action="{{ route('admin.peminjaman.kembalikan', $peminjaman->id) }}" method="POST" class="inline">
-                                        @csrf
-                                        <button type="submit" 
-                                                class="bg-green-900 hover:bg-green-800 text-green-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center transition-colors duration-200" 
-                                                title="Kembalikan Buku">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            Kembalikan
-                                        </button>
-                                    </form>
+                                    <button onclick="openReturnModal({{ $peminjaman->id }}, '{{ $peminjaman->buku->judul }}', '{{ $peminjaman->user->name }}')" 
+                                            class="bg-green-900 hover:bg-green-800 text-green-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center transition-colors duration-200" 
+                                            title="Kembalikan Buku">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Kembalikan
+                                    </button>
                                     
-                                    <button onclick="openPerpanjangModal({{ $peminjaman->id }})" 
+                                    <button onclick="openExtendModal({{ $peminjaman->id }}, '{{ $peminjaman->buku->judul }}', '{{ $peminjaman->user->name }}', '{{ $peminjaman->tanggal_kembali->format('d M Y') }}')" 
                                             class="bg-purple-900 hover:bg-purple-800 text-purple-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center transition-colors duration-200" 
                                             title="Perpanjang Peminjaman">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -245,81 +242,53 @@
                                     </button>
 
                                 @elseif($peminjaman->status === 'pending')
-                                    <!-- Tombol Konfirmasi Pending -->
-                                    <form action="{{ route('admin.peminjaman.confirm', $peminjaman->id) }}" method="POST" class="inline">
-                                        @csrf
-                                        <button type="submit" 
-                                                class="bg-green-900 hover:bg-green-800 text-green-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center transition-colors duration-200" 
-                                                title="Konfirmasi Peminjaman"
-                                                onclick="return confirm('Konfirmasi peminjaman buku ini?')">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                            </svg>
-                                            Konfirmasi
-                                        </button>
-                                    </form>
+                                    <button onclick="openConfirmModal({{ $peminjaman->id }}, '{{ $peminjaman->buku->judul }}', '{{ $peminjaman->user->name }}')" 
+                                            class="bg-green-900 hover:bg-green-800 text-green-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center transition-colors duration-200" 
+                                            title="Konfirmasi Peminjaman">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Konfirmasi
+                                    </button>
                                     
-                                    <!-- Tombol Tolak Pending -->
-                                    <form action="{{ route('admin.peminjaman.reject', $peminjaman->id) }}" method="POST" class="inline">
-                                        @csrf
-                                        <button type="submit" 
-                                                class="bg-red-900 hover:bg-red-800 text-red-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center transition-colors duration-200" 
-                                                title="Tolak Peminjaman"
-                                                onclick="return confirm('Tolak peminjaman buku ini?')">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                            Tolak
-                                        </button>
-                                    </form>
+                                    <button onclick="openRejectModal({{ $peminjaman->id }}, '{{ $peminjaman->buku->judul }}', '{{ $peminjaman->user->name }}')" 
+                                            class="bg-red-900 hover:bg-red-800 text-red-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center transition-colors duration-200" 
+                                            title="Tolak Peminjaman">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                        Tolak
+                                    </button>
 
                                @elseif($peminjaman->status === 'booking' && $peminjaman->tanggal_pinjam <= now())
-                                <button onclick="openConfirmTakenModal(
-                                    '{{ $peminjaman->id }}',
-                                    '{{ $peminjaman->buku->judul }}',
-                                    '{{ $peminjaman->buku->pengarang->nama ?? '-' }}',
-                                    '{{ $peminjaman->user->name }}',
-                                    '{{ $peminjaman->user->email }}',
-                                    '{{ $peminjaman->tanggal_pinjam->format('d M Y H:i') }}'
-                                )" 
-                                class="bg-green-900 hover:bg-green-800 text-green-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center transition-colors duration-200" 
-                                title="Konfirmasi Pengambilan">
+                                <button onclick="openConfirmTakenModal({{ $peminjaman->id }}, '{{ $peminjaman->buku->judul }}', '{{ $peminjaman->buku->pengarang->nama ?? '-' }}', '{{ $peminjaman->user->name }}', '{{ $peminjaman->user->email }}', '{{ $peminjaman->tanggal_pinjam->format('d M Y H:i') }}')" 
+                                        class="bg-green-900 hover:bg-green-800 text-green-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center transition-colors duration-200" 
+                                        title="Konfirmasi Pengambilan">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                     </svg>
                                     Konfirmasi Ambil
                                 </button>
-                                
 
                                 @elseif($peminjaman->status === 'booking')
-                                    <!-- Tombol Batalkan Booking -->
-                                    <form action="{{ route('admin.peminjaman.destroy', $peminjaman->id) }}" method="POST" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" 
-                                                class="bg-red-900 hover:bg-red-800 text-red-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center transition-colors duration-200" 
-                                                title="Batalkan Booking"
-                                                onclick="return confirm('Batalkan booking buku ini?')">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                            Batalkan
-                                        </button>
-                                    </form>
-                                @endif
-
-                                <form action="{{ route('admin.peminjaman.destroy', $peminjaman->id) }}" method="POST" class="inline" onsubmit="return confirmDelete('{{ $peminjaman->user->name }}', '{{ $peminjaman->buku->judul }}')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" 
-                                            class="bg-red-900 hover:bg-red-800 text-red-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center transition-colors duration-200"
-                                            title="Hapus Peminjaman">
+                                    <button onclick="openCancelBookingModal({{ $peminjaman->id }}, '{{ $peminjaman->buku->judul }}', '{{ $peminjaman->user->name }}')" 
+                                            class="bg-red-900 hover:bg-red-800 text-red-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center transition-colors duration-200" 
+                                            title="Batalkan Booking">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                         </svg>
-                                        Hapus
+                                        Batalkan
                                     </button>
-                                </form>
+                                @endif
+
+                                <button onclick="openDeleteModal({{ $peminjaman->id }}, '{{ $peminjaman->buku->judul }}', '{{ $peminjaman->user->name }}')" 
+                                        class="bg-red-900 hover:bg-red-800 text-red-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center transition-colors duration-200"
+                                        title="Hapus Peminjaman">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                    Hapus
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -377,168 +346,378 @@
         @endif
     </div>
 
-    <!-- Modal Perpanjang - Dark Version -->
-    <div id="perpanjangModal" class="fixed inset-0 bg-black bg-opacity-75 items-center justify-center hidden z-50">
-        <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4 shadow-2xl border border-gray-700">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-white">Perpanjang Peminjaman</h3>
-                <button onclick="closePerpanjangModal()" class="text-gray-400 hover:text-gray-300">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-            <form id="perpanjangForm" method="POST">
+    <!-- Modal Delete Confirmation -->
+<div id="deleteModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-75 hidden">
+    <div class="bg-gray-800 rounded-lg shadow-lg p-6 max-w-md w-full mx-4 border border-gray-700">
+        <div class="flex items-center justify-center w-12 h-12 mx-auto bg-red-900 rounded-full mb-4">
+            <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+        </div>
+        <h2 class="text-lg font-semibold text-white text-center mb-4">Konfirmasi Hapus</h2>
+        <p class="text-gray-300 text-center mb-6">
+            Yakin ingin menghapus peminjaman buku <strong id="deleteBookTitle" class="text-white"></strong> oleh <strong id="deleteUserName" class="text-white"></strong>? 
+            <br><span class="text-sm text-red-400">Tindakan ini tidak dapat dibatalkan.</span>
+        </p>
+        <div class="flex justify-center gap-3">
+            <button onclick="closeDeleteModal()" 
+                    class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg font-medium transition-colors duration-200">
+                Batal
+            </button>
+            <form id="deleteForm" method="POST" class="inline">
                 @csrf
-                <div class="mb-6">
-                    <label for="hari" class="block text-sm font-medium text-gray-300 mb-2">Jumlah Hari Perpanjangan</label>
-                    <input type="number" name="hari" id="hari" min="1" max="14" value="7" 
-                        class="block w-full border border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-black">
-                    <p class="mt-1 text-sm text-gray-400">Maksimal 14 hari perpanjangan</p>
-                </div>
-                <div class="flex justify-end gap-3">
-                    <button type="button" onclick="closePerpanjangModal()" 
-                            class="bg-gray-700 hover:bg-gray-600 text-gray-200 px-4 py-2 rounded-lg font-medium transition-colors duration-200">
-                        Batal
-                    </button>
-                    <button type="submit" 
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200">
-                        Perpanjang
-                    </button>
-                </div>
+                @method('DELETE')
+                <button type="submit" 
+                        class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors duration-200">
+                    Ya, Hapus
+                </button>
             </form>
         </div>
     </div>
+</div>
 
-    <!-- Modal Konfirmasi Pengambilan Buku - Dark Version -->
-    <div id="confirmTakenModal" class="fixed inset-0 bg-black bg-opacity-75 items-center justify-center hidden z-50">
-        <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4 shadow-2xl border border-gray-700">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-white">Konfirmasi Pengambilan Buku</h3>
-                <button onclick="closeConfirmTakenModal()" class="text-gray-400 hover:text-gray-300">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-            
-            <div class="mb-4">
-                <div class="flex items-center gap-4 mb-3">
-                    <div class="flex-shrink-0 h-12 w-12 bg-blue-900 rounded-lg flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477 4.5 1.253" />
-                        </svg>
-                    </div>
-                    <div>
-                        <h4 id="bookTitle" class="font-medium text-white"></h4>
-                        <p id="bookAuthor" class="text-sm text-gray-400"></p>
-                    </div>
-                </div>
-                
-                <div class="flex items-center gap-4">
-                    <div class="flex-shrink-0 h-12 w-12 bg-purple-900 rounded-full flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <h4 id="userName" class="font-medium text-white"></h4>
-                        <p id="userEmail" class="text-sm text-gray-400"></p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="mb-6">
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Tanggal Booking</label>
-                        <p id="bookingDate" class="text-sm text-white"></p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Tanggal Pengambilan</label>
-                        <input type="datetime-local" id="pickupDate" 
-                            class="block w-full border border-gray-600 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-gray-700 text-gray-700"
-                            value="{{ now()->format('Y-m-d\TH:i') }}">
-                    </div>
-                </div>
-            </div>
-            
-            <form id="confirmTakenForm" method="POST" action="">
+<!-- Modal Return Confirmation -->
+<div id="returnModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-75 hidden">
+    <div class="bg-gray-800 rounded-lg shadow-lg p-6 max-w-md w-full mx-4 border border-gray-700">
+        <div class="flex items-center justify-center w-12 h-12 mx-auto bg-green-900 rounded-full mb-4">
+            <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+        </div>
+        <h2 class="text-lg font-semibold text-white text-center mb-4">Konfirmasi Pengembalian</h2>
+        <p class="text-gray-300 text-center mb-6">
+            Konfirmasi pengembalian buku <strong id="returnBookTitle" class="text-white"></strong> oleh <strong id="returnUserName" class="text-white"></strong>?
+            <br><span class="text-sm text-green-400">Buku akan dikembalikan ke stok perpustakaan.</span>
+        </p>
+        <div class="flex justify-center gap-3">
+            <button onclick="closeReturnModal()" 
+                    class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg font-medium transition-colors duration-200">
+                Batal
+            </button>
+            <form id="returnForm" method="POST" class="inline">
                 @csrf
-                <div class="flex justify-end gap-3">
-                    <button type="button" onclick="closeConfirmTakenModal()" 
-                            class="bg-gray-700 hover:bg-gray-600 text-gray-200 px-4 py-2 rounded-lg font-medium transition-colors duration-200">
-                        Batal
-                    </button>
-                    <button type="submit" 
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200">
-                        Konfirmasi Pengambilan
-                    </button>
-                </div>
+                <button type="submit" 
+                        class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors duration-200">
+                    Ya, Kembalikan
+                </button>
             </form>
         </div>
     </div>
+</div>
+
+<!-- Modal Extend Confirmation -->
+<div id="extendModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-75 hidden">
+    <div class="bg-gray-800 rounded-lg shadow-lg p-6 max-w-md w-full mx-4 border border-gray-700">
+        <div class="flex items-center justify-center w-12 h-12 mx-auto bg-purple-900 rounded-full mb-4">
+            <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+        </div>
+        <h2 class="text-lg font-semibold text-white text-center mb-4">Perpanjang Peminjaman</h2>
+        <div class="text-center mb-4">
+            <p class="text-gray-300 mb-2">
+                Buku: <strong id="extendBookTitle" class="text-white"></strong>
+            </p>
+            <p class="text-gray-300 mb-2">
+                Peminjam: <strong id="extendUserName" class="text-white"></strong>
+            </p>
+            <p class="text-gray-400 text-sm">
+                Tanggal kembali saat ini: <span id="extendCurrentDate" class="text-white"></span>
+            </p>
+        </div>
+        <form id="extendForm" method="POST" class="space-y-4">
+            @csrf
+            <div>
+                <label for="extendDays" class="block text-sm font-medium text-gray-300 mb-2">Jumlah Hari Perpanjangan</label>
+                <input type="number" name="hari" id="extendDays" min="1" max="14" value="7" 
+                    class="block w-full border border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-gray-700 text-black">
+                <p class="mt-1 text-sm text-gray-400">Maksimal 30 hari perpanjangan</p>
+            </div>
+            <div class="flex justify-center gap-3">
+                <button type="button" onclick="closeExtendModal()" 
+                        class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg font-medium transition-colors duration-200">
+                    Batal
+                </button>
+                <button type="submit" 
+                        class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors duration-200">
+                    Perpanjang
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Confirm Pending -->
+<div id="confirmModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-75 hidden">
+    <div class="bg-gray-800 rounded-lg shadow-lg p-6 max-w-md w-full mx-4 border border-gray-700">
+        <div class="flex items-center justify-center w-12 h-12 mx-auto bg-green-900 rounded-full mb-4">
+            <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+        </div>
+        <h2 class="text-lg font-semibold text-white text-center mb-4">Konfirmasi Peminjaman</h2>
+        <p class="text-gray-300 text-center mb-6">
+            Konfirmasi peminjaman buku <strong id="confirmBookTitle" class="text-white"></strong> oleh <strong id="confirmUserName" class="text-white"></strong>?
+            <br><span class="text-sm text-green-400">Buku akan dipinjam kepada user ini.</span>
+        </p>
+        <div class="flex justify-center gap-3">
+            <button onclick="closeConfirmModal()" 
+                    class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg font-medium transition-colors duration-200">
+                Batal
+            </button>
+            <form id="confirmForm" method="POST" class="inline">
+                @csrf
+                <button type="submit" 
+                        class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors duration-200">
+                    Ya, Konfirmasi
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Reject Pending -->
+<div id="rejectModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-75 hidden">
+    <div class="bg-gray-800 rounded-lg shadow-lg p-6 max-w-md w-full mx-4 border border-gray-700">
+        <div class="flex items-center justify-center w-12 h-12 mx-auto bg-red-900 rounded-full mb-4">
+            <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </div>
+        <h2 class="text-lg font-semibold text-white text-center mb-4">Tolak Peminjaman</h2>
+        <p class="text-gray-300 text-center mb-6">
+            Tolak peminjaman buku <strong id="rejectBookTitle" class="text-white"></strong> oleh <strong id="rejectUserName" class="text-white"></strong>?
+            <br><span class="text-sm text-red-400">Peminjaman akan dibatalkan.</span>
+        </p>
+        <div class="flex justify-center gap-3">
+            <button onclick="closeRejectModal()" 
+                    class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg font-medium transition-colors duration-200">
+                Batal
+            </button>
+            <form id="rejectForm" method="POST" class="inline">
+                @csrf
+                <button type="submit" 
+                        class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors duration-200">
+                    Ya, Tolak
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Cancel Booking -->
+<div id="cancelBookingModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-75 hidden">
+    <div class="bg-gray-800 rounded-lg shadow-lg p-6 max-w-md w-full mx-4 border border-gray-700">
+        <div class="flex items-center justify-center w-12 h-12 mx-auto bg-orange-900 rounded-full mb-4">
+            <svg class="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+            </svg>
+        </div>
+        <h2 class="text-lg font-semibold text-white text-center mb-4">Batalkan Booking</h2>
+        <p class="text-gray-300 text-center mb-6">
+            Batalkan booking buku <strong id="cancelBookTitle" class="text-white"></strong> oleh <strong id="cancelUserName" class="text-white"></strong>?
+            <br><span class="text-sm text-orange-400">Booking akan dibatalkan dan buku kembali tersedia.</span>
+        </p>
+        <div class="flex justify-center gap-3">
+            <button onclick="closeCancelBookingModal()" 
+                    class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg font-medium transition-colors duration-200">
+                Batal
+            </button>
+            <form id="cancelBookingForm" method="POST" class="inline">
+                @csrf
+                @method('DELETE')
+                <button type="submit" 
+                        class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium transition-colors duration-200">
+                    Ya, Batalkan
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Konfirmasi Pengambilan Buku -->
+<div id="confirmTakenModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-75 hidden">
+    <div class="bg-gray-800 rounded-lg shadow-lg p-6 max-w-md w-full mx-4 border border-gray-700">
+        <div class="flex items-center justify-center w-12 h-12 mx-auto bg-blue-900 rounded-full mb-4">
+            <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+            </svg>
+        </div>
+        <h2 class="text-lg font-semibold text-white text-center mb-4">Konfirmasi Pengambilan Buku</h2>
+        
+        <div class="mb-4">
+            <div class="flex items-center gap-4 mb-3 p-3 bg-gray-700 rounded-lg">
+                <div class="flex-shrink-0 h-10 w-10 bg-green-900 rounded-lg flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                </div>
+                <div>
+                    <h4 id="takenBookTitle" class="font-medium text-white"></h4>
+                    <p id="takenBookAuthor" class="text-sm text-gray-400"></p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 p-3 bg-gray-700 rounded-lg">
+                <div class="flex-shrink-0 h-10 w-10 bg-purple-900 rounded-full flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                </div>
+                <div>
+                    <h4 id="takenUserName" class="font-medium text-white"></h4>
+                    <p id="takenUserEmail" class="text-sm text-gray-400"></p>
+                </div>
+            </div>
+        </div>
+        
+        <form id="confirmTakenForm" method="POST" class="space-y-4">
+            @csrf
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Tanggal Booking</label>
+                    <p id="takenBookingDate" class="text-sm text-white bg-gray-700 p-2 rounded"></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Tanggal Pengambilan</label>
+                    <input type="datetime-local" id="takenPickupDate" name="pickup_date"
+                        class="block w-full border border-gray-600 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-gray-700 text-white"
+                        value="{{ now()->format('Y-m-d\TH:i') }}">
+                </div>
+            </div>
+            
+            <div class="flex justify-center gap-3">
+                <button type="button" onclick="closeConfirmTakenModal()" 
+                        class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg font-medium transition-colors duration-200">
+                    Batal
+                </button>
+                <button type="submit" 
+                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors duration-200">
+                    Konfirmasi Pengambilan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
     <!-- Scripts -->
     <script>
-        function openPerpanjangModal(peminjamanId) {
-            document.getElementById('perpanjangForm').action = `{{ route('admin.peminjaman.index') }}/${peminjamanId}/perpanjang`;
-            document.getElementById('perpanjangModal').classList.remove('hidden');
-            document.getElementById('perpanjangModal').classList.add('flex');
+    // Global modal functions with proper display handling
+        function showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
         }
 
-        function closePerpanjangModal() {
-            document.getElementById('perpanjangModal').classList.add('hidden');
-            document.getElementById('perpanjangModal').classList.remove('flex');
+        function hideModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
         }
 
-       function openConfirmTakenModal(peminjamanId, bookTitle, bookAuthor, userName, userEmail, bookingDate) {
-        document.getElementById('bookTitle').textContent = bookTitle;
-        document.getElementById('bookAuthor').textContent = bookAuthor;
-        document.getElementById('userName').textContent = userName;
-        document.getElementById('userEmail').textContent = userEmail;
-        document.getElementById('bookingDate').textContent = bookingDate;
-        
-        // Update this line to use the correct route
-        document.getElementById('confirmTakenForm').action = `/admin/peminjaman/${peminjamanId}/confirm-taken`;
-        
-        document.getElementById('confirmTakenModal').classList.remove('hidden');
-        document.getElementById('confirmTakenModal').classList.add('flex');
-    }
+        function openDeleteModal(id, bookTitle, userName) {
+            document.getElementById('deleteBookTitle').textContent = bookTitle;
+            document.getElementById('deleteUserName').textContent = userName;
+            document.getElementById('deleteForm').action = `${window.location.pathname}/${id}`;
+            showModal('deleteModal');
+        }
+
+        function closeDeleteModal() {
+            hideModal('deleteModal');
+        }
+
+        function openReturnModal(id, bookTitle, userName) {
+            document.getElementById('returnBookTitle').textContent = bookTitle;
+            document.getElementById('returnUserName').textContent = userName;
+            document.getElementById('returnForm').action = `${window.location.pathname}/${id}/kembalikan`;
+            showModal('returnModal');
+        }
+
+        function closeReturnModal() {
+            hideModal('returnModal');
+        }
+
+        function openExtendModal(id, bookTitle, userName, currentDate) {
+            document.getElementById('extendBookTitle').textContent = bookTitle;
+            document.getElementById('extendUserName').textContent = userName;
+            document.getElementById('extendCurrentDate').textContent = currentDate;
+            document.getElementById('extendForm').action = `${window.location.pathname}/${id}/perpanjang`;
+            showModal('extendModal');
+        }
+
+        function closeExtendModal() {
+            hideModal('extendModal');
+        }
+
+        function openConfirmModal(id, bookTitle, userName) {
+            document.getElementById('confirmBookTitle').textContent = bookTitle;
+            document.getElementById('confirmUserName').textContent = userName;
+            document.getElementById('confirmForm').action = `${window.location.pathname}/${id}/confirm`;
+            showModal('confirmModal');
+        }
+
+        function closeConfirmModal() {
+            hideModal('confirmModal');
+        }
+
+        function openRejectModal(id, bookTitle, userName) {
+            document.getElementById('rejectBookTitle').textContent = bookTitle;
+            document.getElementById('rejectUserName').textContent = userName;
+            document.getElementById('rejectForm').action = `${window.location.pathname}/${id}/reject`;
+            showModal('rejectModal');
+        }
+
+        function closeRejectModal() {
+            hideModal('rejectModal');
+        }
+
+        function openCancelBookingModal(id, bookTitle, userName) {
+            document.getElementById('cancelBookTitle').textContent = bookTitle;
+            document.getElementById('cancelUserName').textContent = userName;
+            document.getElementById('cancelBookingForm').action = `${window.location.pathname}/${id}`;
+            showModal('cancelBookingModal');
+        }
+
+        function closeCancelBookingModal() {
+            hideModal('cancelBookingModal');
+        }
+
+        function openConfirmTakenModal(id, bookTitle, bookAuthor, userName, userEmail, bookingDate) {
+            document.getElementById('takenBookTitle').textContent = bookTitle;
+            document.getElementById('takenBookAuthor').textContent = bookAuthor;
+            document.getElementById('takenUserName').textContent = userName;
+            document.getElementById('takenUserEmail').textContent = userEmail;
+            document.getElementById('takenBookingDate').textContent = bookingDate;
+            document.getElementById('confirmTakenForm').action = `/admin/peminjaman/${id}/confirm-taken`;
+            showModal('confirmTakenModal');
+        }
 
         function closeConfirmTakenModal() {
-            document.getElementById('confirmTakenModal').classList.add('hidden');
-            document.getElementById('confirmTakenModal').classList.remove('flex');
+            hideModal('confirmTakenModal');
         }
 
-        document.getElementById('confirmTakenModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeConfirmTakenModal();
-            }
+        // Close modals when clicking outside
+        document.addEventListener('click', function(e) {
+            const modals = ['deleteModal', 'returnModal', 'extendModal', 'confirmModal', 'rejectModal', 'cancelBookingModal', 'confirmTakenModal'];
+            modals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (e.target === modal) {
+                    hideModal(modalId);
+                }
+            });
         });
 
+        // Close modals on Escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                closeConfirmTakenModal();
+                const modals = ['deleteModal', 'returnModal', 'extendModal', 'confirmModal', 'rejectModal', 'cancelBookingModal', 'confirmTakenModal'];
+                modals.forEach(modalId => {
+                    hideModal(modalId);
+                });
             }
         });
 
-        function confirmDelete(userName, bookTitle) {
-            return confirm(`Apakah Anda yakin ingin menghapus data peminjaman buku "${bookTitle}" oleh ${userName}?\n\nTindakan ini tidak dapat dibatalkan.`);
-        }
-
-        document.getElementById('perpanjangModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closePerpanjangModal();
-            }
-        });
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closePerpanjangModal();
-            }
-        });
-
+        // Enhanced table interactions
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('search');
             if (searchInput && !searchInput.value) {

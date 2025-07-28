@@ -85,7 +85,7 @@
                     <label for="search" class="sr-only">Cari denda</label>
                     <div class="relative">
                         <input type="text" id="search" name="search" 
-                               class="block w-full pl-10 pr-3 py-2 border border-gray-600 rounded-lg leading-5 bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:placeholder-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                               class="block w-full pl-10 pr-3 py-2 border border-gray-600 rounded-lg leading-5 bg-gray-700 text-black placeholder-gray-400 focus:outline-none focus:placeholder-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
                                placeholder="Cari anggota, buku, atau jumlah denda..." onkeyup="searchTable()">
                     </div>
                 </div>
@@ -251,7 +251,7 @@
 </div>
 
 <!-- Modal Pembayaran Denda -->
-<div id="paymentModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 hidden">
+<div id="paymentModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-75 hidden">
     <div class="bg-gray-800 rounded-lg shadow-lg p-6 max-w-md w-full mx-4 border border-gray-700">
         <div class="flex items-center justify-center w-12 h-12 mx-auto bg-green-900 rounded-full mb-4">
             <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -315,14 +315,16 @@ function showPaymentModal(namaAnggota, jumlahDenda, actionUrl) {
     modalDendaAmount.textContent = 'Rp ' + jumlahDenda;
     confirmPaymentForm.action = actionUrl;
     
-    // Tampilkan modal
+    // Tampilkan modal dengan menambahkan class flex dan menghapus hidden
     modal.classList.remove('hidden');
+    modal.classList.add('flex');
 }
 
 // Function untuk menyembunyikan modal
 function hidePaymentModal() {
     const modal = document.getElementById('paymentModal');
     modal.classList.add('hidden');
+    modal.classList.remove('flex');
 }
 
 // Event listeners
