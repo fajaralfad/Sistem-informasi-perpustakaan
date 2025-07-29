@@ -98,7 +98,7 @@
                                         {{ $wishlist->buku->kategori->nama ?? 'Uncategorized' }}
                                     </span>
                                     <!-- Remove Button -->
-                                    <button onclick="hapusDariWishlist({{ $wishlist->id }}, this)" 
+                                    <button onclick="confirmDelete({{ $wishlist->id }}, '{{ $wishlist->buku->judul }}')" 
                                             class="text-red-400 hover:text-red-300 transition-colors p-2 rounded-lg hover:bg-red-500/10"
                                             title="Hapus dari favorit">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -144,6 +144,32 @@
     </div>
 </div>
 
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 hidden">
+    <div class="bg-gray-800 rounded-lg shadow-lg p-6 max-w-md w-full mx-4 border border-gray-700">
+        <div class="flex items-center justify-center w-12 h-12 mx-auto bg-red-900 rounded-full mb-4">
+            <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+            </svg>
+        </div>
+        <h2 class="text-lg font-semibold text-white text-center mb-4">Konfirmasi Hapus</h2>
+        <p class="text-gray-300 text-center mb-6">
+            Yakin ingin menghapus buku <strong class="text-white" id="bookTitle"></strong> dari favorit? 
+            <br><span class="text-sm text-red-400">Tindakan ini tidak dapat dibatalkan.</span>
+        </p>
+        <div class="flex justify-center gap-3">
+            <button onclick="closeModal()" 
+                    class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg font-medium transition-colors duration-200">
+                Batal
+            </button>
+            <button id="confirmDeleteBtn" 
+                    class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors duration-200">
+                Ya, Hapus
+            </button>
+        </div>
+    </div>
+</div>
+
 <style>
     .bg-gray-750 {
         background-color: #334155;
@@ -151,12 +177,28 @@
 </style>
 
 <script>
-function hapusDariWishlist(id, button) {
-    if (!confirm('Apakah Anda yakin ingin menghapus buku ini dari favorit?')) {
-        return;
-    }
+let currentWishlistId = null;
+
+function confirmDelete(id, title) {
+    currentWishlistId = id;
+    document.getElementById('bookTitle').textContent = title;
+    document.getElementById('deleteModal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('deleteModal').classList.add('hidden');
+    currentWishlistId = null;
+}
+
+document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+    if (!currentWishlistId) return;
     
-    const row = button.closest('.px-6.py-4');
+    hapusDariWishlist(currentWishlistId);
+    closeModal();
+});
+
+function hapusDariWishlist(id) {
+    const row = document.querySelector(`[onclick*="confirmDelete(${id}"]`).closest('.px-6.py-4');
     const originalContent = row.innerHTML;
     
     // Loading state
