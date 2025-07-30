@@ -192,40 +192,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Payment Actions -->
-                @if(!$denda->status_pembayaran)
-                <div class="pt-4 border-t border-gray-700">
-                    <h4 class="text-md font-semibold text-white mb-3">Aksi Pembayaran</h4>
-                    <div class="flex flex-col sm:flex-row gap-3">
-                        <form action="{{ route('admin.denda.bayar', $denda->id) }}" method="POST" class="w-full" onsubmit="return confirmPayment('{{ $denda->peminjaman->user->name ?? 'Tidak Diketahui' }}', '{{ number_format($denda->jumlah, 0, ',', '.') }}')">
-                            @csrf
-                            <button type="submit" class="w-full bg-green-900 hover:bg-green-800 text-green-200 px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center justify-center transition-colors duration-200">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                Konfirmasi Pembayaran
-                            </button>
-                        </form>
-                    </div>
-                </div>
-                @endif
-            </div>
-
-        <!-- Bukti Pembayaran Section -->
-        @if($denda->bukti_pembayaran)
-        <div class="px-6 py-4 border-t border-gray-700 bg-gray-700">
-            <h3 class="text-lg font-medium text-white">Bukti Pembayaran</h3>
-        </div>
-        <div class="p-6">
-            <div class="flex flex-col items-center">
-                <img src="{{ asset('storage/' . $denda->bukti_pembayaran) }}" alt="Bukti Pembayaran" class="max-w-full h-auto rounded-lg border border-gray-600 max-h-96">
-                <div class="mt-4 text-sm text-gray-400">
-                    Uploaded on: {{ $denda->updated_at ? $denda->updated_at->format('d M Y, H:i') : 'Tidak tersedia' }}
-                </div>
-            </div>
-        </div>
-        @endif
     </div>
 </div>
 

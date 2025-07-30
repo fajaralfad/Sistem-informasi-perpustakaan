@@ -95,12 +95,11 @@
 
                     <x-slot name="content">
                         <div class="bg-gray-800 dark:bg-gray-900 backdrop-blur-md border border-gray-600 dark:border-gray-500 rounded-md shadow-lg">
-                            @if(auth()->user()->role === 'admin')
-                                <x-dropdown-link :href="route('profile.edit')" 
-                                               class="text-gray-200 dark:text-gray-100 hover:text-white dark:hover:text-white hover:bg-gray-700 dark:hover:bg-gray-800 transition-all duration-200">
-                                    {{ __('Profile') }}
-                                </x-dropdown-link>
-                            @endif
+                            <!-- Profile link for all roles -->
+                            <x-dropdown-link :href="route('profile.edit')" 
+                                           class="text-gray-200 dark:text-gray-100 hover:text-white dark:hover:text-white hover:bg-gray-700 dark:hover:bg-gray-800 transition-all duration-200">
+                                {{ __('Profile') }}
+                            </x-dropdown-link>
 
                             <!-- Authentication -->
                             <form method="POST" action="{{ route('logout') }}">
@@ -213,12 +212,11 @@
                 </div>
 
                 <div class="mt-3 space-y-1">
-                    @if(auth()->user()->role === 'admin')
-                        <x-responsive-nav-link :href="route('profile.edit')" 
-                                             class="text-gray-300 dark:text-gray-200 hover:text-white dark:hover:text-white hover:bg-gray-700 dark:hover:bg-gray-800 transition-all duration-200">
-                            {{ __('Profile') }}
-                        </x-responsive-nav-link>
-                    @endif
+                    <!-- Profile link for all roles -->
+                    <x-responsive-nav-link :href="route('profile.edit')" 
+                                         class="text-gray-300 dark:text-gray-200 hover:text-white dark:hover:text-white hover:bg-gray-700 dark:hover:bg-gray-800 transition-all duration-200">
+                        {{ __('Profile') }}
+                    </x-responsive-nav-link>
 
                     <!-- Authentication -->
                     <form method="POST" action="{{ route('logout') }}">
