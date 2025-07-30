@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Member;
 
 use App\Http\Controllers\Controller;
 use App\Models\Buku; 
-use App\Models\Anggota;
 use App\Models\Peminjaman;
 use App\Models\Denda;
 use Illuminate\Http\Request;
@@ -27,29 +26,12 @@ class PeminjamanController extends Controller
     public function riwayat(Request $request)
     {
         $user = auth()->user();
-        $anggota = Anggota::where('user_id', $user->id)->first();
-
-        if (!$anggota) {
-            // Generate nomor anggota otomatis
-            $lastAnggota = Anggota::orderBy('id', 'desc')->first();
-            $nextNumber = $lastAnggota ? (intval(substr($lastAnggota->nomor_anggota, 3)) + 1) : 1;
-            $nomorAnggota = 'AGT' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
-            
-            // Buat data anggota otomatis jika tidak ada
-            $anggota = Anggota::create([
-                'user_id' => $user->id,
-                'nama' => $user->name,
-                'email' => $user->email,
-                'tanggal_daftar' => now(),
-                'nomor_anggota' => $nomorAnggota
-            ]);
-        }
 
         $search = $request->get('search');
         $status = $request->get('status');
 
         $query = Peminjaman::with(['buku.pengarang', 'denda'])
-            ->where('user_id', $user->id); // Menggunakan user_id langsung
+            ->where('user_id', $user->id); 
 
         // Search functionality
         if ($search) {

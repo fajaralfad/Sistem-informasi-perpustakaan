@@ -34,7 +34,7 @@ class BookingConfirmed extends Notification implements ShouldQueue
             ->line('- Judul Buku: ' . $this->peminjaman->buku->judul)
             ->line('- Tanggal Pinjam: ' . $this->peminjaman->tanggal_pinjam->format('d/m/Y'))
             ->line('- Tanggal Kembali: ' . $this->peminjaman->tanggal_kembali->format('d/m/Y'))
-            ->action('Lihat Detail', url('/riwayat-peminjaman'))
+            ->action('Lihat Detail', url('member.riwayat'))
             ->line('Terima kasih telah menggunakan layanan perpustakaan kami.');
     }
 }

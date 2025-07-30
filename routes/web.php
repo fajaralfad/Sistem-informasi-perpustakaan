@@ -19,20 +19,7 @@ use App\Http\Controllers\Member\BukuController as MemberBukuController;
 use App\Http\Controllers\Member\WishlistController as MemberWishlistController;
 use App\Http\Controllers\Member\PeminjamanController as MemberPeminjamanController;
 use App\Http\Controllers\Member\DendaController as MemberDendaController;
-use App\Http\Controllers\Member\ProfileController as MemberProfileController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
-
-// Welcome Page
 Route::get('/', function () {
     return view('auth.login');
 });
@@ -161,11 +148,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/wishlist/{id}', [MemberWishlistController::class, 'destroy'])->name('wishlist.destroy');
         Route::get('/wishlist', [MemberWishlistController::class, 'index'])->name('wishlist.index');
         Route::get('/member/wishlist/check/{buku_id}', [MemberWishlistController::class, 'check'])->name('wishlist.check');
-       
-        
-        // Profile Management
-        Route::get('/profile', [MemberProfileController::class, 'profile'])->name('profile');
-        Route::put('/profile', [MemberProfileController::class, 'updateProfile'])->name('profile.update');
     });
 
     // Shared Routes (for both admin and member)
